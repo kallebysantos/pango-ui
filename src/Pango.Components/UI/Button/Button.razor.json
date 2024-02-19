@@ -1,0 +1,8 @@
+{
+    "name": "button",
+    "source": "https://raw.githubusercontent.com/kallebysantos/pango-ui/HEAD/src/Pango.Components/UI/Button",
+    "files": [
+        "Button.razor",
+        "Button.razor.cs"
+    ]
+}
