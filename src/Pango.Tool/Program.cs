@@ -12,6 +12,7 @@ var parser = new CommandLineBuilder(rootCommand)
     .UseDefaults()
     .UseHelp(ctx =>
     {
+        #region Logo design
         ctx.HelpBuilder.CustomizeLayout(
                 _ =>
                     HelpBuilder.Default
@@ -25,7 +26,8 @@ var parser = new CommandLineBuilder(rootCommand)
 |  __/  | (_| | | | | | | (_| | | (_) | |    __--\__--/\/\/\/\/>
 |_|      \__,_| |_| |_|  \__, |  \___/  \__//  \| |\_____/   //
                          |___/                 (_(_\________//"))
-                    );
+        );
+        #endregion
     })
     .Build();
 
