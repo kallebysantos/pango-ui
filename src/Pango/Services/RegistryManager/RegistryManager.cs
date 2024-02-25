@@ -1,5 +1,5 @@
-using System.Text.Json;
 using Pango.Abstractions;
+using Pango.Extensions;
 using Pango.Types;
 
 namespace Pango.Services.RegistryManager;
@@ -19,6 +19,7 @@ public class RegistryManager(RegistryOptions options) : IRegistryManager
 
         return componentFolder.Ok()
             .Filter(dir => dir.Exists)
+            .Filter(dir => dir.Name == Path.GetFileNameWithoutExtension(metadataInput.LocalComponentPath))
             .Map(dir => dir.EnumerateFiles("*.razor*"))
             .Filter(files => files.Any())
             .OkOr<IRegistryError>(new InvalidComponentPathError())
@@ -32,20 +33,25 @@ public class RegistryManager(RegistryOptions options) : IRegistryManager
     }
 
     protected Result<ComponentMetadata, IRegistryError> ResolveComponent(string path)
-    {
-        var fileName = Option.From(Path.GetFileName(path));
-        var fileExtension = Option.From(Path.GetExtension(path));
-        var cleanName = Option.From(Path.GetFileNameWithoutExtension(path));
+        => Result.TryFrom(() => new FileInfo(path))
+            .Ok()
+            .Filter(file => file.Exists)
+            .Filter(file => file.Extension == ".razor")
+            .Map(file => new ComponentMetadata(
+                Name: ResolveComponentName(file),
+                Source: ResolveComponentSource(file),
+                Files: [file.Name]
+            ))
+            .OkOr<IRegistryError>(new InvalidComponentPathError());
 
-        return fileExtension
-        .Filter(ext => ext.StartsWith(".razor"))
-        .WhenSome(fileName)
-        .And(cleanName)
-        .Map(cleanName => new ComponentMetadata(
-            Name: cleanName.ToLowerInvariant(),
-            Source: Path.Combine(options.RegistryBaseUri.AbsolutePath, cleanName),
-            Files: [fileName.Expect()]
-        ))
-        .OkOr<IRegistryError>(new InvalidComponentPathError());
-    }
+    protected static string ResolveComponentName(FileInfo componentFile)
+        => componentFile.Name
+            .Replace(componentFile.Extension, string.Empty)
+            .ToKebabCase();
+
+    protected string ResolveComponentSource(FileInfo componentFile)
+        => Path.Combine(
+            options.RegistryBaseUri.ToString(),
+            componentFile.Name.Replace(componentFile.Extension, string.Empty)
+        );
 }
