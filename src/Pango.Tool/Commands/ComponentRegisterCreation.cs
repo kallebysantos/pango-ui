@@ -7,14 +7,11 @@ using Spectre.Console;
 using Spectre.Console.Cli;
 
 using Pango.Abstractions;
-using Pango.Helpers;
-using Pango.ServicesHttp;
-using Pango.Types;
 using Pango.Services.RegistryManager;
 
 namespace Pango.Commands;
 
-public sealed class ComponentRegisterCreation : Command<ComponentRegisterCreation.Settings>
+public sealed class ComponentRegisterCreation : AsyncCommand<ComponentRegisterCreation.Settings>
 {
     private static readonly TextInfo ti = CultureInfo.CurrentCulture.TextInfo;
 
@@ -22,29 +19,56 @@ public sealed class ComponentRegisterCreation : Command<ComponentRegisterCreatio
     {
         [NotNull]
         [Description("URI to upload with your components.")]
-        [CommandArgument(0, "[registry-uri]")]
+        [CommandOption("--registry-uri")]
         public required string RegistryUri { get; set; }
 
+        [NotNull]
         [Description("Folder with multiple components or single component.")]
-        [CommandOption("-s|--src")]
-        public required string ComponentsSource { get; set; }
+        [CommandArgument(0, "<ARGUMENT>")]
+        public required string[] ComponentsSource { get; set; }
 
+        [NotNull]
         [Description("Output folder for the components registration.")]
         [CommandOption("-o|--output")]
-        public string? Output { get; set; }
+        public required string Output { get; set; }
     }
 
-    public override int Execute([NotNull] CommandContext context, [NotNull] Settings settings)
+    public override async Task<int> ExecuteAsync([NotNull] CommandContext context, [NotNull] Settings settings)
     {
         var registryUri = new Uri(settings.RegistryUri);
         var registryManager = new RegistryManager(new(registryUri));
 
-        //var componentsJson = await ServiceHttp.GetComponentsJsonAsync();
-        var path = CommandsHelper.AllOrSingleComponent(settings.ComponentsSource);
-        
-        List<ComponentMetadata> components = []; 
+        var components = settings.ComponentsSource
+            .Select(src => new CreateComponentMetadataInput(src))
+            .Select(registryManager.CreateComponentMetadata)
+            .Where(result => result.IsOk())
+            .Select(result => result.Expect());
 
-        if(path is AllComponents searchComponent)
+        var outputDir = new DirectoryInfo(settings.Output);
+        if (!outputDir.Exists)
+            outputDir.Create();
+
+        foreach (var component in components)
+        {
+            var metadataFileName = Path.ChangeExtension(component.Name, ".json");
+            var metadataFilePath = Path.Combine(outputDir.FullName, metadataFileName);
+            await using var metadataFile = File.Create(metadataFilePath);
+            await JsonSerializer.SerializeAsync(
+                utf8Json: metadataFile,
+                value: component,
+                options: new(JsonSerializerDefaults.Web)
+            );
+        }
+
+        return 0;
+
+        //var componentsJson = await ServiceHttp.GetComponentsJsonAsync();
+        // var path = CommandsHelper.AllOrSingleComponent(settings.ComponentsSource);
+
+
+        /*         List<ComponentMetadata> components = []; */
+
+        /* if(path is AllComponents searchComponent)
         {
             AnsiConsole.WriteLine("All: " + searchComponent.Path);
 
@@ -70,13 +94,13 @@ public sealed class ComponentRegisterCreation : Command<ComponentRegisterCreatio
             AnsiConsole.WriteLine("");
             AnsiConsole.WriteLine("Components: " + JsonSerializer.Serialize(components));
             AnsiConsole.WriteLine("");
-        }
+        } */
 
-        if(path is SingleComponent searchAllComponents)
-        {
-            AnsiConsole.WriteLine("Single: " + searchAllComponents.Path);  
-        }
-        
+        /*         if(path is SingleComponent searchAllComponents)
+                {
+                    AnsiConsole.WriteLine("Single: " + searchAllComponents.Path);  
+                } */
+
         // if(settings.AllComponents ?? false)
         // {
         //     var components = AnsiConsole.Prompt(
@@ -111,19 +135,19 @@ public sealed class ComponentRegisterCreation : Command<ComponentRegisterCreatio
 
         // //AnsiConsole.MarkupLine($"Component Json: {componentJson.Expect()}");
         // AnsiConsole.WriteLine($"Component Json: {JsonSerializer.Serialize(componentJson.Expect())}");
-        return 0;
+        // return 0;
     }
 
     public override ValidationResult Validate(CommandContext context, Settings settings)
     {
         AnsiConsole.WriteLine();
 
-        if(string.IsNullOrEmpty(settings.ComponentsSource))
-        {
-            return ValidationResult.Error($"You must pass a source (-s|--src) to find the component(s) to register | Example: `registry-create-metadata path.to.register/ -s ./UI/*`\n");
-        }
-        
-        if(string.IsNullOrEmpty(settings.RegistryUri))
+        /*         if (string.IsNullOrEmpty(settings.ComponentsSource))
+                {
+                    return ValidationResult.Error($"You must pass a source (-s|--src) to find the component(s) to register | Example: `registry-create-metadata path.to.register/ -s ./UI/*`\n");
+                } */
+
+        if (string.IsNullOrEmpty(settings.RegistryUri))
         {
             return ValidationResult.Error($"You must pass a URI to register component(s) | Example: `registry-create-metadata path.to.register/ -s ./UI/*`\n");
         }
