@@ -1,0 +1,74 @@
+# Workflow for publish and deploying static content component metadata to GitHub Pages
+name: Deploy component metadata content to Pages
+
+# Runs on pushes targeting the default branch
+on:
+  push:
+    branches: ["main"]
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
+# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  # Single deploy job since we're just deploying
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    env:
+      REGISTRY_URL: https://raw.githubusercontent.com/kallebysantos/pango-ui/HEAD/src/Pango.Components/UI
+      COMPONENTS_PATH: src/Pango.Components/UI/*
+      
+    runs-on: ubuntu-latest
+    steps:
+      # Build
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Setup dotnet
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.0.x'
+      - name: Install dependencies
+        run: dotnet restore
+      - name: Build
+        run: dotnet build
+      - name: Test with the dotnet CLI
+        run: dotnet test
+
+      # Publish 
+      - name: Publish Pango Tool 
+        run: dotnet publish src/Pango.Tool -o publish 
+
+      - name: Generating components metadata
+        run: |
+         ${PWD}/publish/Pango.Tool registry-create-metadata $COMPONENTS_PATH \
+          --registry-uri $REGISTRY_URL \
+          -o ${PWD}/publish/_site
+
+      # Publish 
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+        
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '${PWD}/publish/_site'
+        
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+
+        
