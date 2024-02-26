@@ -13,8 +13,8 @@ public abstract record Option<T>()
         (value is not null) ? new Some<T>(value) : new None<T>();
 
     public Result<T, E> OkOr<E>(E err) =>
-        this is { Value: T value }
-        ? value
+        this is Some<T> some
+        ? some.Value
         : err;
 }
 

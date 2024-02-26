@@ -1,0 +1,16 @@
+{
+    "components": [
+        {
+            "name": "alert",
+            "reference": "https://kallebysantos.github.io/test-ci-cd/button.json"
+        },
+        {
+            "name": "dropdown",
+            "reference": "https://kallebysantos.github.io/test-ci-cd/button.json"
+        },
+        {
+            "name": "button",
+            "reference": "https://kallebysantos.github.io/test-ci-cd/button.json"
+        }
+    ]
+}
