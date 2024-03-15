@@ -2,9 +2,9 @@ namespace Pango.Abstractions;
 
 public record Result<T, E>
 {
-    internal Option<T> OkValue { get; init; } = Option.None<T>();
+    internal Option<T> OkValue { get; set; } = Option.None<T>();
 
-    internal Option<E> ErrValue { get; init; } = Option.None<E>();
+    internal Option<E> ErrValue { get; set; } = Option.None<E>();
 
     internal Result() { }
 
@@ -30,15 +30,6 @@ public record Result<T, E>
 
     public static implicit operator Result<T, E>(E Error) => new Err<T, E>(Error);
 
-    public override string ToString()
-    {
-        if (IsOk())
-        {
-            return $"Ok: {OkValue}";
-        }
-        return $"Err: {ErrValue}";
-    }
-
     public Option<T> Ok() => OkValue;
 
     public Option<E> Err() => ErrValue;
@@ -53,6 +44,18 @@ public record Result<T, E>
     public Result<T, F> MapErr<F>(Func<E, F> err)
         => new(OkValue, ErrValue.Map(err));
 
+    public Result<T, E> ReplaceIf(Func<bool> predicate, T value)
+    {
+        if (predicate())
+        {
+            var old = new Result<T, E>(OkValue, ErrValue);
+            OkValue = value;
+            ErrValue = new None<E>();
+            return old;
+        }
+
+        return this;
+    }
 
     public void Match(Action<T> ok, Action<E> err)
     {
@@ -63,13 +66,35 @@ public record Result<T, E>
             err(errValue);
     }
 
-    public U Match<U>(Func<T, U> ok, Func<Option<E>, U> err)
+    public U Match<U>(Func<T, U> ok, Func<E, U> err)
     {
         if (this is { OkValue: Some<T> okValue })
             return ok(okValue);
 
-        return err(ErrValue);
+        return err(ErrValue!.UnwrapOr(default)!);
     }
+
+    public async Task<U> Match<U>(Func<T, Task<U>> ok, Func<E, U> err)
+    {
+        if (this is { OkValue: Some<T> okValue })
+            return await ok(okValue);
+
+        return err(ErrValue!.UnwrapOr(default)!);
+    }
+
+    public void Then(Action<T> ok, Action<E> err)
+    {
+        if (this is { OkValue: Some<T> okValue })
+        {
+            ok(okValue);
+            return;
+        }
+
+        err(ErrValue!.UnwrapOr(default)!);
+    }
+
+    public void Then(Action<Result<T, E>> op)
+        => op(this);
 
     public Result<U, E> AndThen<U>(Func<T, Result<U, E>> op)
         => this is { OkValue: Some<T> okValue }
@@ -80,6 +105,14 @@ public record Result<T, E>
         => this is { OkValue: Some<T> okValue }
         ? await op(okValue)
         : await Task.FromResult<Result<U, E>>(new(new None<U>(), ErrValue));
+
+    public Result<T, E> Inspect(Action<T> op)
+    {
+        if (this is { OkValue: Some<T> okValue })
+            op(okValue);
+
+        return this;
+    }
 
     public T UnwrapOr(T @default)
         => OkValue.UnwrapOr(@default);
@@ -102,6 +135,28 @@ public static class Result
             return ex;
         }
     }
+
+    public static Result<T, IError> TryFrom<T, TIError>(Func<T> @delegate) where TIError : IError
+        => TryFrom(@delegate)
+            .MapErr(ExceptionError.From);
+
+
+    public static async Task<Result<T, Exception>> TryFrom<T>(Func<Task<T>> @delegate)
+    {
+        try
+        {
+            return await @delegate();
+        }
+        catch (Exception ex)
+        {
+            return ex;
+        }
+    }
+
+    public static Result<U, E> And<U, T, E>(this Result<T, E> result, Result<U, E> resultB)
+    => result.IsOk()
+    ? resultB
+    : new(new None<U>(), result.ErrValue);
 
     public static T Expect<T, E>(this Result<T, E> result)
         => Expect(result, $"Expect: {nameof(result)} to be {nameof(Ok)} but found {nameof(Err)}");
@@ -137,4 +192,13 @@ public record Err<T, E>(E Value) : Result<T, E>(Value)
     public static implicit operator Err<T, E>(E err) => new(err);
 }
 
-public record struct OkResult();
+public interface IOk;
+
+public interface IError;
+
+public record struct OkResult : IOk;
+
+public record struct ExceptionError(Exception Exception) : IError
+{
+    public static IError From(Exception exception) => new ExceptionError(exception);
+}

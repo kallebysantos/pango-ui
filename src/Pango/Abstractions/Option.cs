@@ -55,7 +55,7 @@ public static class Option
             : None<U>();
 
     public static Option<U> Map<U, T>(this Option<T> option, Func<T, U> some) =>
-        option is { Value: T value }
+        option is Some<T> value
         ? some(value)
         : None<U>();
 
