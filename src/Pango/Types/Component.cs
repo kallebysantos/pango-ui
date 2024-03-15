@@ -26,3 +26,35 @@ public record struct Component<TState>(
 {
     public Component(ComponentMetadata Metadata) : this(Metadata, new()) { }
 }
+
+public static class Component
+{
+
+    /// <summary>
+    /// Resolves a component metadata by fetching the registry
+    /// </summary>
+    /// <param name="httpClient">A HttpClient instance</param>
+    /// <param name="remoteUri">The registry uri to fetch</param>
+    /// <param name="name">The name of the component to be resolved</param>
+    /// <returns>The resolved component</returns>
+    public static async Task<Result<Component<Resolved>, IError>> ResolveFrom(
+        HttpClient httpClient,
+        string remoteUri,
+        string name
+    )
+    {
+        var componentMetadataName = Path.ChangeExtension(name, "json");
+        var componentMetadataUrl = Path.Combine(remoteUri, componentMetadataName);
+
+        var response = await httpClient.GetAsync(componentMetadataUrl);
+
+        var result = await response.ToResult()
+            .MapErr(err => err.HttpResponse.StatusCode == HttpStatusCode.NotFound
+                ? new NotFoundError().WithMessage("Component could not be found or not exists!")
+                : err.Error
+            )
+            .AndThen(HttpClientExtensions.ReadFromJsonAsync<ComponentMetadata>);
+
+        return result.Map(metadata => new Component<Resolved>(metadata));
+    }
+}
