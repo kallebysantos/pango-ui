@@ -14,7 +14,7 @@ public record struct UnResolved : IComponentState;
 
 public record struct Resolved : IComponentState;
 
-public record struct Streaming(Stream FileStream) : IComponentState;
+public record struct Streaming(Stream FileStream, string FileName) : IComponentState;
 
 public record struct Downloaded : IComponentState;
 
@@ -75,17 +75,19 @@ public static class ResolvedComponent
         var GetFileUrl = (string file) => Path.Combine(component.Metadata.Source, file);
         var GetFileStream = (string fileUrl) => Result.TryFrom(() => httpClient.GetStreamAsync(fileUrl));
 
-        var streams = component.Metadata.Files
-            .Select(GetFileUrl)
-            .Select(GetFileStream);
-
-        foreach (var stream in streams)
+        foreach (var filename in component.Metadata.Files)
         {
-            yield return (await stream)
+            var fileUrl = GetFileUrl(filename);
+            var streamResult = await GetFileStream(fileUrl);
+
+            yield return streamResult
                 .MapErr(ExceptionError.From)
                 .Map(stream => new Component<Streaming>(
                     Metadata: component.Metadata,
-                    State: new Streaming(FileStream: stream)
+                    State: new(
+                        FileStream: stream,
+                        FileName: filename
+                    )
                 ));
         }
     }
