@@ -58,3 +58,35 @@ public static class Component
         return result.Map(metadata => new Component<Resolved>(metadata));
     }
 }
+
+public static class ResolvedComponent
+{
+    /// <summary>
+    /// Enumerates the component source and yield the files as streams
+    /// </summary>
+    /// <param name="component"></param>
+    /// <param name="httpClient"></param>
+    /// <returns></returns>
+    public static async IAsyncEnumerable<Result<Component<Streaming>, IError>> GetComponentStreams(
+        this Component<Resolved> component,
+        HttpClient httpClient
+    )
+    {
+        var GetFileUrl = (string file) => Path.Combine(component.Metadata.Source, file);
+        var GetFileStream = (string fileUrl) => Result.TryFrom(() => httpClient.GetStreamAsync(fileUrl));
+
+        var streams = component.Metadata.Files
+            .Select(GetFileUrl)
+            .Select(GetFileStream);
+
+        foreach (var stream in streams)
+        {
+            yield return (await stream)
+                .MapErr(ExceptionError.From)
+                .Map(stream => new Component<Streaming>(
+                    Metadata: component.Metadata,
+                    State: new Streaming(FileStream: stream)
+                ));
+        }
+    }
+}
