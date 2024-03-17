@@ -3,12 +3,17 @@ using Spectre.Console.Cli;
 
 var app = new CommandApp();
 
-app.Configure(config => 
+app.Configure(config =>
 {
     config.AddCommand<ComponentRegisterCreation>("registry-create-metadata")
         .WithDescription("Register a component from your folder to somewhere else.")
         .WithExample("registry-create", "raw.github.com/")
         .WithExample("registry-create", "raw.github.com/", "--component", "Button");
+
+    config.AddCommand<DownloadComponent>("add")
+        .WithDescription("Downloads a component from the specified registry.");
+    // .WithExample("registry-create", "raw.github.com/")
+    // .WithExample("registry-create", "raw.github.com/", "--component", "Button");
 });
 
 return app.Run(args);

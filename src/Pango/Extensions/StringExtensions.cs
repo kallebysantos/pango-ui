@@ -1,3 +1,5 @@
+using System.Globalization;
+
 namespace Pango.Extensions;
 
 internal static class StringExtensions
@@ -7,4 +9,9 @@ internal static class StringExtensions
             ((char.IsUpper(letter) && i > 0) ? "-" : string.Empty)
             + char.ToLowerInvariant(letter)
         ));
+
+    public static string ToTitleCase(this string value)
+        => CultureInfo.CurrentCulture.TextInfo
+            .ToTitleCase(value)
+            .Replace("-", string.Empty);
 }
