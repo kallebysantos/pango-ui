@@ -27,6 +27,47 @@ public record struct Component<TState>(
     public Component(ComponentMetadata Metadata) : this(Metadata, new()) { }
 }
 
+public record struct ComponentStreamLine(string Line)
+{
+    static readonly string[] namespacePatterns = ["namespace", "@namespace"];
+
+    const int NotFoundIndex = -1;
+
+    readonly Option<int> NamespaceWordIndex => Option.From(Line)
+        .Filter(line => namespacePatterns.Any(pattern => line.TrimStart().StartsWith(pattern)))
+        .Map(line => line.IndexOf("namespace"))
+        .DiscardIf(idx => idx == NotFoundIndex);
+
+    public readonly bool IsNamespaceLine => NamespaceWordIndex.IsSome();
+
+    ComponentStreamLine ApplyLineEnding(string fileExtension)
+        => fileExtension.EndsWith(".razor")
+            ? this
+            : this with { Line = Line + ';' };
+
+    public readonly ComponentStreamLine ApplyNamespace(string @namespace, string fileExtension)
+    {
+        if (NamespaceWordIndex is not Some<int> namespaceIdx)
+            return this;
+
+        var updatedNamespaceLine = this with
+        {
+            Line = Line.Replace(
+                oldValue: Line[namespaceIdx.Value..],
+                newValue: $"namespace {@namespace}"
+            )
+        };
+
+        return updatedNamespaceLine.ApplyLineEnding(fileExtension);
+    }
+
+    public static implicit operator string(ComponentStreamLine streamLine) => streamLine.Line;
+
+    public static Option<ComponentStreamLine> From(string? line)
+        => Option.From(line)
+            .Map(line => new ComponentStreamLine(line));
+}
+
 public static class Component
 {
 
@@ -95,9 +136,7 @@ public static class ResolvedComponent
 
 public static class StreamingComponent
 {
-    static readonly string[] namespacePatterns = ["namespace", "@namespace"];
 
-    const int NotFoundIndex = -1;
 
     /// <summary>
     /// Writes the component stream to a local component file,
@@ -145,25 +184,18 @@ public static class StreamingComponent
     /// <returns></returns>
     private static async Task<Result<IOk, IError>> WriteComponentStream(Stream stream, string filepath, string @namespace)
     {
-        var GetNamespaceWordIndex = (string line) => Option.From(line.IndexOf("namespace"))
-            .DiscardIf(idx => idx == NotFoundIndex)
-            .Filter(_ => namespacePatterns.Any(pattern => line.TrimStart().StartsWith(pattern)));
-
-        var ResolveLineNamespace = (string line) => GetNamespaceWordIndex(line) switch
-        {
-            Some<int> namespaceIdx => line.Replace(
-                    oldValue: line[namespaceIdx.Value..],
-                    newValue: $"namespace {@namespace}"
-                ),
-            _ => line
-        };
-
         using var reader = new StreamReader(stream);
         using var writer = new StreamWriter(filepath);
 
-        while (Option.From(await reader.ReadLineAsync()) is Some<string> line)
+        while (ComponentStreamLine.From(await reader.ReadLineAsync()) is Some<ComponentStreamLine> line)
         {
-            await writer.WriteLineAsync(ResolveLineNamespace(line));
+            await writer.WriteLineAsync(
+                value: line.Value
+                    .ApplyNamespace(
+                        @namespace: @namespace,
+                        fileExtension: filepath
+                    )
+            );
         }
 
         return new OkResult();
