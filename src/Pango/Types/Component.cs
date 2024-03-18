@@ -10,7 +10,6 @@ public interface IComponentError;
 
 public interface IComponentState;
 
-public record struct UnResolved : IComponentState;
 
 public record struct Resolved : IComponentState;
 
