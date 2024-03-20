@@ -31,8 +31,13 @@ app.Configure(config =>
         .WithDescription("Downloads a component from the specified registry.")
         .WithExample("add", "button");
 
+    config.AddCommand<ConfigurationInit>("init")
+        .WithDescription("Creates a Pango configuration file.")
+        .WithExample("init", "-n MyProject.Components", "-o src/MyProject.Components", "--registry-uri https://raw.github.com/repo");
+
     config.AddBranch("registry", cmd =>
     {
+        cmd.SetDescription("Tools for managing registry");
         cmd.AddCommand<ComponentRegisterCreation>("create-metadata")
             .WithDescription("Creates registry metadata for the given components.")
             .WithExample("registry", "create-metadata", "Components/*", "-o", "dist/components", "--registry-uri", "https://raw.github.com/repo");
