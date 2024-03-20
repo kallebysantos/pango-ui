@@ -5,6 +5,7 @@ using System.Diagnostics.CodeAnalysis;
 
 using Pango.Types;
 using Pango.Abstractions;
+using Pango.Services.RegistryClient;
 
 namespace Pango.Commands;
 
@@ -47,12 +48,14 @@ public sealed class ConfigurationInit : AsyncCommand<ConfigurationInitSettings>
                 func: _ => config.PersistLocalConfigFile(filepath: "./pango-ui.config.json")
             );
 
-        savedConfig
+        await savedConfig
             .Inspect(result => AnsiConsole.MarkupLineInterpolated($"[bold grey]Saved:[/] {result}."))
-            .InspectErr(err => AnsiConsole.MarkupLineInterpolated($"[bold red]Fail: {err}[/]."));
+            .InspectErr(err => AnsiConsole.MarkupLineInterpolated($"[bold red]Fail: {err}[/]."))
+            .AndThen(_ => GetTailwindHelper(settings.Namespace, settings.Output));
 
         return Convert.ToInt32(savedConfig.IsOk());
     }
+
 
     public override ValidationResult Validate(CommandContext context, ConfigurationInitSettings settings)
     {
@@ -86,4 +89,49 @@ public sealed class ConfigurationInit : AsyncCommand<ConfigurationInitSettings>
 
     static string AskOutput(string defaultValue)
         => AnsiConsole.Ask("Enter the target output folder:", defaultValue);
+
+
+    static async Task<Result<IOk, IError>> GetTailwindHelper(string @namespace, string componentsFolder)
+    {
+        if (!AnsiConsole.Confirm("Would like to add Tailwind Helper?"))
+        {
+            return new OkResult();
+        }
+
+        var tailwindHelperUrl = "https://raw.githubusercontent.com/kallebysantos/pango-ui/main/src/Pango.Components/Utils/TailwindHelper.cs";
+        var tailwindHelperNamespace = string.Join('.', @namespace, "Utils");
+
+        var tailwindHelperFileName = Path.ChangeExtension("TailwindHelper", ".cs");
+        var tailwindHelperFilePath = new FileInfo(
+            fileName: Path.Combine(componentsFolder, "Utils", tailwindHelperFileName)
+        );
+
+        tailwindHelperFilePath.Directory?.Create();
+
+        var httpClient = new HttpClient();
+
+        return await AnsiConsole
+            .Status()
+            .StartAsync("Downloading Tailwind Helper...", async ctx =>
+            {
+                var fileStream = await Result.TryFrom(() => httpClient.GetStreamAsync(tailwindHelperUrl));
+
+                var downloadResult = await fileStream
+                    .MapErr(ExceptionError.From)
+                    .Inspect(result => ctx.Status($"Download: {tailwindHelperUrl}"))
+                    .InspectErr(err => AnsiConsole.MarkupLineInterpolated($"[bold red]Fail: {err}[/]."))
+                    .AndThen(async item =>
+                        await StreamingComponent.WriteComponentStream(
+                            stream: item,
+                            filepath: tailwindHelperFilePath.FullName,
+                            @namespace: tailwindHelperNamespace
+                        )
+                    );
+
+                return downloadResult
+                    .Inspect(result => AnsiConsole.MarkupLineInterpolated($"[bold grey]Saved:[/] {tailwindHelperFilePath.FullName}"))
+                    .InspectErr(err => AnsiConsole.MarkupLineInterpolated($"[bold red]Fail: {err}[/]."));
+
+            });
+    }
 }

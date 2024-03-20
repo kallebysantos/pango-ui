@@ -73,7 +73,7 @@ public sealed class DownloadComponent : AsyncCommand<DownloadComponentSettings>
                         );
 
                     downloadResult
-                        .Inspect(result => AnsiConsole.MarkupLineInterpolated($"[bold grey]Saved:[/] {result.State.Filepath}."))
+                        .Inspect(result => AnsiConsole.MarkupLineInterpolated($"[bold grey]Saved:[/] {result.State.Filepath}"))
                         .InspectErr(err => AnsiConsole.MarkupLineInterpolated($"[bold red]Fail: {err}[/]."));
                 }
             });
