@@ -1,12 +1,15 @@
+using System.Text;
 using Spectre.Console;
 using Spectre.Console.Cli;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 
 using Pango.Types;
+using Pango.Extensions;
 using Pango.Abstractions;
 using Pango.Services.RegistryClient;
 
+using StringExtensions = Pango.Extensions.StringExtensions;
 namespace Pango.Commands;
 
 public sealed class ConfigurationInitSettings : CommandSettings
@@ -29,6 +32,9 @@ public sealed class ConfigurationInitSettings : CommandSettings
 
 public sealed class ConfigurationInit : AsyncCommand<ConfigurationInitSettings>
 {
+    static readonly string RegistryBaseDownloadUrl = "https://raw.githubusercontent.com/kallebysantos/pango-ui/main/src/Pango.Components";
+    static readonly string RegistryBaseSchema = "https://kallebysantos.github.io/pango-ui";
+
     public override async Task<int> ExecuteAsync(
         [NotNull] CommandContext context,
         [NotNull] ConfigurationInitSettings settings
@@ -48,10 +54,19 @@ public sealed class ConfigurationInit : AsyncCommand<ConfigurationInitSettings>
                 func: _ => config.PersistLocalConfigFile(filepath: "./pango-ui.config.json")
             );
 
-        await savedConfig
+        await (await savedConfig
             .Inspect(result => AnsiConsole.MarkupLineInterpolated($"[bold grey]Saved:[/] {result}."))
             .InspectErr(err => AnsiConsole.MarkupLineInterpolated($"[bold red]Fail: {err}[/]."))
-            .AndThen(_ => GetTailwindHelper(settings.Namespace, settings.Output));
+            .AndThen(async _ =>
+                AnsiConsole.Confirm("Would like to add Tailwind Helper?")
+                    ? await GetRegistryRawFile(settings.Namespace, settings.Output, "Utils/TailwindHelper.cs")
+                    : new OkResult()
+                ))
+            .AndThen(async _ =>
+                AnsiConsole.Confirm("Would like to add UI Component base class?")
+                    ? await GetRegistryRawFile(settings.Namespace, settings.Output, "UI/UIComponent.cs")
+                    : new OkResult()
+                );
 
         return Convert.ToInt32(savedConfig.IsOk());
     }
@@ -62,7 +77,7 @@ public sealed class ConfigurationInit : AsyncCommand<ConfigurationInitSettings>
         settings.Namespace ??= AskNamespace();
         settings.Output ??= AskOutput(defaultValue: "./" + string.Join('/', settings.Namespace.Split('.').Skip(1)));
 
-        settings.RegistryUri ??= AskRegistryUri(defaultValue: "https://kallebysantos.github.io/pango-ui");
+        settings.RegistryUri ??= AskRegistryUri(defaultValue: RegistryBaseSchema);
 
         return base.Validate(context, settings);
     }
@@ -90,46 +105,56 @@ public sealed class ConfigurationInit : AsyncCommand<ConfigurationInitSettings>
     static string AskOutput(string defaultValue)
         => AnsiConsole.Ask("Enter the target output folder:", defaultValue);
 
-
-    static async Task<Result<IOk, IError>> GetTailwindHelper(string @namespace, string componentsFolder)
+    static async Task<Result<IOk, IError>> GetRegistryRawFile(
+        string @namespace,
+        string componentsFolder,
+        string registryFilePath
+    )
     {
-        if (!AnsiConsole.Confirm("Would like to add Tailwind Helper?"))
-        {
-            return new OkResult();
-        }
+        var registryFileUrl = Path.Combine(RegistryBaseDownloadUrl, registryFilePath);
 
-        var tailwindHelperUrl = "https://raw.githubusercontent.com/kallebysantos/pango-ui/main/src/Pango.Components/Utils/TailwindHelper.cs";
-        var tailwindHelperNamespace = string.Join('.', @namespace, "Utils");
+        var destinationNamespace = StringExtensions.JoinMerge(
+            separator: '.',
+            values: [
+                ..@namespace.Split('.'),
+                ..registryFilePath.Replace(Path.GetFileName(registryFilePath), string.Empty).Split('/')
+            ]);
 
-        var tailwindHelperFileName = Path.ChangeExtension("TailwindHelper", ".cs");
-        var tailwindHelperFilePath = new FileInfo(
-            fileName: Path.Combine(componentsFolder, "Utils", tailwindHelperFileName)
+        var destinationFilepath = StringExtensions.JoinMerge(
+            separator: '/',
+            values: [
+                ..componentsFolder.Split('/'),
+                ..registryFilePath.Split('/')
+            ]);
+
+        var destinationFileInfo = new FileInfo(
+            fileName: destinationFilepath
         );
 
-        tailwindHelperFilePath.Directory?.Create();
+        destinationFileInfo.Directory?.Create();
 
         var httpClient = new HttpClient();
 
         return await AnsiConsole
             .Status()
-            .StartAsync("Downloading Tailwind Helper...", async ctx =>
+            .StartAsync($"Downloading {destinationFileInfo.Name}...", async ctx =>
             {
-                var fileStream = await Result.TryFrom(() => httpClient.GetStreamAsync(tailwindHelperUrl));
+                var fileStream = await Result.TryFrom(() => httpClient.GetStreamAsync(registryFileUrl));
 
                 var downloadResult = await fileStream
                     .MapErr(ExceptionError.From)
-                    .Inspect(result => ctx.Status($"Download: {tailwindHelperUrl}"))
+                    .Inspect(result => ctx.Status($"Download: {registryFileUrl}"))
                     .InspectErr(err => AnsiConsole.MarkupLineInterpolated($"[bold red]Fail: {err}[/]."))
                     .AndThen(async item =>
                         await StreamingComponent.WriteComponentStream(
                             stream: item,
-                            filepath: tailwindHelperFilePath.FullName,
-                            @namespace: tailwindHelperNamespace
+                            filepath: destinationFileInfo.FullName,
+                            @namespace: destinationNamespace
                         )
                     );
 
                 return downloadResult
-                    .Inspect(result => AnsiConsole.MarkupLineInterpolated($"[bold grey]Saved:[/] {tailwindHelperFilePath.FullName}"))
+                    .Inspect(result => AnsiConsole.MarkupLineInterpolated($"[bold grey]Saved:[/] {destinationFileInfo.FullName}"))
                     .InspectErr(err => AnsiConsole.MarkupLineInterpolated($"[bold red]Fail: {err}[/]."));
 
             });
