@@ -55,7 +55,7 @@ jobs:
         run: |
          ${PWD}/publish/Pango.Tool registry create-metadata $COMPONENTS_PATH \
           --registry-uri $REGISTRY_URL \
-          -o ${PWD}/publish/_site
+          -o ./_site
 
 
       # Publish 
@@ -65,7 +65,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: '${PWD}/publish/_site'
+          path: './_site'
         
       - name: Deploy to GitHub Pages
         id: deployment
