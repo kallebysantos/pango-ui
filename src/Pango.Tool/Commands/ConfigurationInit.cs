@@ -55,7 +55,7 @@ public sealed class ConfigurationInit : AsyncCommand<ConfigurationInitSettings>
             );
 
         await (await savedConfig
-            .Inspect(result => AnsiConsole.MarkupLineInterpolated($"[bold grey]Saved:[/] {result}."))
+            .Inspect(result => AnsiConsole.MarkupLineInterpolated($"[bold grey]Saved: {result}[/]"))
             .InspectErr(err => AnsiConsole.MarkupLineInterpolated($"[bold red]Fail: {err}[/]."))
             .AndThen(async _ =>
                 AnsiConsole.Confirm("Would like to add Tailwind Helper?")
@@ -154,7 +154,7 @@ public sealed class ConfigurationInit : AsyncCommand<ConfigurationInitSettings>
                     );
 
                 return downloadResult
-                    .Inspect(result => AnsiConsole.MarkupLineInterpolated($"[bold grey]Saved:[/] {destinationFileInfo.FullName}"))
+                    .Inspect(result => AnsiConsole.MarkupLineInterpolated($"[bold grey]Saved: {destinationFileInfo.FullName}[/]"))
                     .InspectErr(err => AnsiConsole.MarkupLineInterpolated($"[bold red]Fail: {err}[/]."));
 
             });
