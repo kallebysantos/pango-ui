@@ -53,9 +53,10 @@ jobs:
 
       - name: Generating components metadata
         run: |
-         ${PWD}/publish/Pango.Tool registry-create-metadata $COMPONENTS_PATH \
+         ${PWD}/publish/Pango.Tool registry create-metadata $COMPONENTS_PATH \
           --registry-uri $REGISTRY_URL \
-          -o ./_site
+          -o ${PWD}/publish/_site
+
 
       # Publish 
       - name: Setup Pages
@@ -64,7 +65,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: './_site'
+          path: '${PWD}/publish/_site'
         
       - name: Deploy to GitHub Pages
         id: deployment

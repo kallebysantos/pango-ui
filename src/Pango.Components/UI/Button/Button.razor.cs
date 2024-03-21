@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Components;
-using static Pango.Components.Utils.TailwindHelper;
 namespace Pango.Components.UI;
 
 public enum ButtonVariant
