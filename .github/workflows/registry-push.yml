@@ -57,6 +57,7 @@ jobs:
           --registry-uri $REGISTRY_URL \
           -o ${PWD}/publish/_site
 
+
       # Publish 
       - name: Setup Pages
         uses: actions/configure-pages@v4
