@@ -1,22 +1,44 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    
-    <PublishSingleFile>true</PublishSingleFile>
   </PropertyGroup>
-
+  
   <ItemGroup>
     <PackageReference Include="Spectre.Console" Version="0.48.0" />
     <PackageReference Include="Spectre.Console.Cli" Version="0.48.0" />
-    <PackageReference Include="System.CommandLine" Version="2.0.0-beta4.22272.1" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Pango\Pango.csproj" />
   </ItemGroup>
 
+  <PropertyGroup Label="Package/Assembly Manifest Properties">
+    <PackageId>PangoUI.Tool</PackageId>
+    <Version>0.0.2</Version>
+    
+    <PackAsTool>true</PackAsTool>
+    <ToolCommandName>pango</ToolCommandName>
+    <PackageOutputPath>../../nupkg</PackageOutputPath>
+    
+    <Title>Pango UI</Title>
+    <PackageIcon>icon.png</PackageIcon>
+    <PackageTags>Blazor;UI;Tailwindcss;Components;Razor;ShadcnUI;PangoUI</PackageTags>
+    <Description>Beautifully designed components that you can copy and paste into your apps. Accessible and customizable</Description>    
+
+    <Authors>Kalleby Santos;Carlos Saraiva</Authors>
+
+    <PackageProjectUrl>https://github.com/kallebysantos/pango-ui</PackageProjectUrl>
+    <PackageReleaseNotes>$(PackageProjectUrl)/releases</PackageReleaseNotes>
+    <RepositoryUrl>$(PackageProjectUrl).git</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+  </PropertyGroup>
+  
+  <ItemGroup Label="Package Files">
+    <None Include="../../assets/logo.png" Pack="true" PackagePath="./icon.png" />
+  </ItemGroup>
 </Project>
