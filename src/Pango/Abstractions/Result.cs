@@ -114,6 +114,14 @@ public record Result<T, E>
         return this;
     }
 
+    public Result<T, E> InspectErr(Action<E> op)
+    {
+        if (this is { ErrValue: Some<E> errValue })
+            op(errValue);
+
+        return this;
+    }
+
     public T UnwrapOr(T @default)
         => OkValue.UnwrapOr(@default);
 }

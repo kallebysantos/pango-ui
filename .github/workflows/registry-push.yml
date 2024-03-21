@@ -53,7 +53,7 @@ jobs:
 
       - name: Generating components metadata
         run: |
-         ${PWD}/publish/Pango.Tool registry-create-metadata $COMPONENTS_PATH \
+         ${PWD}/publish/Pango.Tool registry create-metadata $COMPONENTS_PATH \
           --registry-uri $REGISTRY_URL \
           -o ${PWD}/publish/_site
 

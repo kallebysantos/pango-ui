@@ -10,7 +10,6 @@ public interface IComponentError;
 
 public interface IComponentState;
 
-public record struct UnResolved : IComponentState;
 
 public record struct Resolved : IComponentState;
 
@@ -136,8 +135,6 @@ public static class ResolvedComponent
 
 public static class StreamingComponent
 {
-
-
     /// <summary>
     /// Writes the component stream to a local component file,
     /// also creates components subfolder and apply the target namespace
@@ -182,7 +179,7 @@ public static class StreamingComponent
     /// <param name="filepath"></param>
     /// <param name="namespace"></param>
     /// <returns></returns>
-    private static async Task<Result<IOk, IError>> WriteComponentStream(Stream stream, string filepath, string @namespace)
+    public static async Task<Result<IOk, IError>> WriteComponentStream(Stream stream, string filepath, string @namespace)
     {
         using var reader = new StreamReader(stream);
         using var writer = new StreamWriter(filepath);
