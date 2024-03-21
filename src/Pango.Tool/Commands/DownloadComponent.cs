@@ -5,6 +5,8 @@ using System.Diagnostics.CodeAnalysis;
 using ComponentModel = System.ComponentModel;
 using Spectre.Console;
 using System.Diagnostics;
+using System.Text.Json;
+using Pango.Types;
 
 namespace Pango.Commands;
 
@@ -79,5 +81,52 @@ public sealed class DownloadComponent : AsyncCommand<DownloadComponentSettings>
             });
 
         return 0;
+    }
+
+    public override ValidationResult Validate(CommandContext context, DownloadComponentSettings settings)
+    {
+        if (settings.ComponentName is null)
+        {
+            return ValidationResult.Error("Must specify a component name.");
+        }
+
+        var loadConfigTask = AnsiConsole
+            .Status()
+            .StartAsync("Loading pango configuration file", async ctx =>
+            {
+                var configFileInfo = new FileInfo("./pango-ui.config.json");
+
+                if (!configFileInfo.Exists)
+                {
+                    AnsiConsole.MarkupLine("[grey]No configuration file found, try run [/][underline]pango init[/]");
+                    return;
+                }
+
+                using var configFileStream = configFileInfo.OpenRead();
+                var config = await JsonSerializer.DeserializeAsync<LocalConfig>(configFileStream);
+
+                settings.Namespace ??= config.TargetComponentNamespace;
+                settings.Output ??= config.LocalComponentPath;
+                settings.RegistryUri ??= config.RegistrySchemaUri;
+            });
+
+        loadConfigTask.Wait();
+
+        if (settings.Namespace is null)
+        {
+            return ValidationResult.Error("Must specify a target namespace.");
+        }
+
+        if (settings.Output is null)
+        {
+            return ValidationResult.Error("Must specify a output folder.");
+        }
+
+        if (settings.RegistryUri is null)
+        {
+            return ValidationResult.Error("Must specify a component registry URI.");
+        }
+
+        return base.Validate(context, settings);
     }
 }
