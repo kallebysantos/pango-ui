@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "isRoot": true,
+  "tools": {
+    "pangoui.tool": {
+      "version": "0.0.2-develop.0",
+      "commands": [
+        "pango"
+      ],
+      "rollForward": false
+    }
+  }
+}
