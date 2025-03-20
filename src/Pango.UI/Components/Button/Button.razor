@@ -1,0 +1,25 @@
+@namespace Pango.UI.Components
+
+@inherits UIComponent
+
+<button 
+  @attributes=@(AdditionalAttributes)
+  class=@Tw([
+  "group inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50", 
+  GetStyledSize(Size),
+  GetStyledVariant(Variant),
+  AdditionalAttributes?.GetValueOrDefault("class")?.ToString()
+  ])>
+  @ChildContent
+</button>
+
+@code {
+  [Parameter]
+  public RenderFragment? ChildContent { get; set; }
+
+  [Parameter]
+  public Sizes Size { get; set; } = Sizes.Default;
+
+  [Parameter]
+  public Variants Variant { get; set; } = Variants.Default;
+}
