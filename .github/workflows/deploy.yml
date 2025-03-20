@@ -1,0 +1,68 @@
+name: Deploy Pango.UI component registry
+
+on:
+  push:
+    branches:
+      - dev
+      - main
+    tags:
+      - 'v*'
+
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+permissions:
+  contents: write
+  pages: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0 # Ensure tags are fetched
+
+    - name: Set deployment directory
+      id: set-dir
+      run: |
+        # url '/index.html'
+        if [[ "${{ github.ref }}" == refs/heads/main ]]; then
+          echo "DEPLOY_DIR=" >> $GITHUB_ENV
+        #
+        # url '/dev/index.html'
+        elif [[ "${{ github.ref }}" == refs/heads/dev ]]; then
+          echo "DEPLOY_DIR=dev" >> $GITHUB_ENV
+        #
+        # url '/{TAG}/index.html
+        elif [[ "${{ github.ref }}" == refs/tags/* ]]; then
+          TAG_NAME=$(echo "${{ github.ref }}" | sed 's/refs\/tags\/v//')
+          echo "DEPLOY_DIR=$TAG_NAME" >> $GITHUB_ENV
+        fi
+
+    - uses: cardinalby/export-env-action@v2
+      with:
+        envFile: '.env.public'
+
+    - name: Install .NET SDK
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+
+    - name: Install Pango registry builder
+      run: ./scripts/install_pango.sh ${{ env.PANGO_VERSION }}
+
+    - name: Build component registry
+      run: ./scripts/build_registry.sh
+
+    - name: Configure gh-pages
+      uses: actions/configure-pages@v5.0.0
+
+    - name: Deploy component registry
+      uses: peaceiris/actions-gh-pages@v4
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: publish
+        destination_dir: ${{ env.DEPLOY_DIR }}
+        keep_files: true
+
