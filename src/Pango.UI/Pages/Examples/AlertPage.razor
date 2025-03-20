@@ -1,0 +1,28 @@
+@page "/alert"
+
+<div class="flex flex-col gap-4 p-4 items-center">
+  <Alert>
+    <AlertSide>
+      <span class="text-xl">😸</span>
+     </AlertSide>
+    <AlertTitle>Default</AlertTitle>
+    <AlertDescription>This alert is the Default alert variant</AlertDescription>
+  </Alert>
+
+  <Alert Variant=@(Alert.Variants.Sucess)>
+    <AlertSide>
+     <span class="text-xl">😻</span>
+      </AlertSide>
+    <AlertTitle>Success</AlertTitle>
+    <AlertDescription>This alert is using Success variant</AlertDescription>
+  </Alert>
+
+  <Alert Variant=@(Alert.Variants.Destructive)>
+    <AlertSide>
+    <span class="text-xl">🙀</span>
+       </AlertSide>
+    <AlertTitle>Destructive</AlertTitle>
+    <AlertDescription>This alert is using Destructive variant</AlertDescription>
+  </Alert>
+</div>
+
