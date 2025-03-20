@@ -1,0 +1,22 @@
+@namespace Pango.UI.Components
+
+@inherits UIComponent
+
+<div
+  @attributes=@(AdditionalAttributes)
+  class=@Tw([
+  "inline-flex items-center rounded-md border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
+  GetStyledVariant(Variant),
+  AdditionalAttributes?.GetValueOrDefault("class")?.ToString()
+  ])>
+  @ChildContent
+</div>
+
+
+@code {
+  [Parameter]
+  public RenderFragment? ChildContent { get; set; }
+
+  [Parameter]
+  public Variants Variant { get; set; } = Variants.Default;
+}
