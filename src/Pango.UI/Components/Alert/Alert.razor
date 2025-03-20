@@ -1,0 +1,61 @@
+@namespace Pango.UI.Components
+
+@inherits UIComponent
+
+<dialog open role="alert" class=@Tw([
+    "relative w-full rounded-lg border bg-background px-4 py-3 text-sm",
+    (AlertSide is not null) ? " pl-10": string.Empty,
+    GetStyledVariant(Variant),
+    AdditionalAttributes?.GetValueOrDefault("class")?.ToString()
+  ])>
+
+  @if (AlertSide is not null)
+  {
+    <div class="absolute translate-y-[-3px] left-4 top-4">
+      @AlertSide
+    </div>
+  }
+
+  @if (AlertTitle is not null)
+  {
+    <h2 class="mb-1 leading-none font-medium tracking-tight">
+      @AlertTitle
+    </h2>
+  }
+
+  @if (EnableClose)
+  {
+    <form method="dialog" class="absolute top-2 right-4">
+      <button type="submit" class="cursor-pointer">
+        <span class="sr-only">dismiss</span>
+        @* TODO:(kallebysantos) Install some icon pack *@
+        <small class="font-medium">X</small>
+      </button>
+    </form>
+  }
+
+  @if (AlertDescription is not null)
+  {
+    <div class="text-sm [&_p]:leading-relaxed">
+      @AlertDescription
+    </div>
+  }
+</dialog>
+
+@code {
+  [Parameter]
+  public RenderFragment? AlertSide { get; set; }
+
+  [Parameter]
+  public RenderFragment? AlertTitle { get; set; }
+
+  [Parameter]
+  public RenderFragment? AlertDescription { get; set; }
+
+  [Parameter]
+  public bool EnableClose { get; set; } = true;
+
+  [Parameter]
+  public Variants Variant { get; set; } = Variants.Default;
+
+}
