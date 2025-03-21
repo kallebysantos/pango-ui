@@ -1,5 +1,6 @@
 // Code adapted from https://github.com/microsoft/fluentui-blazor
 
+using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 
@@ -213,12 +214,20 @@ public static class ReflectionExtensions
         bool invokeTypeNameConverterForGenericType = false
     )
     {
-        bool isNullableType =
-            !methodInfo.ReturnType.IsValueType
-            && (
-                new NullabilityInfoContext().Create(methodInfo.ReturnParameter).ReadState
-                is NullabilityState.Nullable
-            );
+        bool isNullableType = false;
+        try
+        {
+            isNullableType =
+                !methodInfo.ReturnType.IsValueType
+                && (
+                    new NullabilityInfoContext().Create(methodInfo.ReturnParameter).ReadState
+                    is NullabilityState.Nullable
+                );
+        }
+        catch (Exception e)
+        {
+            Debug.WriteLine(e);
+        }
 
         return methodInfo.ReturnType.ToNameStringWithValueTupleNames(
                 methodInfo
@@ -252,12 +261,20 @@ public static class ReflectionExtensions
         bool invokeTypeNameConverterForGenericType = false
     )
     {
-        bool isNullableType =
-            !propertyInfo.PropertyType.IsValueType
-            && (
-                new NullabilityInfoContext().Create(propertyInfo).WriteState
-                is NullabilityState.Nullable
-            );
+        bool isNullableType = false;
+        try
+        {
+            isNullableType =
+                !propertyInfo.PropertyType.IsValueType
+                && (
+                    new NullabilityInfoContext().Create(propertyInfo).WriteState
+                    is NullabilityState.Nullable
+                );
+        }
+        catch (Exception e)
+        {
+            Debug.WriteLine(e);
+        }
 
         return propertyInfo.PropertyType.ToNameStringWithValueTupleNames(
                 propertyInfo.GetCustomAttribute<TupleElementNamesAttribute>()?.TransformNames,
