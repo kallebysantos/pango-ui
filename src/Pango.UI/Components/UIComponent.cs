@@ -15,7 +15,7 @@ public class UIComponent : ComponentBase
     public IReadOnlyDictionary<string, object>? AdditionalAttributes { get; set; }
 
     [Inject]
-    public required TwMerge TwMerge { get; set; }
+    protected TwMerge TwMerge { get; set; } = null!;
 
     /// <summary>
     /// Merge Tailwind CSS classes without style conflicts
