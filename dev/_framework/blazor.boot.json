@@ -1,7 +1,7 @@
 {
   "mainAssemblyName": "Pango.UI",
   "resources": {
-    "hash": "sha256-gdsDPhcP7+BtW2aGMCeK5i/O3JR/VE/yIQQjS+mS52c=",
+    "hash": "sha256-PFU70KEhZFMTCtAjCHLHoQ91FCrA/yO2pG/F/H9l3P4=",
     "jsModuleNative": {
       "dotnet.native.8.0.14.ao03vwswak.js": "sha256-DTUQS6Jc6BNnS7sYYezFfaUKVmQq0/lanhQuJfygH/k="
     },
@@ -37,7 +37,7 @@
       "Microsoft.JSInterop.wasm": "sha256-7f8qa0Vm8S2NeHeEY+/3W1snrj9Yf+PrMKIrn7g+pio=",
       "Microsoft.JSInterop.WebAssembly.wasm": "sha256-3/M5Qj+EeMp8ANXvZmxLvL3MA4eWTJvlxq/NsNWJChs=",
       "netstandard.wasm": "sha256-/5S35/jHOkyjUCkTu/ubOdmfLAGHNnR47Nt72Bz/RQU=",
-      "Pango.UI.wasm": "sha256-dqn4ac75XMRF+SnbTMFdGkOZpeHegyfAotaNerkXG2c=",
+      "Pango.UI.wasm": "sha256-725tAox7EQ5rFxdNDB0kSvFm5//qi8pcwQIIssrPZS8=",
       "System.Collections.Concurrent.wasm": "sha256-8QpkIbkz4Tv50BSX1UutaNkLxSSMDXDFwljKGbn+Q6k=",
       "System.Collections.wasm": "sha256-ArNneOeNO/wUajZ2mz1BDe0OZkDKGnyeINMtTzMo/JU=",
       "System.ComponentModel.Primitives.wasm": "sha256-BouaJysyGWUR6TeeXbQ0APVIf3rqEnjUxK8OHcuxqTo=",
