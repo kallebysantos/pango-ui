@@ -1,0 +1,67 @@
+@namespace Pango.UI.Shared.Docs
+
+@* Code adapted from https://github.com/microsoft/fluentui-blazor *@
+
+
+@if (Component.BaseType is not null)
+{
+  <div class="flex flex-col gap-4">
+
+    <header class="flex flex-col gap-2">
+      <h2 class="text-xl font-medium">API Reference</h2>
+      <h1 class="text-2xl font-bold">@(_displayName) - @(Component.BaseType.Name)</h1>
+    </header>
+
+    @if (Description is not null)
+    {
+      <div class="">
+        @(Description)
+      </div>
+    }
+
+    @if (Properties.Any())
+    {
+      string header = Properties.Any(x => x.IsParameter) ? "Parameters" : "Properties";
+      <section class="flex flex-col gap-2">
+        <h4 class="text-xl font-bold">@header</h4>
+
+        <ul class="flex flex-col gap-4">
+          @foreach (var prop in Properties)
+          {
+            <li class="flex flex-col">
+              <h5 class="text-lg font-semibold">@prop.Name</h5>
+
+              <div class="flex items-end gap-1">
+                <p>
+                  <strong class="font-medium">Type:</strong>
+                  @prop.Type
+                </p>
+
+                <small class="text-sm text-muted-foreground/90">
+                  @prop.FullType
+                </small>
+              </div>
+
+              @if (prop.EnumValues.Any())
+              {
+                <p>
+                  <strong class="font-medium">EnumValues:</strong>
+                  @(string.Join("; ", prop.EnumValues))
+                </p>
+              }
+
+              @if (!string.IsNullOrEmpty(prop.Description))
+              {
+                <p>
+                  <strong class="font-medium">Description:</strong>
+                  @prop.Description
+                </p>
+              }
+            </li>
+          }
+        </ul>
+      </section>
+    }
+  </div>
+}
+

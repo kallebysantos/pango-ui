@@ -1,17 +1,27 @@
 @page "/badge"
 
-<div class="flex flex-col gap-4 p-4 items-center">
-  <Badge>Default</Badge>
+<section class="h-full flex-1 flex flex-col items-center justify-center">
+  <div class="flex-1 grid grid-cols-1 md:grid-cols-2 gap-6 p-6 items-center">
+    <div class="flex flex-col gap-4 p-4 items-center">
+      <Badge>Default</Badge>
 
-  <Badge Variant=@(Badge.Variants.Secondary)>
-    Secondary
-  </Badge>
+      <Badge Variant=@(Badge.Variants.Secondary)>
+        Secondary
+      </Badge>
 
-  <Badge Variant=@(Badge.Variants.Outline)>
-    Outline
-  </Badge>
+      <Badge Variant=@(Badge.Variants.Outline)>
+        Outline
+      </Badge>
 
-  <Badge Variant=@(Badge.Variants.Destructive)>
-    Destructive
-  </Badge>
-</div>
+      <Badge Variant=@(Badge.Variants.Destructive)>
+        Destructive
+      </Badge>
+    </div>
+
+    <div>
+      <ApiReference Component=@(typeof(Badge))>
+        <Description>Displays a badge or a component that looks like a badge.</Description>
+      </ApiReference>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,19 @@
+@inherits LayoutComponentBase
+
+<div class="flex h-screen flex-col space-y-6">
+  <header class="flex items-center justify-center mt-6">
+    <NavLink href="/">
+      <h2 class="text-lg font-thin">Welcome to </h2>
+      <h1 class="text-2xl font-bold">
+        Pango.UI
+        <span class="text-muted-foreground/80 font-medium">
+          Docs
+        </span>
+      </h1>
+    </NavLink>
+  </header>
+
+  <main class="flex flex-1 flex-col items-center gap-8 md:px-20">
+    @(Body)
+  </main>
+</div>

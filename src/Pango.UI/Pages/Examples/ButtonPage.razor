@@ -1,25 +1,35 @@
 @page "/button"
 
-<div class="flex flex-col gap-4 p-4 items-center">
-  <Button>Default</Button>
+<section class="h-full flex-1 flex flex-col items-center justify-center">
+  <div class="flex-1 grid grid-cols-1 md:grid-cols-2 gap-6 p-6 items-center">
+    <div class="flex flex-col gap-4 items-center">
+      <Button>Default</Button>
 
-  <Button Variant=@(Button.Variants.Secondary)>
-    Secondary
-  </Button>
+      <Button Variant=@(Button.Variants.Secondary)>
+        Secondary
+      </Button>
 
-  <Button Variant=@(Button.Variants.Outline)>
-    Outline
-  </Button>
+      <Button Variant=@(Button.Variants.Outline)>
+        Outline
+      </Button>
 
-  <Button Variant=@(Button.Variants.Destructive)>
-    Destructive
-  </Button>
+      <Button Variant=@(Button.Variants.Destructive)>
+        Destructive
+      </Button>
 
-  <Button Variant=@(Button.Variants.Link)>
-    Link
-  </Button>
+      <Button Variant=@(Button.Variants.Link)>
+        Link
+      </Button>
 
-  <Button Variant=@(Button.Variants.Ghost)>
-    Ghost
-  </Button>
-</div>
+      <Button Variant=@(Button.Variants.Ghost)>
+        Ghost
+      </Button>
+    </div>
+
+    <div>
+      <ApiReference Component=@(typeof(Button))>
+        <Description>Displays a button or a component that looks like a button.</Description>
+      </ApiReference>
+    </div>
+  </div>
+</section>
