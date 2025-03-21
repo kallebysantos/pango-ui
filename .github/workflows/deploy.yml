@@ -49,20 +49,31 @@ jobs:
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
 
+    - name: Configure gh-pages
+      uses: actions/configure-pages@v5.0.0
+
+    - name: Build documentation website
+      run: ./scripts/build_docs.sh
+
+    - name: Deploy documentation website
+      uses: peaceiris/actions-gh-pages@v4
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: publish/site/wwwroot
+        destination_dir: ${{ env.DEPLOY_DIR }}
+        keep_files: true
+
     - name: Install Pango registry builder
       run: ./scripts/install_pango.sh ${{ env.PANGO_VERSION }}
 
     - name: Build component registry
       run: ./scripts/build_registry.sh
 
-    - name: Configure gh-pages
-      uses: actions/configure-pages@v5.0.0
-
     - name: Deploy component registry
       uses: peaceiris/actions-gh-pages@v4
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: publish
-        destination_dir: ${{ env.DEPLOY_DIR }}
+        publish_dir: publish/registry
+        destination_dir: ${{ env.DEPLOY_DIR }}/api
         keep_files: true
 
