@@ -12,14 +12,20 @@
 
 <body>
   <div id="app">
-    <svg class="loading-progress">
-      <circle r="40%" cx="50%" cy="50%" />
-      <circle r="40%" cx="50%" cy="50%" />
-    </svg>
-    <div class="loading-progress-text"></div>
+    <div class="h-screen w-full flex items-center justify-center">
+      <div class="animate-pulse">
+        <h2 class="text-2xl font-thin">Welcome to </h2>
+        <h1 class="text-4xl font-bold">
+          Pango.UI
+          <span class="text-muted-foreground/80 font-medium">
+            Docs
+          </span>
+        </h1>
+      </div>
+    </div>
   </div>
 
-  <div id="blazor-error-ui">
+  <div id="blazor-error-ui" class="hidden">
     An unhandled error has occurred.
     <a href="" class="reload">Reload</a>
     <a class="dismiss">🗙</a>
