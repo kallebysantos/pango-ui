@@ -2,13 +2,22 @@
 
 @* Code adapted from https://github.com/microsoft/fluentui-blazor *@
 
+
 @if (Component.BaseType is not null)
 {
   <div class="flex flex-col gap-4">
+
     <header class="flex flex-col gap-2">
       <h2 class="text-xl font-medium">API Reference</h2>
       <h1 class="text-2xl font-bold">@(_displayName) - @(Component.BaseType.Name)</h1>
     </header>
+
+    @if (Description is not null)
+    {
+      <div class="">
+        @(Description)
+      </div>
+    }
 
     @if (Properties.Any())
     {
