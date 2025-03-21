@@ -23,4 +23,8 @@
         <PrivateAssets>all</PrivateAssets>
       </PackageReference>
     </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Components/DataTable/DataTable.razor.css" CssScope="data-table-scope-id" />
+  </ItemGroup>
 </Project>
