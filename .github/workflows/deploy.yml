@@ -26,6 +26,9 @@ jobs:
     - name: Set deployment directory
       id: set-dir
       run: |
+        # Extract repo name (e.g., "pango-ui" from "user/pango-ui")
+        echo "REPO_NAME=$(echo '${{ github.repository }}' | cut -d'/' -f2)" >> $GITHUB_ENV
+
         # url '/index.html'
         if [[ "${{ github.ref }}" == refs/heads/main ]]; then
           echo "DEPLOY_DIR=" >> $GITHUB_ENV
@@ -55,13 +58,22 @@ jobs:
     - name: Build documentation website
       run: ./scripts/build_docs.sh
 
+    - name: Update base path in index.html
+      run: |
+        BASE_PATH="${{ env.DEPLOY_DIR }}/"
+        if [ -z "${{ env.DEPLOY_DIR }}" ]; then
+          BASE_PATH=""
+        fi
+        BASE_PATH="/${{ env.REPO_NAME }}/$BASE_PATH"
+        sed -i "s|<base href=\"/\" />|<base href=\"$BASE_PATH\" />|" publish/site/wwwroot/index.html
+
     - name: Deploy documentation website
       uses: peaceiris/actions-gh-pages@v4
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: publish/site/wwwroot
         destination_dir: ${{ env.DEPLOY_DIR }}
-        keep_files: true
+        keep_files: false
 
     - name: Install Pango registry builder
       run: ./scripts/install_pango.sh ${{ env.PANGO_VERSION }}
