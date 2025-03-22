@@ -9,7 +9,16 @@
 
     <header class="flex flex-col gap-2">
       <h2 class="text-xl font-medium">API Reference</h2>
-      <h1 class="text-2xl font-bold">@(_displayName) - @(Component.BaseType.Name)</h1>
+      <h1 class="flex gap-1 text-2xl font-bold">
+        <span>@(_displayName) - @(Component.BaseType.Name)</span>
+
+        @if (!string.IsNullOrEmpty(Href))
+        {
+          <a class="hover:underline" href=@(Href) target="_blank">
+            <i class="ph ph-arrow-square-out"></i>
+          </a>
+        }
+      </h1>
     </header>
 
     @if (Description is not null)
@@ -29,17 +38,23 @@
           @foreach (var prop in Properties)
           {
             <li class="flex flex-col">
-              <h5 class="text-lg font-semibold">@prop.Name</h5>
+              <h5 class="flex items-center leading-none gap-1 text-lg font-semibold">
+                @prop.Name
+
+                @if (prop.IsInherits)
+                {
+                  <small class="text-sm text-muted-foreground/90">
+                    @Component.BaseType.Name
+                  </small>
+                }
+              </h5>
 
               <div class="flex items-end gap-1">
-                <p>
+                <p title="@(prop.FullType)">
                   <strong class="font-medium">Type:</strong>
                   @prop.Type
                 </p>
 
-                <small class="text-sm text-muted-foreground/90">
-                  @prop.FullType
-                </small>
               </div>
 
               @if (prop.EnumValues.Any())

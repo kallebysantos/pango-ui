@@ -6,7 +6,7 @@ namespace Pango.UI.Components;
 /// <summary>
 /// Provides common UI features
 /// </summary>
-public class UIComponent : ComponentBase
+public abstract class UIComponent : ComponentBase
 {
     /// <summary>
     /// Gets or sets a collection of additional attributes that will be applied to the created element.
