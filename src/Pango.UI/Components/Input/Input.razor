@@ -1,0 +1,36 @@
+@namespace Pango.UI.Components
+
+@inherits InputText
+
+<input
+  @attributes="@(AdditionalAttributes)"
+  name="@(NameAttributeValue)"
+  readonly=@(ReadOnly)
+  @bind="@(CurrentValueAsString)" 
+  @bind:event="oninput"
+  class=@Tw([
+    "flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm", 
+    "transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground",
+    "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50",
+    "aria-[invalid]:ring-1 aria-[invalid]:ring-red-500",
+    CssClass,
+    AdditionalAttributes?.GetValueOrDefault("class")?.ToString()
+  ]) />
+
+@code
+{
+    [Parameter]
+    public bool ReadOnly { get; set; } = false;
+
+    public override Task SetParametersAsync(ParameterView parameters)
+    {
+        parameters.SetParameterProperties(this);
+
+        if(ReadOnly)
+        {
+            ValueExpression = () => this.Value;
+        }
+
+        return base.SetParametersAsync(parameters);
+    }
+}
