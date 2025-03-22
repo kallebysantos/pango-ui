@@ -2,6 +2,7 @@
 
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
+using System.Text.Json;
 using Microsoft.AspNetCore.Components;
 
 namespace Pango.UI.Shared.Docs;
@@ -20,6 +21,7 @@ public partial class ApiReference
         public string? Default { get; set; } = null;
         public string Description { get; set; } = "";
         public bool IsParameter { get; set; }
+        public bool IsInherits { get; set; }
     }
 
     private IEnumerable<MemberDescription>? _allMembers = null;
@@ -48,6 +50,12 @@ public partial class ApiReference
     /// </summary>
     [Parameter]
     public string? GenericLabel { get; set; } = null;
+
+    /// <summary>
+    /// Gets or sets an external link reference.
+    /// </summary>
+    [Parameter]
+    public string? Href { get; set; } = null;
 
     [Parameter]
     public RenderFragment? Description { get; set; }
@@ -149,6 +157,8 @@ public partial class ApiReference
                             var isParameter =
                                 memberInfo.GetCustomAttribute<ParameterAttribute>() != null;
 
+                            var isInherits = memberInfo.DeclaringType != Component;
+
                             var t = propertyInfo.PropertyType;
                             var isEvent =
                                 t == typeof(EventCallback)
@@ -180,6 +190,7 @@ public partial class ApiReference
                                         Default = defaultVaue,
                                         Description = GetDescription(Component, propertyInfo),
                                         IsParameter = isParameter,
+                                        IsInherits = isInherits,
                                     }
                                 );
                             }
@@ -200,6 +211,7 @@ public partial class ApiReference
                                         Name = propertyInfo.Name,
                                         Type = propertyInfo.ToTypeNameString(),
                                         Description = GetDescription(Component, propertyInfo),
+                                        IsInherits = isInherits,
                                     }
                                 );
                             }
