@@ -4,11 +4,13 @@
 <section class="h-full flex-1 flex flex-col items-center justify-center">
   <div class="flex-1 grid grid-cols-1 md:grid-cols-2 gap-6 p-6 items-center">
     <div class="flex flex-col gap-4 items-center">
-      <DataTable Items="people">
+      <DataTable Items="people" Pagination=@(pagination)>
         <PropertyColumn Property="@(p => p.PersonId)" Sortable="true" />
         <PropertyColumn Property="@(p => p.Name)" Sortable="true" />
         <PropertyColumn Property="@(p => p.PromotionDate)" Format="yyyy-MM-dd" Sortable="true" />
       </DataTable>
+
+      <DataTablePagination State=@(pagination) />
 
     </div>
 
@@ -33,6 +35,8 @@
 
 @code {
   private record Person(int PersonId, string Name, DateOnly PromotionDate);
+
+  PaginationState pagination = new PaginationState { ItemsPerPage = 1 };
 
   private IQueryable<Person> people = new[]
   {
