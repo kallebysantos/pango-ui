@@ -26,7 +26,7 @@
   @if (EnableClose)
   {
     <form method="dialog" class="absolute top-2 right-4">
-      <button type="submit" class="cursor-pointer">
+      <button type="submit" class="cursor-pointer" @onclick=@(OnDismiss)>
         <span class="sr-only">dismiss</span>
         <i class="ph ph-x"></i>
       </button>
@@ -57,4 +57,6 @@
   [Parameter]
   public Variants Variant { get; set; } = Variants.Default;
 
+  [Parameter]
+  public EventCallback OnDismiss { get; set; }
 }
