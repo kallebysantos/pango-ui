@@ -1,0 +1,48 @@
+@namespace Pango.UI.Shared.Docs
+
+@using System.Reflection
+
+
+@if (Pages.Any())
+{
+  <nav class="flex flex-col gap-2">
+    @foreach (var page in Pages)
+    {
+      <NavLink href=@(page.RelativeURI)>
+        <Button Variant=@(Button.Variants.Link)>
+          @(page.DisplayName)
+        </Button>
+      </NavLink>
+    }
+  </nav>
+}
+
+@code {
+  [Parameter, EditorRequired]
+  public required Type Base { get; set; }
+
+  private List<PageDefinition> Pages = [];
+
+  protected override void OnParametersSet()
+  {
+
+    Pages = Assembly.GetExecutingAssembly().GetTypes()
+    .Where(t => t.Namespace == Base.Namespace && t.IsSubclassOf(typeof(ComponentBase)))
+    .Select(c => new { Type = c, Route = c.GetCustomAttribute<RouteAttribute>() })
+    .Where(c => c.Route is not null)
+    .Select(c => new PageDefinition(c.Type.Name, c.Route!.Template))
+    .OrderBy(c => c.Name)
+    .ToList();
+  }
+
+  record struct PageDefinition(string Name, string Route)
+  {
+    public string DisplayName => Name.EndsWith("Page")
+    ? Name.Substring(0, Name.Length - "Page".Length)
+    : Name;
+
+    public string RelativeURI => Route.StartsWith("/")
+    ? "." + Route
+    : Route;
+  }
+}

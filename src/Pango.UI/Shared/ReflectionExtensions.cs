@@ -17,7 +17,7 @@ public static class ReflectionExtensions
     /// A dictionary containing a mapping of type to type names.
     /// </summary>
     public static Dictionary<Type, string> KnownTypeNames =>
-        _knownTypeNames ?? (_knownTypeNames = CreateKnownTypeNamesDictionary());
+        _knownTypeNames ??= CreateKnownTypeNamesDictionary();
 
     private static Dictionary<Type, string> _knownTypeNames;
 
