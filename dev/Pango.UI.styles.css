@@ -26,10 +26,12 @@ div[data-table-scope-id][data-table-scope-id] {
     border-radius: 0.375rem;
     border: 0.05rem solid var(--border);
     overflow-x: auto;
+    width: 100%;
 }
 
 /* quick grid */
 [data-table-scope-id] .quickgrid[theme=data-table] {
+    flex: 1;
     width: 100%;
 }
 
