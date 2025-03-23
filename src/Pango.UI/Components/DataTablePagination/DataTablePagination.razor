@@ -1,40 +1,40 @@
 @namespace Pango.UI.Components
+
 @inherits Paginator
 
-<div class=@Tw("flex items-center justify-between px-2", AdditionalAttributes?.GetValueOrDefault("class")?.ToString())>
+<div class=@Tw("flex w-full items-center gap-4 justify-between px-2",
+       AdditionalAttributes?.GetValueOrDefault("class")?.ToString())>
   @if (State.TotalItemCount.HasValue)
   {
-    <div class="text-muted-foreground">
-      <span class="font-bold">@(State.TotalItemCount ?? 0)</span> rows
+    <span class="text-muted-foreground">
+      <strong>@(State.TotalItemCount ?? 0)</strong> rows
+    </span>
+
+    <span class="flex ms-auto gap-1 text-muted-foreground">
+      Page <strong>@(State.CurrentPageIndex + 1)</strong>
+      of <strong>@(State.LastPageIndex + 1)</strong>
+    </span>
+
+    <div class="flex items-center gap-2">
+      <Button Variant=@(Button.Variants.Outline) Size=@(Button.Sizes.Icon) class="hidden md:block"
+        @onclick="@GoFirstAsync" disabled="@(!CanGoBack)">
+        <i class="ph ph-caret-double-left group-disabled:opacity-60"></i>
+      </Button>
+
+      <Button Variant="Button.Variants.Outline" Size="Button.Sizes.Icon" @onclick="GoPreviousAsync"
+        disabled="@(!CanGoBack)">
+        <i class="ph ph-caret-left group-disabled:opacity-60"></i>
+      </Button>
+
+      <Button Variant="Button.Variants.Outline" Size="Button.Sizes.Icon" @onclick="GoNextAsync"
+        disabled="@(!CanGoForwards)">
+        <i class="ph ph-caret-right group-disabled:opacity-60"></i>
+      </Button>
+
+      <Button Variant="Button.Variants.Outline" Size="Button.Sizes.Icon" class="hidden md:block" @onclick="GoLastAsync"
+        disabled="@(!CanGoForwards)">
+        <i class="ph ph-caret-double-right group-disabled:opacity-60"></i>
+      </Button>
     </div>
-
-    <nav class="flex items-center gap-4">
-      <div class="flex items-center gap-2">
-        <Button Variant=@(Button.Variants.Outline) Size=@(Button.Sizes.Icon) @onclick="@GoFirstAsync"
-          disabled="@(!CanGoBack)">
-          <i class="ph ph-caret-double-left @(CanGoBack ? "" : "opacity-60")"></i>
-        </Button>
-        <Button Variant="Button.Variants.Outline" Size="Button.Sizes.Icon" @onclick="GoPreviousAsync"
-          disabled="@(!CanGoBack)">
-          <i class="ph ph-caret-left  @(CanGoBack ? "" : "opacity-60")"></i>
-        </Button>
-      </div>
-
-      <div class="text-muted-foreground">
-        Page <span class="font-bold">@(State.CurrentPageIndex + 1)</span> of <span class="font-bold">@(State.LastPageIndex
-                  + 1)</span>
-    </div>
-
-      <div class="flex items-center gap-2">
-        <Button Variant="Button.Variants.Outline" Size="Button.Sizes.Icon" @onclick="GoNextAsync"
-          disabled="@(!CanGoForwards)">
-          <i class="ph ph-caret-right  @(CanGoForwards ? "" : "opacity-60")"></i>
-        </Button>
-        <Button Variant="Button.Variants.Outline" Size="Button.Sizes.Icon" @onclick="GoLastAsync"
-          disabled="@(!CanGoForwards)">
-          <i class="ph ph-caret-double-right @(CanGoForwards ? "" : "opacity-60")"></i>
-        </Button>
-      </div>
-    </nav>
-    }
+  }
 </div>

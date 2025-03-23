@@ -18,18 +18,19 @@ public partial class DataTablePagination : Paginator
     /// <summary>
     /// Merge Tailwind CSS classes without style conflicts
     /// </summary>
-    public string? Tw(params string?[] classNames) => TwMerge.Merge(classNames);
+    protected string? Tw(params string?[] classNames) => TwMerge.Merge(classNames);
 
-    protected Task GoFirstAsync() => GoToPageAsync(0);
+    public Task GoFirstAsync() => GoToPageAsync(0);
 
-    protected Task GoPreviousAsync() => GoToPageAsync(State.CurrentPageIndex - 1);
+    public Task GoPreviousAsync() => GoToPageAsync(State.CurrentPageIndex - 1);
 
-    protected Task GoNextAsync() => GoToPageAsync(State.CurrentPageIndex + 1);
+    public Task GoNextAsync() => GoToPageAsync(State.CurrentPageIndex + 1);
 
-    protected Task GoLastAsync() => GoToPageAsync(State.LastPageIndex.GetValueOrDefault(0));
+    public Task GoLastAsync() => GoToPageAsync(State.LastPageIndex.GetValueOrDefault(0));
 
-    protected bool CanGoBack => State.CurrentPageIndex > 0;
-    protected bool CanGoForwards => State.CurrentPageIndex < State.LastPageIndex;
+    public bool CanGoBack => State.CurrentPageIndex > 0;
 
-    private Task GoToPageAsync(int pageIndex) => State.SetCurrentPageIndexAsync(pageIndex);
+    public bool CanGoForwards => State.CurrentPageIndex < State.LastPageIndex;
+
+    public Task GoToPageAsync(int pageIndex) => State.SetCurrentPageIndexAsync(pageIndex);
 }
