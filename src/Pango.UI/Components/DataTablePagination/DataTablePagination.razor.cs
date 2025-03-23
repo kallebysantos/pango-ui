@@ -20,13 +20,36 @@ public partial class DataTablePagination : Paginator
     /// </summary>
     protected string? Tw(params string?[] classNames) => TwMerge.Merge(classNames);
 
-    public Task GoFirstAsync() => GoToPageAsync(0);
+    public async Task GoFirstAsync()
+    {
+        if (!CanGoBack)
+            return;
+        await GoToPageAsync(0);
+    }
 
-    public Task GoPreviousAsync() => GoToPageAsync(State.CurrentPageIndex - 1);
+    public async Task GoPreviousAsync()
+    {
+        if (!CanGoBack)
+            return;
 
-    public Task GoNextAsync() => GoToPageAsync(State.CurrentPageIndex + 1);
+        await GoToPageAsync(State.CurrentPageIndex - 1);
+    }
 
-    public Task GoLastAsync() => GoToPageAsync(State.LastPageIndex.GetValueOrDefault(0));
+    public async Task GoNextAsync()
+    {
+        if (!CanGoForwards)
+            return;
+
+        await GoToPageAsync(State.CurrentPageIndex + 1);
+    }
+
+    public async Task GoLastAsync()
+    {
+        if (!CanGoForwards)
+            return;
+
+        await GoToPageAsync(State.LastPageIndex.GetValueOrDefault(0));
+    }
 
     public bool CanGoBack => State.CurrentPageIndex > 0;
 
