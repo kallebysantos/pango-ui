@@ -1,0 +1,50 @@
+@page "/separator"
+
+<section class="h-full flex-1 flex flex-col items-center justify-center">
+  <div class="flex-1 grid grid-cols-1 md:grid-cols-2 gap-6 p-6 items-center">
+    <div class="flex flex-col gap-4 items-center">
+      <div>
+        <h4 className="text-sm font-medium leading-none">Pango.UI</h4>
+        <p className="text-sm text-muted-foreground">
+          An open-source UI component library.
+        </p>
+      </div>
+ 
+      <Separator />
+
+      <div class="flex items-center gap-2 h-5">
+        <NavLink href="https://kallebysantos.github.io/pango-ui/" target="_blank">
+          <Button Variant=@(Button.Variants.Link)>
+            Docs
+            <i class="ph ph-arrow-square-out"></i>
+          </Button>
+        </NavLink>
+
+        <Separator Orientation=@(Separator.Orientations.Vertical) />
+
+        <NavLink href="https://github.com/kallebysantos/pango-ui" target="_blank">
+          <Button Variant=@(Button.Variants.Link)>
+            Repository
+            <i class="ph ph-arrow-square-out"></i>
+          </Button>
+        </NavLink>
+
+        <Separator Orientation=@(Separator.Orientations.Vertical) />
+
+        <NavLink href="https://github.com/kallebysantos/tailwind-dotnet" target="_blank">
+          <Button Variant=@(Button.Variants.Link)>
+            Tailwind .NET
+            <i class="ph ph-arrow-square-out"></i>
+          </Button>
+        </NavLink>
+      </div>
+
+    </div>
+
+    <div>
+      <ApiReference Component=@(typeof(Separator))>
+        <Description>Visually or semantically separates content.</Description>
+      </ApiReference>
+    </div>
+  </div>
+</section>

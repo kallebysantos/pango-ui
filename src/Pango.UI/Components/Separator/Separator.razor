@@ -1,0 +1,14 @@
+@namespace Pango.UI.Components
+
+<div 
+@attributes=@AdditionalAttributes class="@Tw(
+    "shrink-0 bg-border", 
+    GetStyledOrientation(Orientation),
+    AdditionalAttributes?.GetValueOrDefault("class")?.ToString()
+    )">
+</div>
+
+@code {
+    [Parameter]
+    public Orientations Orientation { get; set; } = Orientations.Horizontal;
+}
