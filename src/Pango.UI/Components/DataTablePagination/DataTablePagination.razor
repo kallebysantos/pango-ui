@@ -1,0 +1,47 @@
+@namespace Pango.UI.Components
+
+@inherits Paginator
+
+<div class=@Tw("flex w-full items-center gap-4 justify-between px-2",
+       AdditionalAttributes?.GetValueOrDefault("class")?.ToString())>
+  @if (State.TotalItemCount.HasValue)
+  {
+    <span class="text-muted-foreground">
+      <strong>@(State.TotalItemCount ?? 0)</strong> rows
+    </span>
+
+    <span class="flex ms-auto gap-1 text-muted-foreground">
+      Page <strong>@(State.CurrentPageIndex + 1)</strong>
+      of <strong>@(State.LastPageIndex + 1)</strong>
+    </span>
+
+    <div class="flex items-center gap-2">
+      <form @formname="data-table-pagination-handle-go-first" @onsubmit="@(GoFirstAsync)" method="post" data-enhance>
+        <Button Variant=@(Button.Variants.Outline) Size=@(Button.Sizes.Icon) class="hidden md:block"
+          disabled="@(!CanGoBack)">
+          <i class="ph ph-caret-double-left group-disabled:opacity-60"></i>
+        </Button>
+      </form>
+
+      <form @formname="data-table-pagination-handle-go-previous" @onsubmit="@(GoPreviousAsync)" method="post"
+        data-enhance>
+        <Button Variant="Button.Variants.Outline" Size="Button.Sizes.Icon" disabled="@(!CanGoBack)">
+          <i class="ph ph-caret-left group-disabled:opacity-60"></i>
+        </Button>
+      </form>
+
+      <form @formname="data-table-pagination-handle-go-next" @onsubmit="@(GoNextAsync)" method="post" data-enhance>
+        <Button Variant="Button.Variants.Outline" Size="Button.Sizes.Icon" disabled="@(!CanGoForwards)">
+          <i class="ph ph-caret-right group-disabled:opacity-60"></i>
+        </Button>
+      </form>
+
+      <form @formname="data-table-pagination-handle-go-last" @onsubmit="@(GoLastAsync)" method="post" data-enhance>
+        <Button Variant="Button.Variants.Outline" Size="Button.Sizes.Icon" class="hidden md:block" 
+          disabled="@(!CanGoForwards)">
+          <i class="ph ph-caret-double-right group-disabled:opacity-60"></i>
+        </Button>
+      </form>
+    </div>
+  }
+</div>
