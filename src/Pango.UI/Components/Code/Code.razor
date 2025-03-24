@@ -1,8 +1,12 @@
 @namespace Pango.UI.Components
+
+@using System.Diagnostics
+
 @inject IJSRuntime JS
 
 <div @ref="@(codeContainerRef)" id="pango-ui-code" data-language="@(Language)"
-  class="flex w-full border p-4 transition-all dark:bg-zinc-950 rounded data-[loading]:bg-muted data-[loading]:animate-pulse">
+  class="flex w-full border p-4 transition-all dark:bg-zinc-950 rounded data-[loading]:bg-muted data-[loading]:animate-pulse"
+  data-loading="@(IsLoading)">
   <textarea class="hidden">@ChildContent</textarea>
   <div id="pango-ui-code-container"
     class="relative flex-1 overflow-hidden after:absolute after:inset-y-0 after:left-0 after:w-auto [&_.line:before]:sticky [&_.line:before]:left-2 [&_.line:before]:z-10 [&_.line:before]:translate-y-[-1px] [&_.line:before]:pr-1 [&_pre]:first:hidden [&_pre]:first:dark:block [&_pre]:last:block [&_pre]:last:dark:hidden [&_pre]:h-[--height] [&_pre]:overflow-auto [&_pre]:!bg-transparent [&_pre]:pb-20 [&_pre]:pt-4 [&_pre]:font-mono [&_pre]:text-sm [&_pre]:leading-relaxed">
@@ -20,16 +24,49 @@
 
   private IJSObjectReference? jsModule;
 
+  private bool IsLoading = false;
+  private bool IsCodeRendered = false;
+
+  protected override async Task OnInitializedAsync()
+  {
+    // Blazor interactive wasm load once
+    // It will trhows on static-site prerendering
+    try
+    {
+      IsLoading = true;
+      await ApplySyntaxtHighlight();
+      IsLoading = false;
+    }
+    catch (Exception e)
+    {
+      Debug.WriteLine(e);
+    }
+  }
+
   protected override async Task OnAfterRenderAsync(bool firstRender)
   {
-    if (firstRender)
+    // Blazor interactive pre-rendered load once
+    if (firstRender && !IsLoading)
     {
-      jsModule = await JS.InvokeAsync<IJSObjectReference>(
-      "import",
-      "./Components/Code/Code.razor.js"
-      );
-
-      await jsModule.InvokeVoidAsync("ApplySyntaxHighlight", codeContainerRef);
+      IsLoading = true;
+      await ApplySyntaxtHighlight();
+      IsLoading = false;
     }
+  }
+
+  protected async Task ApplySyntaxtHighlight()
+  {
+    if (JS is null || IsCodeRendered) return;
+
+    jsModule ??= await JS.InvokeAsync<IJSObjectReference>(
+    "import",
+    "./Components/Code/Code.razor.js"
+    );
+
+    if (jsModule is null) return;
+
+    await jsModule.InvokeVoidAsync("ApplySyntaxHighlight", codeContainerRef);
+
+    IsCodeRendered = true;
   }
 }

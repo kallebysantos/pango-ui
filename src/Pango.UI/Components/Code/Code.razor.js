@@ -2,6 +2,7 @@ import { codeToHtml } from 'https://esm.sh/shiki@3.0.0'
 
 export async function ApplySyntaxHighlight(elementRef) {
   elementRef.toggleAttribute("data-loading", true);
+
   const codeLang = elementRef.getAttribute("data-language");
   const codeStr = elementRef.querySelector("textarea").value;
   const outputContainer = elementRef.querySelector("div#pango-ui-code-container");
