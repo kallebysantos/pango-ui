@@ -1,0 +1,35 @@
+@namespace Pango.UI.Components
+@inject IJSRuntime JS
+
+<div @ref="@(codeContainerRef)" id="pango-ui-code" data-language="@(Language)"
+  class="flex w-full border p-4 transition-all dark:bg-zinc-950 rounded data-[loading]:bg-muted data-[loading]:animate-pulse">
+  <textarea class="hidden">@ChildContent</textarea>
+  <div id="pango-ui-code-container"
+    class="relative flex-1 overflow-hidden after:absolute after:inset-y-0 after:left-0 after:w-auto [&_.line:before]:sticky [&_.line:before]:left-2 [&_.line:before]:z-10 [&_.line:before]:translate-y-[-1px] [&_.line:before]:pr-1 [&_pre]:first:hidden [&_pre]:first:dark:block [&_pre]:last:block [&_pre]:last:dark:hidden [&_pre]:h-[--height] [&_pre]:overflow-auto [&_pre]:!bg-transparent [&_pre]:pb-20 [&_pre]:pt-4 [&_pre]:font-mono [&_pre]:text-sm [&_pre]:leading-relaxed">
+  </div>
+</div>
+
+@code {
+  [Parameter]
+  public RenderFragment? ChildContent { get; set; }
+
+  [Parameter, EditorRequired]
+  public required string Language { get; set; }
+
+  private ElementReference codeContainerRef;
+
+  private IJSObjectReference? jsModule;
+
+  protected override async Task OnAfterRenderAsync(bool firstRender)
+  {
+    if (firstRender)
+    {
+      jsModule = await JS.InvokeAsync<IJSObjectReference>(
+      "import",
+      "./Components/Code/Code.razor.js"
+      );
+
+      await jsModule.InvokeVoidAsync("ApplySyntaxHighlight", codeContainerRef);
+    }
+  }
+}
