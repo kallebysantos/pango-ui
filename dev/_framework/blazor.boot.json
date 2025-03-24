@@ -1,7 +1,7 @@
 {
   "mainAssemblyName": "Pango.UI",
   "resources": {
-    "hash": "sha256-aAtXtvH3HSQi27sIaln/GY7MWb1Pr5+X0Qec7O6N23s=",
+    "hash": "sha256-5R8VoMQ/loEXh2aSJL0tpoWuUkK9fZHq2fc0X0Rr25g=",
     "jsModuleNative": {
       "dotnet.native.8.0.14.ao03vwswak.js": "sha256-DTUQS6Jc6BNnS7sYYezFfaUKVmQq0/lanhQuJfygH/k="
     },
@@ -39,7 +39,7 @@
       "Microsoft.JSInterop.wasm": "sha256-FjWUjNaEc8WxyBmFQ+XLc7ZjePKj78vLuRaxw4bn/vo=",
       "Microsoft.JSInterop.WebAssembly.wasm": "sha256-3/M5Qj+EeMp8ANXvZmxLvL3MA4eWTJvlxq/NsNWJChs=",
       "netstandard.wasm": "sha256-/5S35/jHOkyjUCkTu/ubOdmfLAGHNnR47Nt72Bz/RQU=",
-      "Pango.UI.wasm": "sha256-PqxDBwSowpjSgLYRf9XQlaqCIthpAvrEJ+MDuEEG+nQ=",
+      "Pango.UI.wasm": "sha256-u4xNjjJU65ftXrjvSWiIGbldOqO1QSuKvir6qXFjCsY=",
       "System.Collections.Concurrent.wasm": "sha256-Rlhjc4hNLvw4R+d1hC9ejO+NEMRXPdF4AtSvTgjflx0=",
       "System.Collections.NonGeneric.wasm": "sha256-bea161CpPpAU/C7TWSV/9rPr8K36KdCUJ4WQghGEIjk=",
       "System.Collections.Specialized.wasm": "sha256-eAMCdLU5jSeMl9Kn3hOsXQYDwCK/wagP4PWuT7VlbbU=",
@@ -63,7 +63,7 @@
       "System.Private.Uri.wasm": "sha256-ulqIyKoPrODAU5BovZEaVThH0d7BYytXFK36wcG8mR4=",
       "System.Runtime.InteropServices.JavaScript.wasm": "sha256-6eHSoWwXTuym10+n/qcAjF9eWQVXNaD90wpgzm9k80w=",
       "System.Runtime.Serialization.Primitives.wasm": "sha256-ofSq/QoAosxjNl/0UBpQ1WsQFT7/0kXDvO3mi54hEFk=",
-      "System.Runtime.wasm": "sha256-2/E7o1sy3tzFKugIxlY0i6DxUsDZUrsIs3j+R7eauAU=",
+      "System.Runtime.wasm": "sha256-SMFVgCkxWMfIvCZqBp8Avcn8vV+snfo9O9oj+3nLNIU=",
       "System.Security.Cryptography.wasm": "sha256-3kUC7DnWTcj7ZuBV1JOrezM/CbsMITaUgYEDZrqOfI4=",
       "System.Text.Encodings.Web.wasm": "sha256-FIbb3K0huaoQ8/5Ay0SNw+poPDV/Q8ReIfAb6Iy78rA=",
       "System.Text.Json.wasm": "sha256-YQr0VhOq7Q2vCKWdqzyWkqrVabCQSjRHT6VLJFsGpbc=",
@@ -72,6 +72,12 @@
       "Tailwind.Hosting.Cli.wasm": "sha256-1jKTY2blUYkLVxFneujNiTGi39J6aF7JIc/sItijSgY=",
       "Tailwind.Hosting.wasm": "sha256-5X4IdnaMyFWZLPQDtTjCoJKIsOLcdc2LzHSE1uBZVU4=",
       "TailwindMerge.wasm": "sha256-QHsYHOgaWBwVHLVEkwfPPQekZChqq4RMQWqqr15593I="
+    },
+    "libraryInitializers": {
+      "Pango.UI.lib.module.js": "sha256-USvstEL9hME2BIdraGbtJfY83az4f0YBRn2CdbkRtuA="
+    },
+    "modulesAfterConfigLoaded": {
+      "../Pango.UI.lib.module.js": "sha256-USvstEL9hME2BIdraGbtJfY83az4f0YBRn2CdbkRtuA="
     }
   },
   "cacheBootResources": true,
