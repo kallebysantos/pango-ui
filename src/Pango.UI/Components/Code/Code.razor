@@ -1,15 +1,19 @@
 @namespace Pango.UI.Components
 
 @using System.Diagnostics
+@using TailwindMerge
 
 @inject IJSRuntime JS
 
 <div @ref="@(codeContainerRef)" id="pango-ui-code" data-language="@(Language)"
-  class="flex w-full border p-4 transition-all dark:bg-zinc-950 rounded data-[loading]:bg-muted data-[loading]:animate-pulse"
+  class=@Tw([
+    "flex w-full border p-4 transition-all dark:bg-zinc-950 rounded data-[loading]:bg-muted data-[loading]:animate-pulse",
+    AdditionalAttributes?.GetValueOrDefault("class")?.ToString()
+  ])
   data-loading="@(IsLoading)">
   <textarea class="hidden">@ChildContent</textarea>
   <div id="pango-ui-code-container"
-    class="relative flex-1 overflow-hidden after:absolute after:inset-y-0 after:left-0 after:w-auto [&_.line:before]:sticky [&_.line:before]:left-2 [&_.line:before]:z-10 [&_.line:before]:translate-y-[-1px] [&_.line:before]:pr-1 [&_pre]:first:hidden [&_pre]:first:dark:block [&_pre]:last:block [&_pre]:last:dark:hidden [&_pre]:h-[--height] [&_pre]:overflow-auto [&_pre]:!bg-transparent [&_pre]:pb-20 [&_pre]:pt-4 [&_pre]:font-mono [&_pre]:text-sm [&_pre]:leading-relaxed">
+    class="relative flex-1 overflow-hidden after:absolute after:inset-y-0 after:left-0 after:w-auto [&_.line:before]:sticky [&_.line:before]:left-2 [&_.line:before]:z-10 [&_.line:before]:translate-y-[-1px] [&_.line:before]:pr-1 [&_pre]:first:hidden [&_pre]:first:dark:block [&_pre]:last:block [&_pre]:last:dark:hidden [&_pre]:h-[--height] [&_pre]:overflow-auto [&_pre]:!bg-transparent [&_pre]:py-1 [&_pre]:font-mono [&_pre]:text-sm [&_pre]:leading-relaxed">
   </div>
 </div>
 
@@ -19,6 +23,20 @@
 
   [Parameter, EditorRequired]
   public required string Language { get; set; }
+
+  /// <summary>
+  /// Gets or sets a collection of additional attributes that will be applied to the created element.
+  /// </summary>
+  [Parameter(CaptureUnmatchedValues = true)]
+  public IReadOnlyDictionary<string, object>? AdditionalAttributes { get; set; }
+
+  [Inject]
+  protected TwMerge TwMerge { get; set; } = null!;
+
+  /// <summary>
+  /// Merge Tailwind CSS classes without style conflicts
+  /// </summary>
+  public string? Tw(params string?[] classNames) => TwMerge.Merge(classNames);
 
   private ElementReference codeContainerRef;
 

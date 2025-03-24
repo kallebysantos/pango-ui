@@ -1,0 +1,35 @@
+@page "/code"
+
+<section class="h-full flex-1 flex flex-col items-center justify-center">
+  <div class="flex-1 grid grid-cols-1 md:grid-cols-2 gap-6 p-6 items-center">
+    <div class="flex flex-col gap-4 items-center">
+      <Code class="[&_pre]:max-h-80" Language="razor">
+        @(@"
+<div>
+  <h4 class=""text-sm font-medium leading-none"">
+    Pango.UI
+  </h4>
+  <p class=""text-sm text-muted-foreground"">
+    An open-source UI component library.
+  </p>
+</div>
+
+@code {
+  public void Greetings() => Console.WriteLine(""Hello from Pango"");
+}")
+      </Code>
+
+      <Code class="[&_pre]:max-h-80" Language="fish">
+        @("dotnet pango add code")
+      </Code>
+    </div>
+
+    <div>
+      <ApiReference Component=@(typeof(Code))>
+        <Description>
+          Renders a beautifully styled code block with syntax highlighting. 
+        </Description>
+      </ApiReference>
+    </div>
+  </div>
+</section>
