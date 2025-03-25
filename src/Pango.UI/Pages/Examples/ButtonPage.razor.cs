@@ -5,7 +5,7 @@ namespace Pango.UI.Pages.Examples;
 public partial class ButtonPage : ComponentBase
 {
     protected const string ButtonCodeExample =
-        @"<div class=""flex flex-col gap-4 items-center"">
+        @"<div class=""flex flex-col gap-8 items-center"">
   <Button>Default</Button>
 
   <Button Variant=@(Button.Variants.Secondary)>

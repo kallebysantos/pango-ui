@@ -5,7 +5,7 @@ namespace Pango.UI.Pages.Examples;
 public partial class BadgePage : ComponentBase
 {
     protected const string BadgeCodeExample =
-        @"<div class=""flex flex-col gap-4 items-center"">
+        @"<div class=""flex flex-col gap-8 items-center"">
   <Badge>Default</Badge>
 
   <Badge Variant=@(Badge.Variants.Secondary)>

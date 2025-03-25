@@ -1,7 +1,7 @@
 @page "/button"
 
 <section class="h-full flex-1 flex flex-col items-center justify-center">
-  <div class="flex-1 grid grid-cols-1 md:grid-cols-2 gap-8 p-6">
+  <div class="flex-1 grid grid-cols-1 w-full md:grid-cols-2 lg:max-w-5xl gap-8 p-6">
     <div>
       <Tabs DefaultValue="preview" Variant=@(Tabs.Variants.Underline)>
         <TabsList>
@@ -9,7 +9,7 @@
           <TabsTrigger Value="code">Code</TabsTrigger>
         </TabsList>
 
-        <TabsContent Value="preview" class="flex flex-col gap-4 items-center border p-4">
+        <TabsContent Value="preview" class="flex flex-col gap-8 px-4 py-8 items-center border">
           <Button>Default</Button>
 
           <Button Variant=@(Button.Variants.Secondary)>
