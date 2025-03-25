@@ -2,7 +2,7 @@
 
 @inject IJSRuntime JS
 
-<div id="pago-ui-tabs" @ref=@(tabsRef)>
+<div id="pago-ui-tabs" @ref=@(tabsRef) @attributes=@(AdditionalAttributes)>
   <CascadingValue Value=@(DefaultValue) Name=@(nameof(DefaultValue))>
     <CascadingValue Value=@(Variant) Name=@(nameof(Variant))>
       @(ChildContent)
