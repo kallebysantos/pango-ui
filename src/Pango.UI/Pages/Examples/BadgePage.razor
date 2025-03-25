@@ -1,24 +1,44 @@
 @page "/badge"
-
 <section class="h-full flex-1 flex flex-col items-center justify-center">
-  <div class="flex-1 grid grid-cols-1 md:grid-cols-2 gap-6 p-6 items-center">
-    <div class="flex flex-col gap-4 p-4 items-center">
-      <Badge>Default</Badge>
+  <div class="flex-1 grid grid-cols-1 md:grid-cols-2 gap-8 p-6">
+    <div>
+      <Tabs DefaultValue="preview" Variant=@(Tabs.Variants.Underline)>
+        <TabsList>
+          <TabsTrigger Value="preview">Preview</TabsTrigger>
+          <TabsTrigger Value="code">Code</TabsTrigger>
+        </TabsList>
 
-      <Badge Variant=@(Badge.Variants.Secondary)>
-        Secondary
-      </Badge>
+        <TabsContent Value="preview" class="flex flex-col gap-4 items-center border p-4">
+          <Badge>Default</Badge>
 
-      <Badge Variant=@(Badge.Variants.Outline)>
-        Outline
-      </Badge>
+          <Badge Variant=@(Badge.Variants.Secondary)>
+            Secondary
+          </Badge>
 
-      <Badge Variant=@(Badge.Variants.Destructive)>
-        Destructive
-      </Badge>
+          <Badge Variant=@(Badge.Variants.Outline)>
+            Outline
+          </Badge>
+
+          <Badge Variant=@(Badge.Variants.Destructive)>
+            Destructive
+          </Badge>
+        </TabsContent>
+        <TabsContent Value="code" class="flex flex-col gap-4 items-center">
+          <Code Language="razor" class="[&_pre]:max-h-80">
+            @(BadgeCodeExample)
+          </Code>
+        </TabsContent>
+      </Tabs>
     </div>
 
-    <div>
+    <div class="flex flex-col gap-4">
+      <div class="flex flex-col gap-2">
+        <h2 class="pb-2 border-b text-xl leading-snug font-semibold tracking-tight">
+          Installation
+        </h2>
+
+        <Code Language="fish" class="py-2">dotnet pango add badge</Code>
+      </div>
       <ApiReference Component=@(typeof(Badge))>
         <Description>Displays a badge or a component that looks like a badge.</Description>
       </ApiReference>
