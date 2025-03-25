@@ -1,0 +1,32 @@
+@namespace Pango.UI.Components
+
+@using TailwindMerge
+
+<button @attributes=@(AdditionalAttributes) role="tab"
+aria-controls="panel-@(Value)" id="tab-@(Value)"
+aria-selected="@(IsSelected.ToString().ToLower())"
+tabindex="@(IsSelected ? 0 : -1)"
+class=@(Tw([
+  "inline-flex items-center justify-center whitespace-nowrap py-1 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 aria-[selected=true]:bg-background aria-[selected=true]:text-foreground",
+  GetStyledVariant(Variant),
+  AdditionalAttributes?.GetValueOrDefault("class")?.ToString()
+]))>
+  @(ChildContent)
+</button>
+
+
+@code {
+  [Parameter]
+  public RenderFragment? ChildContent { get; set; }
+
+  [Parameter, EditorRequired]
+  public required string Value { get; set; }
+
+  [CascadingParameter(Name = nameof(Tabs.DefaultValue))]
+  public string? DefaultValue { get; set; }
+
+  [CascadingParameter(Name = nameof(Tabs.Variant))]
+  public Tabs.Variants Variant { get; set; } = Tabs.Variants.Default;
+
+  protected bool IsSelected => Value == DefaultValue;
+}

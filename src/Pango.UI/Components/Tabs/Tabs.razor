@@ -1,0 +1,49 @@
+@namespace Pango.UI.Components
+
+@inject IJSRuntime JS
+
+<div id="pago-ui-tabs" @ref=@(tabsRef)>
+  <CascadingValue Value=@(DefaultValue) Name=@(nameof(DefaultValue))>
+    <CascadingValue Value=@(Variant) Name=@(nameof(Variant))>
+      @(ChildContent)
+    </CascadingValue>
+  </CascadingValue>
+</div>
+
+@code {
+  [Parameter, EditorRequired]
+  public required RenderFragment ChildContent { get; set; }
+
+  [Parameter, EditorRequired]
+  public required string DefaultValue { get; set; }
+
+  [Parameter]
+  public Tabs.Variants Variant { get; set; } = Tabs.Variants.Default;
+
+  private IJSObjectReference? jsModule;
+
+  private ElementReference tabsRef;
+
+  protected override async Task OnAfterRenderAsync(bool firstRender)
+  {
+    // Blazor interactive pre-rendered load once
+    if (firstRender)
+    {
+      await RegisterTabs();
+    }
+  }
+
+  protected async Task RegisterTabs()
+  {
+    if (JS is null) return;
+
+    jsModule ??= await JS.InvokeAsync<IJSObjectReference>(
+    "import",
+    "./Components/Tabs/Tabs.razor.js"
+    );
+
+    if (jsModule is null) return;
+
+    await jsModule.InvokeVoidAsync("RegisterTabs", tabsRef);
+  }
+}

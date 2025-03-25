@@ -1,0 +1,55 @@
+@page "/tabs"
+
+<section class="h-full flex-1 flex flex-col items-center justify-center">
+  <div class="flex-1 grid grid-cols-1 md:grid-cols-2 gap-6 p-6 items-center">
+    <div class="flex flex-col gap-4 items-center">
+      <Tabs DefaultValue="panel-1">
+        <TabsList>
+          <TabsTrigger Value="panel-1">
+            First Tab
+          </TabsTrigger>
+          <TabsTrigger Value="panel-2">
+            Second Tab
+          </TabsTrigger>
+          <TabsTrigger Value="panel-3">
+            Third Tab
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent Value="panel-1">
+          <p>Content for the first panel</p>
+        </TabsContent>
+        <TabsContent Value="panel-2">
+          <p>Content for the second panel</p>
+        </TabsContent>
+        <TabsContent Value="panel-3">
+          <p>Content for the third panel</p>
+        </TabsContent>
+      </Tabs>
+
+      <Tabs Variant=@(Tabs.Variants.Underline) DefaultValue="panel-1">
+        <TabsList>
+          <TabsTrigger Value="panel-1">
+            First Tab
+          </TabsTrigger>
+          <TabsTrigger Value="panel-2">
+            Second Tab
+          </TabsTrigger>
+          <TabsTrigger Value="panel-3">
+            Third Tab
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent Value="panel-1">
+          <p>Content for the first panel</p>
+        </TabsContent>
+        <TabsContent Value="panel-2">
+          <p>Content for the second panel</p>
+        </TabsContent>
+        <TabsContent Value="panel-3">
+          <p>Content for the third panel</p>
+        </TabsContent>
+      </Tabs>
+    </div>
+  </div>
+</section>
