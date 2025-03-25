@@ -15,37 +15,36 @@
       of <strong>@(State.LastPageIndex + 1)</strong>
     </span>
 
-    <div class="flex items-center gap-2">
-      <form @formname="data-table-pagination-handle-go-first" @onsubmit="@(GoFirstAsync)" method="post" data-enhance>
-        <AntiforgeryToken />
+    <nav role="navigation" class="flex items-center gap-2">
+      <a href="@(CanGoBack ? GetPageUrl(0) : null)" @onclick="@(GoFirstAsync)" disabled="@(!CanGoBack)"
+        title="Go to first page" aria-label="Go to first page">
         <Button Variant=@(Button.Variants.Outline) Size=@(Button.Sizes.Icon) class="hidden md:block"
           disabled="@(!CanGoBack)">
           <i class="ph ph-caret-double-left group-disabled:opacity-60"></i>
         </Button>
-      </form>
+      </a>
 
-      <form @formname="data-table-pagination-handle-go-previous" @onsubmit="@(GoPreviousAsync)" method="post"
-        data-enhance>
-        <AntiforgeryToken />
+      <a href="@(CanGoBack ? GetPageUrl(State.CurrentPageIndex - 1) : null)" @onclick="@(GoPreviousAsync)"
+        disabled="@(!CanGoBack)" title="Go to previous page" aria-label="Go to previous page">
         <Button Variant="Button.Variants.Outline" Size="Button.Sizes.Icon" disabled="@(!CanGoBack)">
           <i class="ph ph-caret-left group-disabled:opacity-60"></i>
         </Button>
-      </form>
+      </a>
 
-      <form @formname="data-table-pagination-handle-go-next" @onsubmit="@(GoNextAsync)" method="post" data-enhance>
-        <AntiforgeryToken />
+      <a href="@(CanGoForwards ? GetPageUrl(State.CurrentPageIndex + 1) : null)" @onclick="@(GoNextAsync)"
+        disabled="@(!CanGoForwards)" title="Go to next page" aria-label="Go to next page">
         <Button Variant="Button.Variants.Outline" Size="Button.Sizes.Icon" disabled="@(!CanGoForwards)">
           <i class="ph ph-caret-right group-disabled:opacity-60"></i>
         </Button>
-      </form>
+      </a>
 
-      <form @formname="data-table-pagination-handle-go-last" @onsubmit="@(GoLastAsync)" method="post" data-enhance>
-        <AntiforgeryToken />
+      <a href="@(CanGoForwards ? GetPageUrl(State.LastPageIndex) : null)" @onclick="@(GoLastAsync)"
+        disabled="@(!CanGoForwards)" title="Go to last page" aria-label="Go to last page">
         <Button Variant="Button.Variants.Outline" Size="Button.Sizes.Icon" class="hidden md:block"
           disabled="@(!CanGoForwards)">
           <i class="ph ph-caret-double-right group-disabled:opacity-60"></i>
         </Button>
-      </form>
-    </div>
+      </a>
+    </nav>
   }
 </div>

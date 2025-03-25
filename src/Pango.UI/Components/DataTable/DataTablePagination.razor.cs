@@ -20,11 +20,32 @@ public partial class DataTablePagination : Paginator
     /// </summary>
     protected string? Tw(params string?[] classNames) => TwMerge.Merge(classNames);
 
+    [Parameter]
+    public Func<int, string>? PageUrl { get; set; }
+
+    [Parameter]
+    public EventCallback? OnFirst { get; set; }
+
+    [Parameter]
+    public EventCallback? OnPrevious { get; set; }
+
+    [Parameter]
+    public EventCallback? OnNext { get; set; }
+
+    [Parameter]
+    public EventCallback? OnLast { get; set; }
+
+    public string? GetPageUrl(int? pageIndex) =>
+        PageUrl is null || !pageIndex.HasValue ? null : PageUrl(pageIndex.Value);
+
     public async Task GoFirstAsync()
     {
         if (!CanGoBack)
             return;
         await GoToPageAsync(0);
+
+        if (OnFirst.HasValue)
+            await OnFirst.Value.InvokeAsync();
     }
 
     public async Task GoPreviousAsync()
@@ -33,6 +54,9 @@ public partial class DataTablePagination : Paginator
             return;
 
         await GoToPageAsync(State.CurrentPageIndex - 1);
+
+        if (OnPrevious.HasValue)
+            await OnPrevious.Value.InvokeAsync();
     }
 
     public async Task GoNextAsync()
@@ -41,6 +65,9 @@ public partial class DataTablePagination : Paginator
             return;
 
         await GoToPageAsync(State.CurrentPageIndex + 1);
+
+        if (OnNext.HasValue)
+            await OnNext.Value.InvokeAsync();
     }
 
     public async Task GoLastAsync()
@@ -49,11 +76,24 @@ public partial class DataTablePagination : Paginator
             return;
 
         await GoToPageAsync(State.LastPageIndex.GetValueOrDefault(0));
+
+        if (OnLast.HasValue)
+            await OnLast.Value.InvokeAsync();
     }
 
     public bool CanGoBack => State.CurrentPageIndex > 0;
 
     public bool CanGoForwards => State.CurrentPageIndex < State.LastPageIndex;
 
-    public Task GoToPageAsync(int pageIndex) => State.SetCurrentPageIndexAsync(pageIndex);
+    public async Task GoToPageAsync(int pageIndex)
+    {
+        if (pageIndex < 0 || pageIndex > State.LastPageIndex)
+            return;
+
+        if (PageUrl is null)
+        {
+            await State.SetCurrentPageIndexAsync(pageIndex);
+            return;
+        }
+    }
 }

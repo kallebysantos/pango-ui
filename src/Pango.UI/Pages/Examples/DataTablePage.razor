@@ -1,5 +1,6 @@
 @page "/data-table"
 
+@inject NavigationManager Nav
 
 <section class="h-full flex-1 flex flex-col justify-center">
   <div class="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-6 p-6 items-center">
@@ -10,7 +11,7 @@
         <PropertyColumn Property="@(p => p.PromotionDate)" Format="yyyy-MM-dd" Sortable="true" />
       </DataTable>
 
-      <DataTablePagination State=@(pagination) />
+      <DataTablePagination State=@(pagination) PageUrl=@(PageUrl) />
     </div>
 
     <div class="flex flex-col gap-4">
@@ -33,10 +34,23 @@
 </section>
 
 @code {
-  private record Person(int PersonId, string Name, DateOnly PromotionDate);
+
+  [SupplyParameterFromQuery]
+  public string? Page { get; set; }
 
   PaginationState pagination = new PaginationState { ItemsPerPage = 2 };
 
+  protected override async Task OnParametersSetAsync()
+  {
+    var isValidNumber = int.TryParse(Page, out var pageIndex);
+
+    await pagination.SetCurrentPageIndexAsync(isValidNumber ? pageIndex : 0);
+  }
+
+  private string PageUrl(int page)
+  => Nav.GetUriWithQueryParameter("page", page);
+
+  private record Person(int PersonId, string Name, DateOnly PromotionDate);
   private IQueryable<Person> people = new[]
   {
 new Person(10895, "Jean Martin", new DateOnly(1985, 3, 16)),
