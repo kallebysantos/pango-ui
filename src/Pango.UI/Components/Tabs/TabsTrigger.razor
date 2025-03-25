@@ -3,9 +3,14 @@
 @using TailwindMerge
 
 <button @attributes=@(AdditionalAttributes) role="tab"
-  class="inline-flex items-center justify-center whitespace-nowrap rounded-md px-3 py-1 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 aria-[selected=true]:bg-background aria-[selected=true]:text-foreground aria-[selected=true]::shadow"
-  aria-controls="panel-@(Value)" id="tab-@(Value)" tabindex="@(IsSelected ? 0 : -1)"
-  aria-selected="@(IsSelected.ToString().ToLower())">
+aria-controls="panel-@(Value)" id="tab-@(Value)"
+aria-selected="@(IsSelected.ToString().ToLower())"
+tabindex="@(IsSelected ? 0 : -1)"
+class=@(Tw([
+  "inline-flex items-center justify-center whitespace-nowrap py-1 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 aria-[selected=true]:bg-background aria-[selected=true]:text-foreground",
+  GetStyledVariant(Variant),
+  AdditionalAttributes?.GetValueOrDefault("class")?.ToString()
+]))>
   @(ChildContent)
 </button>
 
@@ -20,19 +25,8 @@
   [CascadingParameter(Name = nameof(Tabs.DefaultValue))]
   public string? DefaultValue { get; set; }
 
+  [CascadingParameter(Name = nameof(Tabs.Variant))]
+  public Tabs.Variants Variant { get; set; } = Tabs.Variants.Default;
+
   protected bool IsSelected => Value == DefaultValue;
-
-  /// <summary>
-  /// Gets or sets a collection of additional attributes that will be applied to the created element.
-  /// </summary>
-  [Parameter(CaptureUnmatchedValues = true)]
-  public IReadOnlyDictionary<string, object>? AdditionalAttributes { get; set; }
-
-  [Inject]
-  protected TwMerge TwMerge { get; set; } = null!;
-
-  /// <summary>
-  /// Merge Tailwind CSS classes without style conflicts
-  /// </summary>
-  public string? Tw(params string?[] classNames) => TwMerge.Merge(classNames);
 }

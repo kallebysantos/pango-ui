@@ -4,7 +4,9 @@
 
 <div id="pago-ui-tabs" @ref=@(tabsRef)>
   <CascadingValue Value=@(DefaultValue) Name=@(nameof(DefaultValue))>
-    @(ChildContent)
+    <CascadingValue Value=@(Variant) Name=@(nameof(Variant))>
+      @(ChildContent)
+    </CascadingValue>
   </CascadingValue>
 </div>
 
@@ -14,6 +16,9 @@
 
   [Parameter, EditorRequired]
   public required string DefaultValue { get; set; }
+
+  [Parameter]
+  public Tabs.Variants Variant { get; set; } = Tabs.Variants.Default;
 
   private IJSObjectReference? jsModule;
 

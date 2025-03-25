@@ -1,11 +1,17 @@
 @namespace Pango.UI.Components
 
-<div role="tablist" class="inline-flex h-9 items-center justify-center rounded-lg bg-muted p-1 text-muted-foreground"
-  aria-label="Sample Tabs">
+<div @attributes=@(AdditionalAttributes) role="tablist" class=@(Tw([
+  "inline-flex h-9 items-center  text-muted-foreground",
+  GetStyledVariant(Variant),
+  AdditionalAttributes?.GetValueOrDefault("class")?.ToString()
+]))>
   @ChildContent
 </div>
 
 @code {
   [Parameter, EditorRequired]
   public required RenderFragment ChildContent { get; set; }
+
+  [CascadingParameter(Name = nameof(Tabs.Variant))]
+  public Tabs.Variants Variant { get; set; } = Tabs.Variants.Default;
 }
