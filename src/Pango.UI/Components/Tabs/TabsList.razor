@@ -1,0 +1,11 @@
+@namespace Pango.UI.Components
+
+<div role="tablist" class="inline-flex h-9 items-center justify-center rounded-lg bg-muted p-1 text-muted-foreground"
+  aria-label="Sample Tabs">
+  @ChildContent
+</div>
+
+@code {
+  [Parameter, EditorRequired]
+  public required RenderFragment ChildContent { get; set; }
+}
