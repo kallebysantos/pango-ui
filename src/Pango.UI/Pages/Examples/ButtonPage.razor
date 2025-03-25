@@ -1,30 +1,67 @@
 @page "/button"
 
 <section class="h-full flex-1 flex flex-col items-center justify-center">
-  <div class="flex-1 grid grid-cols-1 md:grid-cols-2 gap-6 p-6 items-center">
-    <div class="flex flex-col gap-4 items-center">
-      <Button>Default</Button>
+  <div class="flex-1 grid grid-cols-1 md:grid-cols-2 gap-8 p-6">
+    <Tabs DefaultValue="preview" Variant=@(Tabs.Variants.Underline)>
+      <TabsList>
+        <TabsTrigger Value="preview">Preview</TabsTrigger>
+        <TabsTrigger Value="code">Code</TabsTrigger>
+      </TabsList>
 
-      <Button Variant=@(Button.Variants.Secondary)>
-        Secondary
-      </Button>
+      <TabsContent Value="preview" class="flex flex-col gap-4 items-center border p-4">
+        <Button>Default</Button>
 
-      <Button Variant=@(Button.Variants.Outline)>
-        Outline
-      </Button>
+        <Button Variant=@(Button.Variants.Secondary)>
+          Secondary
+        </Button>
 
-      <Button Variant=@(Button.Variants.Destructive)>
-        Destructive
-      </Button>
+        <Button Variant=@(Button.Variants.Outline)>
+          Outline
+        </Button>
 
-      <Button Variant=@(Button.Variants.Link)>
-        Link
-      </Button>
+        <Button Variant=@(Button.Variants.Destructive)>
+          Destructive
+        </Button>
 
-      <Button Variant=@(Button.Variants.Ghost)>
-        Ghost
-      </Button>
-    </div>
+        <Button Variant=@(Button.Variants.Link)>
+          Link
+        </Button>
+
+        <Button Variant=@(Button.Variants.Ghost)>
+          Ghost
+        </Button>
+      </TabsContent>
+
+      <TabsContent Value="code" class="flex flex-col gap-4 items-center">
+      <Code Language="razor" class="[&_pre]:max-h-80">
+      @(@"
+<div class=""flex flex-col gap-4 items-center"">
+  <Button>Default</Button>
+
+  <Button Variant=@(Button.Variants.Secondary)>
+    Secondary
+  </Button>
+
+  <Button Variant=@(Button.Variants.Outline)>
+    Outline
+  </Button>
+
+  <Button Variant=@(Button.Variants.Destructive)>
+    Destructive
+  </Button>
+
+  <Button Variant=@(Button.Variants.Link)>
+    Link
+  </Button>
+
+  <Button Variant=@(Button.Variants.Ghost)>
+    Ghost
+  </Button>
+</div>
+")
+      </Code>
+      </TabsContent>
+    </Tabs>
 
     <div>
       <ApiReference Component=@(typeof(Button))>
