@@ -6,9 +6,16 @@
        AdditionalAttributes?.GetValueOrDefault("class")?.ToString())>
   @if (State.TotalItemCount.HasValue)
   {
-    <span class="text-muted-foreground">
-      <strong>@(State.TotalItemCount ?? 0)</strong> rows
-    </span>
+    @if (SummaryTemplate is null)
+    {
+      <span class="text-muted-foreground">
+        <strong>@(State.TotalItemCount ?? 0)</strong> rows
+      </span>
+    }
+    else
+    {
+      @SummaryTemplate
+    }
 
     <span class="flex ms-auto gap-1 text-muted-foreground">
       Page <strong>@(State.CurrentPageIndex + 1)</strong>

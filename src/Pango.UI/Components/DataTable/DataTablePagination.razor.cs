@@ -1,3 +1,5 @@
+// SSR pagination reference: https://github.com/dotnet/aspnetcore/pull/51217
+
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.QuickGrid;
 using TailwindMerge;
@@ -35,10 +37,14 @@ public partial class DataTablePagination : Paginator
     [Parameter]
     public EventCallback? OnLast { get; set; }
 
-    public string? GetPageUrl(int? pageIndex) =>
+    public bool CanGoBack => State.CurrentPageIndex > 0;
+
+    public bool CanGoForwards => State.CurrentPageIndex < State.LastPageIndex;
+
+    protected string? GetPageUrl(int? pageIndex) =>
         PageUrl is null || !pageIndex.HasValue ? null : PageUrl(pageIndex.Value);
 
-    public async Task GoFirstAsync()
+    protected async Task GoFirstAsync()
     {
         if (!CanGoBack)
             return;
@@ -48,7 +54,7 @@ public partial class DataTablePagination : Paginator
             await OnFirst.Value.InvokeAsync();
     }
 
-    public async Task GoPreviousAsync()
+    protected async Task GoPreviousAsync()
     {
         if (!CanGoBack)
             return;
@@ -59,7 +65,7 @@ public partial class DataTablePagination : Paginator
             await OnPrevious.Value.InvokeAsync();
     }
 
-    public async Task GoNextAsync()
+    protected async Task GoNextAsync()
     {
         if (!CanGoForwards)
             return;
@@ -70,7 +76,7 @@ public partial class DataTablePagination : Paginator
             await OnNext.Value.InvokeAsync();
     }
 
-    public async Task GoLastAsync()
+    protected async Task GoLastAsync()
     {
         if (!CanGoForwards)
             return;
@@ -81,11 +87,7 @@ public partial class DataTablePagination : Paginator
             await OnLast.Value.InvokeAsync();
     }
 
-    public bool CanGoBack => State.CurrentPageIndex > 0;
-
-    public bool CanGoForwards => State.CurrentPageIndex < State.LastPageIndex;
-
-    public async Task GoToPageAsync(int pageIndex)
+    protected async Task GoToPageAsync(int pageIndex)
     {
         if (pageIndex < 0 || pageIndex > State.LastPageIndex)
             return;
