@@ -1,30 +1,39 @@
 @page "/code"
 
 <section class="h-full flex-1 flex flex-col items-center justify-center">
-  <div class="flex-1 grid grid-cols-1 md:grid-cols-2 gap-6 p-6 items-center">
-    <div class="flex flex-col gap-4 items-center">
-      <Code class="[&_pre]:max-h-80" Language="razor">
-        @(@"
-<div>
-  <h4 class=""text-sm font-medium leading-none"">
-    Pango.UI
-  </h4>
-  <p class=""text-sm text-muted-foreground"">
-    An open-source UI component library.
-  </p>
-</div>
+  <div class="flex-1 grid grid-cols-1 w-full md:grid-cols-2 lg:max-w-5xl gap-8 p-6">
+    <div>
+      <Tabs DefaultValue="preview" Variant=@(Tabs.Variants.Underline)>
+        <TabsList>
+          <TabsTrigger Value="preview">Preview</TabsTrigger>
+          <TabsTrigger Value="code">Code</TabsTrigger>
+        </TabsList>
 
-@code {
-  public void Greetings() => Console.WriteLine(""Hello from Pango"");
-}")
-      </Code>
+        <TabsContent Value="preview" class="flex flex-col gap-8 px-4 py-8 items-center border">
+          <Code class="[&_pre]:max-h-80" Language="razor">
+            @(CodePreviewExample)
+          </Code>
 
-      <Code class="[&_pre]:max-h-80" Language="fish">
-        @("dotnet pango add code")
-      </Code>
+          <Code Language="bash" class="py-2">echo "Hello from Pango"</Code>
+
+        </TabsContent>
+        <TabsContent Value="code" class="flex flex-col gap-4 items-center">
+          <Code Language="razor" class="[&_pre]:max-h-80">
+            @(CodeExample)
+          </Code>
+        </TabsContent>
+      </Tabs>
     </div>
 
-    <div>
+    <div class="flex flex-col gap-4">
+      <div class="flex flex-col gap-2">
+        <h2 class="pb-2 border-b text-xl leading-snug font-semibold tracking-tight">
+          Installation
+        </h2>
+
+        <Code Language="fish" class="py-2">dotnet pango add code</Code>
+      </div>
+
       <ApiReference Component=@(typeof(Code))>
         <Description>
           Renders a beautifully styled code block with syntax highlighting. 
