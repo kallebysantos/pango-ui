@@ -7,21 +7,24 @@
 
 <div @ref="@(codeContainerRef)" id="pango-ui-code" data-language="@(Language)"
   class=@Tw([
-    "relative flex w-full border p-4 transition-all dark:bg-zinc-950 rounded data-[loading]:bg-muted data-[loading]:animate-pulse",
+    "relative flex w-full border p-4 transition-all inset-shadow-xs bg-muted/20 rounded data-[loading]:bg-muted data-[loading]:animate-pulse",
     AdditionalAttributes?.GetValueOrDefault("class")?.ToString()
   ])
   data-loading="@(IsLoading)">
   <div id="pango-ui-code-container"
-    class="relative flex-1 overflow-hidden after:absolute after:inset-y-0 after:left-0 after:w-auto [&_.line:before]:sticky [&_.line:before]:left-2 [&_.line:before]:z-10 [&_.line:before]:translate-y-[-1px] [&_.line:before]:pr-1 [&_pre]:first:hidden [&_pre]:first:dark:block [&_pre]:last:block [&_pre]:last:dark:hidden [&_pre]:h-[--height] [&_pre]:overflow-hidden [&_pre]:!bg-transparent [&_pre]:py-1 [&_pre]:font-mono [&_pre]:text-sm [&_pre]:leading-relaxed">
+    class="relative flex-1 overflow-hidden after:absolute after:inset-y-0 after:left-0 after:w-auto [&_.line:before]:sticky [&_.line:before]:left-2 [&_.line:before]:z-10 [&_.line:before]:translate-y-[-1px] [&_.line:before]:pr-1 [&_pre]:h-[--height] [&_pre]:overflow-hidden [&_pre]:!bg-transparent [&_pre]:py-1 [&_pre]:font-mono [&_pre]:text-sm [&_pre]:leading-relaxed">
   </div>
-  <div class="flex focus-within:outline absolute inset-0 px-4 py-1">
+  <div class=@Tw([
+    "flex focus-within:outline absolute inset-0 p-4",
+    AdditionalAttributes?.GetValueOrDefault("class")?.ToString()
+  ])>
   <textarea 
   wrap="off"
   autocomplete="off"
   autocorrect="off"
   autocapitalize="off"
   spellcheck="false"
-  class="flex-1 outline-none w-full h-full py-4 whitespace-pre overflow-auto resize-none font-mono text-sm leading-relaxed bg-transparent text-transparent">@ChildContent</textarea>
+  class="flex-1 outline-none w-full h-full py-1 whitespace-pre overflow-auto resize-none font-mono text-sm leading-relaxed bg-transparent text-transparent">@ChildContent</textarea>
 
   </div>
 </div>

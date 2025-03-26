@@ -5,10 +5,10 @@
 
 @if (Pages.Any())
 {
-  <nav class="flex flex-col gap-2">
+  <nav class="grid grid-cols-1 gap-2 items-center md:grid-flow-col md:grid-rows-6">
     @foreach (var page in Pages)
     {
-      <NavLink href=@(page.RelativeURI)>
+      <NavLink href=@(page.RelativeURI) class="w-fit">
         <Button Variant=@(Button.Variants.Link)>
           @(page.DisplayName)
         </Button>

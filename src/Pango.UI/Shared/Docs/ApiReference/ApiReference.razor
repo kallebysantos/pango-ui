@@ -5,9 +5,8 @@
 
 @if (Component.BaseType is not null)
 {
-  <div class="flex flex-col gap-4">
-
-    <header class="flex flex-col gap-2">
+  <div class="flex flex-col gap-2">
+    <header class="flex flex-col gap-1">
       <h2 class="text-xl font-medium">API Reference</h2>
       <h1 class="flex gap-1 text-2xl font-bold">
         <span>@(_displayName) - @(Component.BaseType.Name)</span>
@@ -23,22 +22,22 @@
 
     @if (Description is not null)
     {
-      <div class="">
-        @(Description)
-      </div>
+      @(Description)
     }
 
     @if (Properties.Any())
     {
       string header = Properties.Any(x => x.IsParameter) ? "Parameters" : "Properties";
       <section class="flex flex-col gap-2">
-        <h4 class="text-xl font-bold">@header</h4>
+        <h3 class="mt-16 first:mt-0 pb-2 border-b text-xl leading-snug font-semibold tracking-tight">
+          @header
+        </h3>
 
         <ul class="flex flex-col gap-4">
           @foreach (var prop in Properties)
           {
             <li class="flex flex-col">
-              <h5 class="flex items-center leading-none gap-1 text-lg font-semibold">
+              <h5 class="flex items-center leading-none gap-1 text-lg font-bold">
                 @prop.Name
 
                 @if (prop.IsInherits)

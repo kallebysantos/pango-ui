@@ -2,7 +2,10 @@
 
 <div @attributes=@(AdditionalAttributes) role="tabpanel" id="panel-@(Value)" tabindex="0"
   aria-labelledby="panel-@(Value)" hidden=@(!IsSelected)
-  class="mt-2 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
+  class=@(Tw([
+  "mt-2 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+  AdditionalAttributes?.GetValueOrDefault("class")?.ToString()
+  ]))>
   @(ChildContent)
 </div>
 
@@ -17,10 +20,4 @@
   public string? DefaultValue { get; set; }
 
   protected bool IsSelected => Value == DefaultValue;
-
-  /// <summary>
-  /// Gets or sets a collection of additional attributes that will be applied to the created element.
-  /// </summary>
-  [Parameter(CaptureUnmatchedValues = true)]
-  public IReadOnlyDictionary<string, object>? AdditionalAttributes { get; set; }
 }

@@ -2,19 +2,52 @@
 
 @inject NavigationManager Nav
 
-<section class="h-full flex-1 flex flex-col justify-center">
-  <div class="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-6 p-6 items-center">
-    <div class="flex-1 flex flex-col gap-4 items-center 2xl:max-w-xl 2xl:w-full 2xl:justify-self-end">
-      <DataTable Items="people" Pagination=@(pagination)>
-        <PropertyColumn Property="@(p => p.PersonId)" Sortable="true" />
-        <PropertyColumn Property="@(p => p.Name)" Sortable="true" />
-        <PropertyColumn Property="@(p => p.PromotionDate)" Format="yyyy-MM-dd" Sortable="true" />
-      </DataTable>
+<section class="h-full flex-1 flex flex-col items-center justify-center">
+  <div class="flex-1 grid grid-cols-1 w-full md:grid-cols-2 lg:max-w-5xl gap-8 p-6">
+    <div>
+      <Tabs DefaultValue="preview" Variant=@(Tabs.Variants.Underline)>
+        <TabsList>
+          <TabsTrigger Value="preview">Preview</TabsTrigger>
+          <TabsTrigger Value="code">Code</TabsTrigger>
+        </TabsList>
 
-      <DataTablePagination State=@(pagination) PageUrl=@(PageUrl) />
+        <TabsContent Value="preview" class="flex flex-col gap-8 px-4 py-8 items-center border">
+          <DataTable Items=@(people) Pagination=@(pagination)>
+            <PropertyColumn Property="@(p => p.PersonId)" Sortable=@(true) />
+            <PropertyColumn Property="@(p => p.Name)" Sortable=@(true) />
+            <PropertyColumn Property="@(p => p.PromotionDate)" Format="yyyy-MM-dd" Sortable=@(true) />
+          </DataTable>
+
+          <DataTablePagination State=@(pagination) PageUrl=@(PageUrl) />
+        </TabsContent>
+        <TabsContent Value="code" class="flex flex-col gap-4 items-center">
+          <Code Language="razor" class="[&_pre]:max-h-80">
+            @(DataTableCodeExample)
+          </Code>
+        </TabsContent>
+      </Tabs>
     </div>
 
     <div class="flex flex-col gap-4">
+      <div class="flex flex-col gap-2">
+        <div class="flex flex-col gap-2">
+          <h2 class="pb-2 border-b text-xl leading-snug font-semibold tracking-tight">
+            Installation
+          </h2>
+
+          <Code Language="fish" class="py-2">dotnet pango add data-table</Code>
+        </div>
+
+        <div class="flex flex-col gap-2">
+          <p class="leading-relaxed">
+            Then add it to <code
+              class="relative rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm">.csproj</code> file:
+          </p>
+
+          <Code Language="xml" class="py-2">@(SetupExample)</Code>
+        </div>
+      </div>
+
       <header class="flex flex-col gap-2">
         <h2 class="text-xl font-medium">API Reference</h2>
         <h1 class="flex gap-1 text-2xl font-bold">

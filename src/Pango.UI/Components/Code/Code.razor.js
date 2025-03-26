@@ -8,17 +8,13 @@ export async function ApplySyntaxHighlight(elementRef) {
   const codeLang = elementRef.getAttribute("data-language");
   const outputContainer = elementRef.querySelector("div#pango-ui-code-container");
 
-  const dark = await codeToHtml(codeValueWrapper.value, {
+  outputContainer.innerHTML = await codeToHtml(codeValueWrapper.value, {
     lang: codeLang,
-    theme: 'github-dark-default'
+    themes: {
+      light: 'catppuccin-latte',
+      dark: 'catppuccin-mocha',
+    }
   });
-
-  const light = await codeToHtml(codeValueWrapper.value, {
-    lang: codeLang,
-    theme: 'github-light-default'
-  });
-
-  outputContainer.innerHTML = dark + light;
 
   Array.from(outputContainer.querySelectorAll("pre"))
     .forEach(codeBlock => {

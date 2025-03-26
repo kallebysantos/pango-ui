@@ -1,55 +1,265 @@
 @page "/tabs"
 
+@using System.ComponentModel.DataAnnotations
+
 <section class="h-full flex-1 flex flex-col items-center justify-center">
-  <div class="flex-1 grid grid-cols-1 md:grid-cols-2 gap-6 p-6 items-center">
-    <div class="flex flex-col gap-4 items-center">
-      <Tabs DefaultValue="panel-1">
+  <div class="flex-1 grid grid-cols-1 w-full md:grid-cols-2 lg:max-w-5xl gap-8 p-6">
+    <div>
+      <Tabs DefaultValue="preview" Variant=@(Tabs.Variants.Underline)>
         <TabsList>
-          <TabsTrigger Value="panel-1">
-            First Tab
-          </TabsTrigger>
-          <TabsTrigger Value="panel-2">
-            Second Tab
-          </TabsTrigger>
-          <TabsTrigger Value="panel-3">
-            Third Tab
-          </TabsTrigger>
+          <TabsTrigger Value="preview">Preview</TabsTrigger>
+          <TabsTrigger Value="code">Code</TabsTrigger>
         </TabsList>
 
-        <TabsContent Value="panel-1">
-          <p>Content for the first panel</p>
-        </TabsContent>
-        <TabsContent Value="panel-2">
-          <p>Content for the second panel</p>
-        </TabsContent>
-        <TabsContent Value="panel-3">
-          <p>Content for the third panel</p>
-        </TabsContent>
-      </Tabs>
+        <TabsContent Value="preview" class="flex flex-col gap-8 p-8 border">
+          <Tabs DefaultValue="account">
+            <TabsList class="grid w-full grid-cols-2">
+              <TabsTrigger Value="account">Account</TabsTrigger>
+              <TabsTrigger Value="password">Password</TabsTrigger>
+            </TabsList>
 
-      <Tabs Variant=@(Tabs.Variants.Underline) DefaultValue="panel-1">
-        <TabsList>
-          <TabsTrigger Value="panel-1">
-            First Tab
-          </TabsTrigger>
-          <TabsTrigger Value="panel-2">
-            Second Tab
-          </TabsTrigger>
-          <TabsTrigger Value="panel-3">
-            Third Tab
-          </TabsTrigger>
-        </TabsList>
+            <TabsContent Value="account" class="p-4 rounded-md border">
+              <EditForm Model=@(this) OnValidSubmit=@(HandleAccount) FormName="account-form" Enhance 
+              class="flex flex-col gap-4">
+                <div class="space-y-2">
+                  <h3 class="font-semibold leading-none tracking-tight">
+                    Account
+                  </h3>
+                  <p class="text-sm text-muted-foreground">
+                    Make changes to your account here. Click save when you're done.
+                  </p>
+                </div>
 
-        <TabsContent Value="panel-1">
-          <p>Content for the first panel</p>
+                <div class="flex flex-col gap-2">
+                  <label class="flex flex-col gap-1">
+                    <span class="text-sm font-medium">Name</span>
+                    <Input @bind-Value="@(Fullname)" placeholder="Please enter your name here."/>
+                  </label>
+
+                  <label class="flex flex-col gap-1 text-sm font-medium">
+                    <span class="text-sm font-medium">Username</span>
+                    <Input @bind-Value="@(Username)" placeholder="Please enter your username here."/>
+                  </label>
+                </div>
+
+                @if (hasAccountSaved)
+                {
+                  <Alert Variant=@(Alert.Variants.Sucess) OnDismiss=@(() => hasAccountSaved = false)>
+                    <AlertSide>
+                      <i class="ph ph-check text-lg"></i>
+                    </AlertSide>
+                    <AlertTitle>Sucess</AlertTitle>
+                    <AlertDescription>
+                      Your account was saved, you can now log in as <strong class="font-medium">@_username</strong>
+                    </AlertDescription>
+                  </Alert>
+                }
+
+                <Button>Save Changes</Button>
+              </EditForm>
+
+            </TabsContent>
+            <TabsContent Value="password" class="p-4 rounded-md border">
+              <EditForm Model=@(this) OnValidSubmit=@(HandlePassword) FormName="password-form" Enhance 
+              class="flex flex-col gap-4">
+                <DataAnnotationsValidator />
+
+                <div class="space-y-2">
+                  <h3 class="font-semibold leading-none tracking-tight">
+                    Password
+                  </h3>
+                  <p class="text-sm text-muted-foreground">
+                    Change your password here. After saving, you'll be logged out.
+                  </p>
+                </div>
+
+                <div class="flex flex-col gap-2">
+                  <label class="flex flex-col gap-1">
+                    <span class="text-sm font-medium">Current password</span>
+                    <Input @bind-Value="@(CurrentPassword)" type="password" autocomplete="current-password" />
+                    <ValidationMessage class="text-sm text-destructive" For=@(() => CurrentPassword) />
+                  </label>
+
+                  <label class="flex flex-col gap-1 text-sm font-medium">
+                    <span class="text-sm font-medium">New password</span>
+                    <Input @bind-Value="@(NewPassword)" type="password" autocomplete="new-password" />
+                    <ValidationMessage class="text-sm text-destructive" For=@(() => NewPassword) />
+                  </label>
+                </div>
+
+                @if (hasPasswordSaved)
+                {
+                  <Alert Variant=@(Alert.Variants.Sucess) OnDismiss=@(() => hasPasswordSaved = false)>
+                    <AlertSide>
+                      <i class="ph ph-check text-lg"></i>
+                    </AlertSide>
+                    <AlertTitle>Sucess</AlertTitle>
+                    <AlertDescription>
+                      Your password was changed.
+                    </AlertDescription>
+                  </Alert>
+                }
+
+                <Button>Change password</Button>
+              </EditForm>
+            </TabsContent>
+          </Tabs>
+
+          <Separator />
+
+          <Tabs Variant=@(Tabs.Variants.Underline) DefaultValue="password">
+            <TabsList>
+              <TabsTrigger Value="account">
+                Account
+              </TabsTrigger>
+              <TabsTrigger Value="password">
+                Password
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent Value="account" class="p-4 rounded border">
+              <EditForm Model=@(this) OnValidSubmit=@(HandleAccount) FormName="account-form" Enhance 
+              class="flex flex-col gap-4">
+                <div class="space-y-2">
+                  <h3 class="font-semibold leading-none tracking-tight">
+                    Account
+                  </h3>
+                  <p class="text-sm text-muted-foreground">
+                    Make changes to your account here. Click save when you're done.
+                  </p>
+                </div>
+
+                <div class="flex flex-col gap-2">
+                  <label class="flex flex-col gap-1">
+                    <span class="text-sm font-medium">Name</span>
+                    <Input @bind-Value="@(Fullname)" placeholder="Please enter your name here."/>
+                  </label>
+
+                  <label class="flex flex-col gap-1 text-sm font-medium">
+                    <span class="text-sm font-medium">Username</span>
+                    <Input @bind-Value="@(Username)" placeholder="Please enter your username here."/>
+                  </label>
+                </div>
+
+                @if (hasAccountSaved)
+                {
+                  <Alert Variant=@(Alert.Variants.Sucess) OnDismiss=@(() => hasAccountSaved = false)>
+                    <AlertSide>
+                      <i class="ph ph-check text-lg"></i>
+                    </AlertSide>
+                    <AlertTitle>Sucess</AlertTitle>
+                    <AlertDescription>
+                      Your account was saved, you can now log in as <strong class="font-medium">@_username</strong>
+                    </AlertDescription>
+                  </Alert>
+                }
+
+                <Button>Save Changes</Button>
+              </EditForm>
+
+            </TabsContent>
+
+            <TabsContent Value="password" class="p-4 rounded border">
+              <EditForm Model=@(this) OnValidSubmit=@(HandlePassword) FormName="password-form" Enhance 
+              class="flex flex-col gap-4">
+                <DataAnnotationsValidator />
+
+                <div class="space-y-2">
+                  <h3 class="font-semibold leading-none tracking-tight">
+                    Password
+                  </h3>
+                  <p class="text-sm text-muted-foreground">
+                    Change your password here. After saving, you'll be logged out.
+                  </p>
+                </div>
+
+                <div class="flex flex-col gap-2">
+                  <label class="flex flex-col gap-1">
+                    <span class="text-sm font-medium">Current password</span>
+                    <Input @bind-Value="@(CurrentPassword)" type="password" autocomplete="current-password" />
+                    <ValidationMessage class="text-sm text-destructive" For=@(() => CurrentPassword) />
+                  </label>
+
+                  <label class="flex flex-col gap-1 text-sm font-medium">
+                    <span class="text-sm font-medium">New password</span>
+                    <Input @bind-Value="@(NewPassword)" type="password" autocomplete="new-password" />
+                    <ValidationMessage class="text-sm text-destructive" For=@(() => NewPassword) />
+                  </label>
+                </div>
+
+                @if (hasPasswordSaved)
+                {
+                  <Alert Variant=@(Alert.Variants.Sucess) OnDismiss=@(() => hasPasswordSaved = false)>
+                    <AlertSide>
+                      <i class="ph ph-check text-lg"></i>
+                    </AlertSide>
+                    <AlertTitle>Sucess</AlertTitle>
+                    <AlertDescription>
+                      Your password was changed.
+                    </AlertDescription>
+                  </Alert>
+                }
+
+                <Button>Change password</Button>
+              </EditForm>
+            </TabsContent>
+          </Tabs>
         </TabsContent>
-        <TabsContent Value="panel-2">
-          <p>Content for the second panel</p>
-        </TabsContent>
-        <TabsContent Value="panel-3">
-          <p>Content for the third panel</p>
+
+        <TabsContent Value="code" class="flex flex-col gap-4 items-center">
+          <Code Language="razor" class="[&_pre]:max-h-80">
+            @(TabsCodeExample)
+          </Code>
         </TabsContent>
       </Tabs>
     </div>
+
+    <div class="flex flex-col gap-4">
+      <div class="flex flex-col gap-2">
+        <div class="flex flex-col gap-2">
+          <h2 class="pb-2 border-b text-xl leading-snug font-semibold tracking-tight">
+            Installation
+          </h2>
+
+          <Code Language="fish" class="py-2">dotnet pango add tabs</Code>
+        </div>
+
+      </div>
+      <ApiReference Component=@(typeof(Tabs))>
+        <Description>A set of layered sections of content—known as tab panels—that are displayed one at a time.</Description>
+      </ApiReference>
+    </div>
   </div>
 </section>
+
+@code {
+  [SupplyParameterFromForm(FormName = "account-form")]
+  public string Fullname {get; set;} = "Kalleby Santos";
+
+  [SupplyParameterFromForm(FormName = "account-form")]
+  public string Username  {get; set;} = "@kallebysantos";
+
+  [SupplyParameterFromForm(FormName = "password-form")]
+  [Required(ErrorMessage = "You must supply your current password.")]
+  public string? CurrentPassword {get; set;}
+
+  [SupplyParameterFromForm(FormName = "password-form")]
+  [Required(ErrorMessage = "You must supply a new desired password.")]
+  public string? NewPassword {get; set;}
+
+  bool hasAccountSaved;
+  string _username = string.Empty;
+  protected void HandleAccount()
+  {
+      hasAccountSaved = true;
+      _username = Username;
+  }
+
+  bool hasPasswordSaved;
+  protected void HandlePassword()
+  {
+      hasPasswordSaved = true;
+      CurrentPassword = string.Empty;
+      NewPassword = string.Empty;
+  }
+}
