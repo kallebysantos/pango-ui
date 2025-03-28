@@ -12,13 +12,10 @@ namespace Pango.UI.Shared.Docs;
 public interface IMdxFragment
 {
     void Render(RenderTreeBuilder builder);
-    int GetIndex();
 }
 
-public record struct MdxFragment(int Index, string Content) : IMdxFragment
+public record struct MdxFragment(string Content) : IMdxFragment
 {
-    public readonly int GetIndex() => Index;
-
     public readonly void Render(RenderTreeBuilder builder)
     {
         builder.AddMarkupContent(0, Content);
@@ -26,38 +23,41 @@ public record struct MdxFragment(int Index, string Content) : IMdxFragment
 }
 
 public record struct MdxComponentFragment(
-    int Index,
     string? Content,
     Type Type,
     IEnumerable<KeyValuePair<string, object>>? Attributes
 ) : IMdxFragment
 {
-    public readonly int GetIndex() => Index;
-
     public readonly void Render(RenderTreeBuilder builder)
     {
-        builder.OpenElement(0, "div");
-        builder.AddAttribute(2, "class", "markdown-component my-4");
-
-        builder.OpenComponent(3, Type);
-        builder.AddMultipleAttributes(4, Attributes);
+        builder.OpenComponent(0, Type);
+        builder.AddMultipleAttributes(1, Attributes);
 
         if (!string.IsNullOrEmpty(Content))
         {
             var content = string.Intern(Content);
-            RenderFragment renderContent = b =>
+            RenderFragment renderChild = childBuilder =>
             {
-                b.AddContent(6, content);
+                var fragments = MdxRenderer.ResolveComponent(content);
+
+                int seq = 4;
+                childBuilder.OpenRegion(seq);
+                foreach (var (index, fragment) in fragments)
+                {
+                    seq += index + 1;
+                    fragment.Render(childBuilder);
+                }
+                childBuilder.CloseRegion();
             };
-            builder.AddComponentParameter(5, "ChildContent", renderContent);
+
+            builder.AddComponentParameter(3, "ChildContent", renderChild);
         }
 
         builder.CloseComponent();
-        builder.CloseElement();
     }
 }
 
-public class MdxRenderer : ComponentBase
+public partial class MdxRenderer : ComponentBase
 {
     [Parameter]
     public string? Value { get; set; }
@@ -77,35 +77,22 @@ public class MdxRenderer : ComponentBase
             return;
 
         // Process Markdown
-        _processedHtml = ParseMarkdown(Value ?? "");
+        _processedHtml = Markdown.ToHtml(Value, _pipeline);
+        ;
     }
 
-    public string ParseMarkdown(string markdown)
+    public static IEnumerable<(int, IMdxFragment)> ResolveComponent(string html)
     {
-        // Convert Markdown to HTML
-        string html = Markdown.ToHtml(markdown, _pipeline);
+        List<(int, IMdxFragment)> fragments = [];
 
-        return html;
-    }
+        var matches = RazorComponentPattern().Matches(html);
 
-    protected override void BuildRenderTree(RenderTreeBuilder builder)
-    {
-        Regex ComponentRegex = new(
-            //@"<([A-Z][A-Za-z0-9]*)(\s+[^>]*)?>.*?</\1>|<([A-Z][A-Za-z0-9]*)(\s+[^>]*)?/?>",
-            @"<(?<name>[A-Z][A-Za-z0-9]*)(?<props>\s+[^>]*)?(?:>(?<content>.*?)</\k<name>>|/?>)",
-            RegexOptions.Compiled
-        );
-
-        List<IMdxFragment> _htmlChunks = [];
         int lastIndex = 0;
-
-        var matches = ComponentRegex.Matches(_processedHtml);
-        Console.WriteLine($"MATCHES: {matches.Count}");
         foreach (Match component in matches)
         {
             // Store HTML before the component
-            var beforePlaceholder = _processedHtml[lastIndex..component.Index];
-            _htmlChunks.Add(new MdxFragment(Index: lastIndex, Content: beforePlaceholder));
+            var beforePlaceholder = html[lastIndex..component.Index];
+            fragments.Add((lastIndex, new MdxFragment(Content: beforePlaceholder)));
 
             var componentName =
                 component
@@ -114,9 +101,9 @@ public class MdxRenderer : ComponentBase
                     .FirstOrDefault() ?? throw new Exception("Invalid componentName");
 
             var componentType =
-                Assembly
-                    .GetExecutingAssembly()
-                    .GetTypes()
+                AppDomain
+                    .CurrentDomain.GetAssemblies()
+                    .SelectMany(a => a.GetTypes())
                     .Where(t => t.IsClass && t.Name == componentName)
                     .FirstOrDefault() ?? throw new Exception("Could not find implementation type");
 
@@ -126,45 +113,58 @@ public class MdxRenderer : ComponentBase
                 .FirstOrDefault()
                 ?.Value;
 
-            Console.WriteLine(
-                $"NAME: {componentName}, TYPE: {componentType}, Content: {componentContent}"
-            );
-
-            _htmlChunks.Add(
-                new MdxComponentFragment(
-                    Index: component.Index,
-                    Content: componentContent,
-                    Type: componentType!,
-                    null
+            fragments.Add(
+                (
+                    component.Index,
+                    new MdxComponentFragment(Content: componentContent, Type: componentType!, null)
                 )
             );
 
             lastIndex = component.Index + component.Length;
-
-            /*
-            foreach (var group in component.Groups.Values)
-            {
-                Console.WriteLine($"GROUP: {group.Name}: {group.Value}");
-
-            }
-            */
         }
+
+        fragments.Add((lastIndex, new MdxFragment(html.Substring(lastIndex))));
+
+        return fragments;
+    }
+
+    protected override void BuildRenderTree(RenderTreeBuilder builder)
+    {
+        var fragments = ResolveComponent(_processedHtml);
 
         // Render Markdown content as raw HTML
         builder.OpenElement(0, "div");
         builder.AddAttribute(1, "class", "markdown-body");
 
         int seq = 2;
-        foreach (var fragment in _htmlChunks)
+        foreach (var (index, fragment) in fragments)
         {
-            seq += fragment.GetIndex() + 1;
+            seq += index + 1;
 
-            Console.WriteLine($"Render at {seq}");
             builder.OpenRegion(seq);
+
+            if (fragment is MdxComponentFragment)
+            {
+                builder.OpenElement(0, "div");
+                builder.AddAttribute(1, "class", "markdown-component my-4");
+            }
+
             fragment.Render(builder);
+
+            if (fragment is MdxComponentFragment)
+            {
+                builder.CloseElement();
+            }
+
             builder.CloseRegion();
         }
 
         builder.CloseElement();
     }
+
+    [GeneratedRegex(
+        @"<(?<name>[A-Z][A-Za-z0-9]*)(?<props>\s+[^>]*)?(?:>(?<content>.*?)</\k<name>>|/?>)",
+        RegexOptions.Compiled
+    )]
+    private static partial Regex RazorComponentPattern();
 }

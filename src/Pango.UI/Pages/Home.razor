@@ -1,5 +1,7 @@
 ﻿@page "/"
 
+@using System.Reflection
+
 <PageTitle>Home</PageTitle>
 
 @*
@@ -19,10 +21,16 @@ This is **Markdown** with a Blazor component:
 
 <Separator />
 
-<Button>Other button</Button>
+<NavLink><Button>Other button</Button></NavLink>
+
+<Separator />
+
+<Tabs><TabsList><TabsTrigger>Click</TabsTrigger></TabsList><TabsContent>Test</TabsContent></Tabs>
 
 ## Test after
 like you can see we did rendered Markdown Razor
 ";
+  /*
+  */
 }
 
