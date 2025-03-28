@@ -94,6 +94,8 @@ public partial class MdxRenderer : ComponentBase
             var beforePlaceholder = html[lastIndex..component.Index];
             fragments.Add((lastIndex, new MdxFragment(Content: beforePlaceholder)));
 
+            Console.WriteLine($"MATCH: {component.Value}");
+
             var componentName =
                 component
                     .Groups.Values.Where(g => g.Name == "name")
@@ -163,7 +165,7 @@ public partial class MdxRenderer : ComponentBase
     }
 
     [GeneratedRegex(
-        @"<(?<name>[A-Z][A-Za-z0-9]*)(?<props>\s+[^>]*)?(?:>(?<content>.*?)</\k<name>>|/?>)",
+        @"(?s)<(?<name>[A-Z][A-Za-z0-9]*)(?<props>\s+[^>]*)?(?:>(?<content>.*?)</\k<name>>|/?>)",
         RegexOptions.Compiled
     )]
     private static partial Regex RazorComponentPattern();
