@@ -1,11 +1,9 @@
-using System;
-using System.Collections.Generic;
-using System.Reflection;
+using System.Reflection.Metadata;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using Markdig;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Rendering;
-using Pango.UI.Components;
 
 namespace Pango.UI.Shared.Docs;
 
@@ -25,7 +23,8 @@ public record struct MdxFragment(string Content) : IMdxFragment
 public record struct MdxComponentFragment(
     string? Content,
     Type Type,
-    IEnumerable<KeyValuePair<string, object>>? Attributes
+    IEnumerable<KeyValuePair<string, object>>? Attributes,
+    IEnumerable<KeyValuePair<string, object>>? Parameters
 ) : IMdxFragment
 {
     public readonly void Render(RenderTreeBuilder builder)
@@ -36,11 +35,11 @@ public record struct MdxComponentFragment(
         if (!string.IsNullOrEmpty(Content))
         {
             var content = string.Intern(Content);
+            int seq = 3;
             RenderFragment renderChild = childBuilder =>
             {
                 var fragments = MdxRenderer.ResolveComponent(content);
 
-                int seq = 4;
                 childBuilder.OpenRegion(seq);
                 foreach (var (index, fragment) in fragments)
                 {
@@ -50,7 +49,36 @@ public record struct MdxComponentFragment(
                 childBuilder.CloseRegion();
             };
 
-            builder.AddComponentParameter(3, "ChildContent", renderChild);
+            builder.AddComponentParameter(seq, "ChildContent", renderChild);
+        }
+
+        if (Parameters is not null)
+        {
+            int seq = 1000;
+            foreach (var (key, value) in Parameters)
+            {
+                var property = Type.GetProperties().FirstOrDefault(p => p.Name == key);
+                if (property is null)
+                    continue;
+                //
+                // Clean the value string if it's wrapped in "@(...)"
+                var stringValue = value?.ToString()?.Trim();
+                if (stringValue is null)
+                    continue;
+
+                if (stringValue.StartsWith("@(") && stringValue.EndsWith(")"))
+                {
+                    // Remove the "@(" prefix and the closing ")"
+                    stringValue = stringValue[2..^1].Trim();
+                }
+
+                var parsed =
+                    (property.PropertyType == typeof(string))
+                        ? stringValue
+                        : JsonSerializer.Deserialize(stringValue, property.PropertyType);
+
+                builder.AddComponentParameter(seq++, key, parsed);
+            }
         }
 
         builder.CloseComponent();
@@ -115,6 +143,7 @@ public partial class MdxRenderer : ComponentBase
 
             var props = component.Groups["props"].Value;
             List<KeyValuePair<string, object>> attributes = [];
+            List<KeyValuePair<string, object>> parameters = [];
 
             if (!string.IsNullOrWhiteSpace(props))
             {
@@ -127,8 +156,16 @@ public partial class MdxRenderer : ComponentBase
                     var key = attribute.Groups["key"].Value;
                     var value = attribute.Groups["value"].Value;
                     attributes.Add(new(key, value));
+                }
 
-                    Console.WriteLine($"{key} - {value}");
+                var parameterRegex = RazorParameterPattern();
+
+                foreach (Match parameter in parameterRegex.Matches(props))
+                {
+                    var key = parameter.Groups["key"].Value;
+                    var value = parameter.Groups["value"].Value;
+                    Console.WriteLine($"PARAM: {key} - {value}");
+                    parameters.Add(new(key, value));
                 }
             }
 
@@ -138,7 +175,8 @@ public partial class MdxRenderer : ComponentBase
                     new MdxComponentFragment(
                         Content: componentContent,
                         Type: componentType!,
-                        attributes
+                        attributes,
+                        parameters
                     )
                 )
             );
@@ -146,7 +184,7 @@ public partial class MdxRenderer : ComponentBase
             lastIndex = component.Index + component.Length;
         }
 
-        fragments.Add((lastIndex, new MdxFragment(html.Substring(lastIndex))));
+        fragments.Add((lastIndex, new MdxFragment(html[lastIndex..])));
 
         return fragments;
     }
@@ -196,4 +234,10 @@ public partial class MdxRenderer : ComponentBase
         RegexOptions.Compiled
     )]
     private static partial Regex RazorAttributePattern();
+
+    [GeneratedRegex(
+        @"(?<=\s|^)(?<key>[A-Z][A-Za-z0-9]*)(?:\s*=\s*(?:""(?<value>[^""]*)""|(?<value>@\([^)]*\))))?",
+        RegexOptions.Compiled
+    )]
+    private static partial Regex RazorParameterPattern();
 }
