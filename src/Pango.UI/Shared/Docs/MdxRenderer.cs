@@ -94,8 +94,6 @@ public partial class MdxRenderer : ComponentBase
             var beforePlaceholder = html[lastIndex..component.Index];
             fragments.Add((lastIndex, new MdxFragment(Content: beforePlaceholder)));
 
-            Console.WriteLine($"MATCH: {component.Value}");
-
             var componentName =
                 component
                     .Groups.Values.Where(g => g.Name == "name")
@@ -115,10 +113,33 @@ public partial class MdxRenderer : ComponentBase
                 .FirstOrDefault()
                 ?.Value;
 
+            var props = component.Groups["props"].Value;
+            List<KeyValuePair<string, object>> attributes = [];
+
+            if (!string.IsNullOrWhiteSpace(props))
+            {
+                // Use a regex to match attribute key/value pairs.
+                // This regex supports both double and single quotes.
+                var attributeRegex = RazorAttributePattern();
+
+                foreach (Match attribute in attributeRegex.Matches(props))
+                {
+                    var key = attribute.Groups["key"].Value;
+                    var value = attribute.Groups["value"].Value;
+                    attributes.Add(new(key, value));
+
+                    Console.WriteLine($"{key} - {value}");
+                }
+            }
+
             fragments.Add(
                 (
                     component.Index,
-                    new MdxComponentFragment(Content: componentContent, Type: componentType!, null)
+                    new MdxComponentFragment(
+                        Content: componentContent,
+                        Type: componentType!,
+                        attributes
+                    )
                 )
             );
 
@@ -169,4 +190,10 @@ public partial class MdxRenderer : ComponentBase
         RegexOptions.Compiled
     )]
     private static partial Regex RazorComponentPattern();
+
+    [GeneratedRegex(
+        @"(?<=\s|^)(?<key>[a-z][a-z0-9-]*)(?:\s*=\s*""(?<value>[^""]*)"")?",
+        RegexOptions.Compiled
+    )]
+    private static partial Regex RazorAttributePattern();
 }
