@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Text.RegularExpressions;
 using Markdig;
 using Microsoft.AspNetCore.Components;
@@ -16,7 +17,7 @@ public interface IMdxFragment
 
 public record struct MdxFragment(int Index, string Content) : IMdxFragment
 {
-    public readonly int GetIndex() => Index + Content.Length;
+    public readonly int GetIndex() => Index;
 
     public readonly void Render(RenderTreeBuilder builder)
     {
@@ -26,22 +27,32 @@ public record struct MdxFragment(int Index, string Content) : IMdxFragment
 
 public record struct MdxComponentFragment(
     int Index,
-    string Content,
+    string? Content,
     Type Type,
     IEnumerable<KeyValuePair<string, object>>? Attributes
 ) : IMdxFragment
 {
-    public readonly int GetIndex() => Index + Content.Length;
+    public readonly int GetIndex() => Index;
 
     public readonly void Render(RenderTreeBuilder builder)
     {
         builder.OpenElement(0, "div");
-        builder.AddAttribute(2, "class", "markdown-component");
+        builder.AddAttribute(2, "class", "markdown-component my-4");
 
         builder.OpenComponent(3, Type);
         builder.AddMultipleAttributes(4, Attributes);
-        builder.CloseComponent();
 
+        if (!string.IsNullOrEmpty(Content))
+        {
+            var content = string.Intern(Content);
+            RenderFragment renderContent = b =>
+            {
+                b.AddContent(6, content);
+            };
+            builder.AddComponentParameter(5, "ChildContent", renderContent);
+        }
+
+        builder.CloseComponent();
         builder.CloseElement();
     }
 }
@@ -54,7 +65,6 @@ public class MdxRenderer : ComponentBase
     private readonly MarkdownPipeline _pipeline;
 
     private string _processedHtml = "";
-    private static int _counter = 0;
 
     public MdxRenderer()
     {
@@ -80,39 +90,65 @@ public class MdxRenderer : ComponentBase
 
     protected override void BuildRenderTree(RenderTreeBuilder builder)
     {
-        Regex ComponentRegex = new(@"<Razor\b[^>]*?/>", RegexOptions.Compiled);
+        Regex ComponentRegex = new(
+            //@"<([A-Z][A-Za-z0-9]*)(\s+[^>]*)?>.*?</\1>|<([A-Z][A-Za-z0-9]*)(\s+[^>]*)?/?>",
+            @"<(?<name>[A-Z][A-Za-z0-9]*)(?<props>\s+[^>]*)?(?:>(?<content>.*?)</\k<name>>|/?>)",
+            RegexOptions.Compiled
+        );
 
         List<IMdxFragment> _htmlChunks = [];
         int lastIndex = 0;
-        foreach (Match match in ComponentRegex.Matches(_processedHtml))
+
+        var matches = ComponentRegex.Matches(_processedHtml);
+        Console.WriteLine($"MATCHES: {matches.Count}");
+        foreach (Match component in matches)
         {
             // Store HTML before the component
-            var beforePlaceholder = _processedHtml[lastIndex..match.Index];
+            var beforePlaceholder = _processedHtml[lastIndex..component.Index];
             _htmlChunks.Add(new MdxFragment(Index: lastIndex, Content: beforePlaceholder));
 
-            Console.WriteLine($"COMPONENT: {match.Value}");
+            var componentName =
+                component
+                    .Groups.Values.Where(g => g.Name == "name")
+                    .Select(g => g.Captures.FirstOrDefault()?.Value)
+                    .FirstOrDefault() ?? throw new Exception("Invalid componentName");
 
-            // Store the component
-            Regex attributesRegex = new(@"\b([a-zA-Z0-9-]+)\s*=\s*""([^""]*)");
-            var a = attributesRegex.Match(match.Value);
-            var componentType = Type.GetType(a.Value.Split("\"").Last());
+            var componentType =
+                Assembly
+                    .GetExecutingAssembly()
+                    .GetTypes()
+                    .Where(t => t.IsClass && t.Name == componentName)
+                    .FirstOrDefault() ?? throw new Exception("Could not find implementation type");
+
+            var componentContent = component
+                .Groups.Values.Where(g => g.Name == "content")
+                .SelectMany(g => g.Captures.Where(c => !string.IsNullOrEmpty(c.Value)))
+                .FirstOrDefault()
+                ?.Value;
+
+            Console.WriteLine(
+                $"NAME: {componentName}, TYPE: {componentType}, Content: {componentContent}"
+            );
+
             _htmlChunks.Add(
                 new MdxComponentFragment(
-                    Index: match.Index,
-                    Content: match.Value,
+                    Index: component.Index,
+                    Content: componentContent,
                     Type: componentType!,
                     null
                 )
             );
 
-            Console.WriteLine($"\nBEFORE:{beforePlaceholder}\nCOMP:{a.Value}\n\n");
+            lastIndex = component.Index + component.Length;
 
-            lastIndex = match.Index + match.Length;
+            /*
+            foreach (var group in component.Groups.Values)
+            {
+                Console.WriteLine($"GROUP: {group.Name}: {group.Value}");
+
+            }
+            */
         }
-        // Add the remaining HTML after the last component
-        _htmlChunks.Add(
-            new MdxFragment(Index: lastIndex, Content: _processedHtml.Substring(lastIndex))
-        );
 
         // Render Markdown content as raw HTML
         builder.OpenElement(0, "div");
@@ -123,24 +159,12 @@ public class MdxRenderer : ComponentBase
         {
             seq += fragment.GetIndex() + 1;
 
+            Console.WriteLine($"Render at {seq}");
             builder.OpenRegion(seq);
             fragment.Render(builder);
             builder.CloseRegion();
         }
 
         builder.CloseElement();
-
-        // Render detected Blazor components at the correct positions
-        /*
-        Type? componentType = Type.GetType($"BlazorMarkdown.Components.Counter");
-
-        if (componentType != null)
-        {
-            builder.OpenElement(3, "div");
-            builder.OpenComponent(5, componentType);
-            builder.CloseComponent();
-            builder.CloseElement();
-        }
-        */
     }
 }

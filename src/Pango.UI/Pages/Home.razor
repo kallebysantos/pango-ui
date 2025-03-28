@@ -2,28 +2,27 @@
 
 <PageTitle>Home</PageTitle>
 
-<MdxRenderer Value="@(content)" />
-
-<p>@(typeof(Separator))</p>
-
 @*
 <div class="flex flex-col gap-4">
   <QuickLinks Base=@(typeof(Pages.Examples.Examples)) />
 </div>
 *@
 
+<MdxRenderer Value="@(content)" />
+
 @code {
   private string content = $@"
 # Hello, Blazor MDX!
 This is **Markdown** with a Blazor component:
 
-<Razor type=""{typeof(Separator)}"" />
+<Button>Hello World from MDX</Button>
 
-<Razor type=""{typeof(Button)}"" />
+<Separator />
+
+<Button>Other button</Button>
 
 ## Test after
 like you can see we did rendered Markdown Razor
 ";
 }
-
 
