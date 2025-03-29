@@ -10,6 +10,17 @@
 
 A collection of UI components for Blazor that you can copy and paste into your apps, built with [Tailwind CSS](https://tailwindcss.com).
 
+- [Introduction](#introduction)
+- [Why Pango?](#why-pango)
+- [How Pango Works](#how-pango-works)
+- [Installing](#installing-pango-cli)
+- [Adding Components](#installing-pango-ui-components)
+- [Using Components](#using-pango-components)
+  - [.NET Integrated](#net-integrated)
+- [Theming](#theming)
+- [Contributing](#contributing)
+- [License](#license)
+
 ## Introduction
 
 Pango UI is a [Shadcn/UI](https://ui.shadcn.com) inspired component registry for Blazor. It provides beautifully designed and accessible components that you can copy directly into your project, giving you **complete ownership** and **control over your UI**.
