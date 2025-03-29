@@ -1,0 +1,183 @@
+.pango-ui-markdown {
+  color: var(--color-foreground);
+  background-color: var(--color-background);
+  font-family: system-ui, sans-serif;
+  line-height: 1.5;
+
+}
+
+::deep .markdown-component {
+
+  /*  &:not(:first-child)]:mt-6  */
+  &:not(:first-child) {
+    margin-top: 1.5rem;
+  }
+
+  /* mb-4  */
+  margin-bottom: 1rem;
+}
+
+/* Markdown Typography Styling - ShadCN-inspired */
+
+/* Headings */
+::deep h1 {
+  /* scroll-m-20 */
+  margin-top: 1.25rem;
+  /* Tailwind's default */
+  margin-bottom: 0.75rem;
+  /* text-3xl */
+  font-size: 1.875rem;
+  /* font-bold */
+  font-weight: 700;
+  /* tracking-tight */
+  letter-spacing: -0.02em;
+}
+
+::deep h2,
+::deep h3,
+::deep h4 {
+  /* scroll-m-20 */
+  margin-top: 1.25rem;
+  margin-bottom: 0.5rem;
+  /* Border bottom for subheadings */
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0.5rem;
+}
+
+::deep h2 {
+  /* text-2xl */
+  font-size: 1.5rem;
+  font-weight: 700;
+  /* tracking-tight */
+  letter-spacing: -0.02em;
+}
+
+::deep h3 {
+  /* text-xl */
+  font-size: 1.25rem;
+  /* font-semibold */
+  font-weight: 600;
+  /* tracking-tight */
+  letter-spacing: -0.01em;
+}
+
+::deep h4 {
+  /* text-lg */
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+/* Paragraphs & Text */
+::deep p {
+  margin-bottom: 1rem;
+  color: var(--color-foreground);
+}
+
+::deep a {
+  color: var(--color-primary);
+  text-decoration: underline;
+  font-weight: 500;
+}
+
+::deep a:hover {
+  color: var(--color-primary-foreground);
+}
+
+/* Lists */
+::deep ul,
+::deep ol {
+  margin-bottom: 1rem;
+  /* pl-6 */
+  padding-left: 1.5rem;
+}
+
+::deep ul {
+  list-style-type: disc;
+}
+
+::deep ol {
+  list-style-type: decimal;
+}
+
+/* Blockquote */
+::deep blockquote {
+  margin: 1rem 0;
+  padding-left: 1rem;
+  border-left: 4px solid var(--color-border);
+  color: var(--color-muted-foreground);
+  font-style: italic;
+}
+
+/* Code Blocks */
+::deep pre {
+  padding: 0.75rem;
+  background-color: var(--color-muted);
+  color: var(--color-muted-foreground);
+  border-radius: var(--radius-md);
+  overflow-x: auto;
+}
+
+::deep code {
+  padding: 0.25rem 0.5rem;
+  /* text-sm */
+  font-family: monospace;
+  font-size: 0.875rem;
+  background-color: var(--color-muted);
+  color: var(--color-muted-foreground);
+  border-radius: var(--radius-sm);
+}
+
+/* Tables */
+::deep table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1rem;
+}
+
+::deep th,
+::deep td {
+  padding: 0.5rem;
+  border: 1px solid var(--color-border);
+}
+
+::deep th {
+  background-color: var(--color-muted);
+  color: var(--color-muted-foreground);
+  font-weight: 600;
+}
+
+/* Images */
+::deep img {
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--radius-md);
+}
+
+/* Horizontal Rule */
+::deep hr {
+  margin: 2rem 0;
+  border: none;
+  border-top: 1px solid var(--color-border);
+}
+
+/* Strong & Emphasis */
+::deep strong {
+  font-weight: 700;
+}
+
+::deep em {
+  font-style: italic;
+}
+
+/* Details / Summary */
+::deep details {
+  margin-bottom: 1rem;
+  padding: 0.5rem;
+  background-color: var(--color-muted);
+  border-radius: var(--radius-md);
+}
+
+::deep summary {
+  font-weight: 600;
+  cursor: pointer;
+}

@@ -189,7 +189,7 @@ public partial class MdxRenderer : ComponentBase
         return fragments;
     }
 
-    protected override void BuildRenderTree(RenderTreeBuilder builder)
+    protected void RenderMarkdown(RenderTreeBuilder builder)
     {
         var fragments = ResolveComponent(_processedHtml);
 
@@ -207,7 +207,7 @@ public partial class MdxRenderer : ComponentBase
             if (fragment is MdxComponentFragment)
             {
                 builder.OpenElement(0, "div");
-                builder.AddAttribute(1, "class", "markdown-component my-4");
+                builder.AddAttribute(1, "class", "markdown-component");
             }
 
             fragment.Render(builder);
