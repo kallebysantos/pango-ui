@@ -51,7 +51,7 @@ Pango is built with [Tailwind CSS](https://tailwindcss.com) v4 at its core, whic
 
 - **Utility-First**: Compose designs directly in your markup with utility classes.
 - **Highly Customizable**: Tailor the design system to your brand through simple configuration.
-- **Zero Runtime**: Unlike Bootstrap where you need to import the whole library, Tailwind is compiled to a purely and compact CSS, resulting in better performance.
+- **Optimized**: Unlike Bootstrap where you need to import the whole library, Tailwind is compiled to a purely and compact CSS, resulting in better performance.
 - **Perfect for Component Ownership**: Tailwind's utility classes make it easy to modify component styles without writing new CSS.
 
 With Pango + Tailwind CSS, you can:
