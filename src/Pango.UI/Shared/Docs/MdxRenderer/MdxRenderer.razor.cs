@@ -164,7 +164,6 @@ public partial class MdxRenderer : ComponentBase
                 {
                     var key = parameter.Groups["key"].Value;
                     var value = parameter.Groups["value"].Value;
-                    Console.WriteLine($"PARAM: {key} - {value}");
                     parameters.Add(new(key, value));
                 }
             }
