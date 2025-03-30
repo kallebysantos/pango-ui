@@ -2,22 +2,66 @@
 @layout Shared.Layout.ExampleLayout
 
 @inject HttpClient Http
+@inject NavigationManager Navigation
 
-<div class="w-full flex-1 flex flex-col gap-6 p-6">
-  <MdxRenderer Value=@(MarkdownContent) />
+<PageTitle>@(Metadata?.Title) - Pango UI</PageTitle>
+
+<div
+  class="mx-auto grid w-full max-w-2xl grid-cols-1 gap-10 xl:max-w-5xl xl:grid-cols-[minmax(0,1fr)_var(--container-2xs)]">
+  @if (!string.IsNullOrEmpty(MarkdownContent))
+  {
+    <div class="px-4 pt-10 pb-24 sm:px-6 xl:pr-0 flex flex-col gap-6 p-6">
+      <MdxRenderer Value=@(MarkdownContent) />
+    </div>
+  }
+
+  @if (Metadata is not null)
+  {
+    <div class="space-y-2 max-xl:hidden sticky top-14 max-h-[calc(100svh-3.5rem)] overflow-x-hidden px-6 pt-10 pb-24">
+      <p class="font-medium">On this page</p>
+      <ul class="flex flex-col gap-1 m-0 list-none">
+        @{
+          string currentPath = new Uri(Navigation.Uri).LocalPath;
+
+          RenderFragment<(string?, string?)> SectionLink = (item) => @<a href=@(item.Item1)
+            class="list-item w-fit no-underline transition-colors hover:text-foreground text-muted-foreground">
+            @(item.Item2)
+          </a>;
+        }
+        @foreach (var section in Metadata.Sections)
+        {
+          @SectionLink(($"{currentPath}#{section.Id ?? section.Title?.ToKebabCase()}", section.Title))
+
+          <ul class="flex flex-col gap-1 m-0 list-none pl-4">
+            @foreach (var subSection in section.Sections)
+            {
+              @SectionLink(($"{currentPath}#{subSection.Id ?? subSection.Title?.ToKebabCase()}", subSection.Title))
+            }
+          </ul>
+        }
+      </ul>
+    </div>
+  }
+
 </div>
 
 @code {
   [Parameter]
   public required string Slug { get; set; }
 
+  DocumentMetadata? Metadata;
   string? MarkdownContent;
+
+
 
   protected override async Task OnInitializedAsync()
   {
     var documentFileName = Path.ChangeExtension(Slug.ToTitleCase(), "mdx");
     var documentPath = Path.Combine("/Docs/Pages", documentFileName);
 
-    MarkdownContent = await Http.GetStringAsync(documentPath);
+    var documentContent = await Http.GetStringAsync(documentPath);
+
+    Metadata = MdxMetadata.ExtractMetadata(documentContent);
+    MarkdownContent = MdxMetadata.RemoveMetadataSection(documentContent);
   }
 }
