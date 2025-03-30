@@ -5,14 +5,22 @@ namespace Pango.UI.Shared;
 
 public static class StringExtensions
 {
-    public static string ToKebabCase(this string value) =>
-        string.Concat(
-            value.Select(
-                (letter, i) =>
-                    ((char.IsUpper(letter) && i > 0) ? "-" : string.Empty)
-                    + char.ToLowerInvariant(letter)
-            )
-        );
+    public static string ToKebabCase(this string value)
+    {
+        var parsed = value
+            .Split([" "], StringSplitOptions.RemoveEmptyEntries)
+            .Select(word =>
+                string.Concat(
+                    word.Select(
+                        (letter, i) =>
+                            ((char.IsUpper(letter) && i > 0) ? "-" : string.Empty)
+                            + char.ToLowerInvariant(letter)
+                    )
+                )
+            );
+
+        return string.Join("-", parsed);
+    }
 
     public static string ToTitleCase(this string value) =>
         CultureInfo.CurrentCulture.TextInfo.ToTitleCase(value).Replace("-", string.Empty);
