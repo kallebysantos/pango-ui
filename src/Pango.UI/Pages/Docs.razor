@@ -1,0 +1,23 @@
+@page "/docs/{slug}"
+@layout Shared.Layout.ExampleLayout
+
+@inject HttpClient Http
+
+<div class="w-full flex-1 flex flex-col gap-6 p-6">
+  <MdxRenderer Value=@(MarkdownContent) />
+</div>
+
+@code {
+  [Parameter]
+  public required string Slug { get; set; }
+
+  string? MarkdownContent;
+
+  protected override async Task OnInitializedAsync()
+  {
+    var documentFileName = Path.ChangeExtension(Slug.ToTitleCase(), "mdx");
+    var documentPath = Path.Combine("/Docs/Pages", documentFileName);
+
+    MarkdownContent = await Http.GetStringAsync(documentPath);
+  }
+}

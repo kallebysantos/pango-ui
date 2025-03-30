@@ -28,4 +28,18 @@
   <ItemGroup>
     <None Update="Components/DataTable/DataTable.razor.css" CssScope="data-table-scope-id" />
   </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Docs/**/Examples/*.razor">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      <Link>wwwroot/Docs/Snippets/%(Filename)%(Extension)</Link>
+    </None>
+
+    <None Include="Docs/**/*.mdx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      <Link>wwwroot/Docs/Pages/%(Filename)%(Extension)</Link>
+    </None>
+  </ItemGroup>
 </Project>

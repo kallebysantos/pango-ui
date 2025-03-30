@@ -1,0 +1,22 @@
+@namespace Pango.UI.Shared.Docs
+@inherits Code
+
+@using System.IO
+
+@inject HttpClient Http
+
+<Code Language="@(Language)" @attributes=@(AdditionalAttributes)>
+  @(CodeContent)
+</Code>
+
+@code {
+  [Parameter]
+  public required string Src { get; set; }
+
+  string? CodeContent;
+
+  protected override async Task OnInitializedAsync()
+  {
+    CodeContent = await Http.GetStringAsync(Src);
+  }
+}
