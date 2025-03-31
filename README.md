@@ -36,9 +36,11 @@ Most UI libraries for Blazor offer components as pre-built packages that you inc
 - **Black Box Development**: When issues occur, debugging becomes challenging as you can't easily inspect or modify the library's internals.
 - **Learning Overhead**: Each library has its own patterns and conventions to learn.
 
-### The Pango Approach: Components as Files
+### The Shadcn/ui inspiration
 
-Pango takes a fundamentally different approach:
+[Shadcn/ui](https://ui.shadcn.com/) has been the [top project](https://risingstars.js.org/2024/en#section-all) on JavaScript Rising Stars for two years running—and for good reason. It offers a unique approach: instead of installing a component library as a dependency, you copy and paste the actual component code into your project. You get complete control over customization, styling, and behavior, with components that feel like part of your project.
+
+Pango takes total advantages of this concept:
 
 - **Download, Don't Depend**: Instead of adding a package reference, you download only the components you need directly into your project.
 - **Complete Ownership**: Once downloaded, these components are yours to customize, modify, and extend.
