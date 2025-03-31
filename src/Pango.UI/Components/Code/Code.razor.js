@@ -1,6 +1,9 @@
 import { codeToHtml } from 'https://esm.sh/shiki@3.0.0'
 
 export async function ApplySyntaxHighlight(elementRef) {
+  const isHtmlElement = elementRef instanceof Element;
+  if (!elementRef || !isHtmlElement) return;
+
   elementRef.toggleAttribute("data-loading", true);
 
   const codeValueWrapper = elementRef.querySelector("textarea");
