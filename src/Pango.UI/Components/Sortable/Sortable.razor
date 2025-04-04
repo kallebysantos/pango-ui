@@ -1,0 +1,50 @@
+@namespace Pango.UI.Components
+
+@inject IJSRuntime JS
+
+<ul @ref=@(ContainerRef) id="items" class=@Tw([ "max-w-xs flex flex-col",
+                                      AdditionalAttributes?.GetValueOrDefault("class")?.ToString() ])>
+  @(ChildContent)
+</ul>
+
+@code {
+  [Parameter]
+  public RenderFragment? ChildContent { get; set; }
+
+  /// <summary>
+  /// Gets or sets a collection of additional attributes that will be applied to the created element.
+  /// </summary>
+  [Parameter(CaptureUnmatchedValues = true)]
+  public IReadOnlyDictionary<string, object>? AdditionalAttributes { get; set; }
+
+  [Inject]
+  protected TwMerge TwMerge { get; set; } = null!;
+
+  /// <summary>
+  /// Merge Tailwind CSS classes without style conflicts
+  /// </summary>
+  public string? Tw(params string?[] classNames) => TwMerge.Merge(classNames);
+
+  private ElementReference ContainerRef;
+
+  private IJSObjectReference? jsModule;
+
+  protected override async Task OnAfterRenderAsync(bool firstRender)
+  {
+    await ApplySortable();
+  }
+
+  protected async Task ApplySortable()
+  {
+    if (JS is null) return;
+
+    jsModule ??= await JS.InvokeAsync<IJSObjectReference>(
+    "import",
+    "./Components/Sortable/Sortable.razor.js"
+    );
+
+    if (jsModule is null) return;
+
+    await jsModule.InvokeVoidAsync("ApplySortable", ContainerRef);
+  }
+}
