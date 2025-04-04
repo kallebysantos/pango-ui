@@ -1,0 +1,83 @@
+@page "/sortable"
+@rendermode InteractiveWebAssembly
+
+<Sortable class="gap-2">
+  <SortableItem class="flex rounded-xl bg-muted">
+    <SortableHandle class="inline-flex items-center w-0 opacity-0 hover:w-auto hover:opacity-100 group-hover:p-2 ">
+      <i class="ph ph-arrows-out-cardinal text-lg"></i>
+    </SortableHandle>
+
+    <Card>
+      <CardHeader class="flex-row! items-center justify-between py-2!">
+        <CardTitle class="text-sm! font-medium!">
+          Requisíto: 1
+        </CardTitle>
+      </CardHeader>
+
+      <CardContent>
+        <p class="line-clamp-5 font-thin">
+          Generate Lorem Ipsum placeholder text for use in your graphic, print and web layouts, and discover plugins for
+          your favorite writing, design and blogging tools. Explore the origins, history and meaning of the famous
+          passage, and learn how Lorem Ipsum
+        </p>
+      </CardContent>
+
+      <CardFooter class="gap-4 pb-3">
+        <Button class="cursor-help" disabled Variant="@(Button.Variants.Outline)" Size="@(Button.Sizes.Icon)">
+          <i class="ph ph-paperclip text-lg"></i>
+        </Button>
+        <Button class="cursor-help" disabled Variant="@(Button.Variants.Outline)" Size="@(Button.Sizes.Icon)">
+          <i class="ph ph-note text-xl"></i>
+        </Button>
+        <Button class="cursor-help" disabled Variant="@(Button.Variants.Outline)" Size="@(Button.Sizes.Icon)">
+          <i class="ph ph-flag-pennant text-xl"></i>
+        </Button>
+
+        <div class="ml-auto">
+          <Button class="cursor-help" disabled Variant="@(Button.Variants.Outline)" Size="@(Button.Sizes.Icon)">
+            <i class="ph ph-flag-pennant text-xl"></i>
+          </Button>
+        </div>
+      </CardFooter>
+    </Card>
+  </SortableItem>
+
+  <SortableItem class="flex rounded-xl bg-muted">
+    <SortableHandle class="inline-flex items-center w-0 opacity-0 hover:w-auto hover:opacity-100 group-hover:p-2 ">
+      <i class="ph ph-arrows-out-cardinal text-lg"></i>
+    </SortableHandle>
+
+    <Card>
+      <CardHeader class="flex-row! items-center justify-between py-2!">
+        <CardTitle class="text-sm! font-medium!">
+          Requisíto: 2
+        </CardTitle>
+      </CardHeader>
+
+      <CardContent>
+        <p class="line-clamp-5 font-thin">
+          design and blogging tools. Explore the origins, history and meaning of the famous
+          passage, and learn how Lorem Ipsum
+        </p>
+      </CardContent>
+
+      <CardFooter class="gap-4 pb-3">
+        <Button class="cursor-help" disabled Variant="@(Button.Variants.Outline)" Size="@(Button.Sizes.Icon)">
+          <i class="ph ph-paperclip text-lg"></i>
+        </Button>
+        <Button class="cursor-help" disabled Variant="@(Button.Variants.Outline)" Size="@(Button.Sizes.Icon)">
+          <i class="ph ph-note text-xl"></i>
+        </Button>
+        <Button class="cursor-help" disabled Variant="@(Button.Variants.Outline)" Size="@(Button.Sizes.Icon)">
+          <i class="ph ph-flag-pennant text-xl"></i>
+        </Button>
+
+        <div class="ml-auto">
+          <Button class="cursor-help" disabled Variant="@(Button.Variants.Outline)" Size="@(Button.Sizes.Icon)">
+            <i class="ph ph-flag-pennant text-xl"></i>
+          </Button>
+        </div>
+      </CardFooter>
+    </Card>
+  </SortableItem>
+</Sortable>
