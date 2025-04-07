@@ -1,0 +1,96 @@
+@namespace Pango.UI.Components
+
+@inject IJSRuntime JS
+
+<div @ref=@(ContainerRef) id="pango-ui-sortable">
+  <ul class=@Tw(["max-w-xs flex flex-col", AdditionalAttributes?.GetValueOrDefault("class")?.ToString()])>
+    @(ChildContent)
+  </ul>
+
+  <form id="pango-ui-sortable-handler" @formname="pango-ui-sortable-handler" @onsubmit=@(HandleSortableUpdate)
+    method="post" data-enhance>
+    <AntiforgeryToken />
+    <input type="submit" hidden />
+
+    <InputNumber id="pango-ui-sortable-old-index" @bind-Value=@(OldIndex) hidden />
+    <InputNumber id="pango-ui-sortable-new-index" @bind-Value=@(NewIndex) hidden />
+  </form>
+</div>
+
+@code {
+  public record struct OnUpdatePayload(int OldIndex, int NewIndex);
+
+  [Parameter]
+  public RenderFragment? ChildContent { get; set; }
+
+  [Parameter]
+  public EventCallback<OnUpdatePayload>? OnUpdate { get; set; }
+
+  [SupplyParameterFromForm]
+  protected int OldIndex { get; set; }
+
+  [SupplyParameterFromForm]
+  protected int NewIndex { get; set; }
+
+  /// <summary>
+  /// Gets or sets a collection of additional attributes that will be applied to the created element.
+  /// </summary>
+  [Parameter(CaptureUnmatchedValues = true)]
+  public IReadOnlyDictionary<string, object>? AdditionalAttributes { get; set; }
+
+  [Inject]
+  protected TwMerge TwMerge { get; set; } = null!;
+
+  /// <summary>
+  /// Merge Tailwind CSS classes without style conflicts
+  /// </summary>
+  public string? Tw(params string?[] classNames) => TwMerge.Merge(classNames);
+
+  private ElementReference ContainerRef;
+
+  private DotNetObjectReference<Sortable>? SortableRef;
+
+  private IJSObjectReference? jsModule;
+
+  protected override void OnInitialized()
+  {
+    SortableRef = DotNetObjectReference.Create(this);
+  }
+
+  protected override async Task OnAfterRenderAsync(bool firstRender)
+  {
+    await ApplySortable();
+  }
+
+  protected async Task ApplySortable()
+  {
+    if (JS is null) return;
+
+    jsModule ??= await JS.InvokeAsync<IJSObjectReference>(
+    "import",
+    "./Components/Sortable/Sortable.razor.js"
+    );
+
+    if (jsModule is null) return;
+
+    await jsModule.InvokeVoidAsync("ApplySortable", ContainerRef, SortableRef);
+  }
+
+  [JSInvokable]
+  public async Task UpdateIndex(int oldIndex, int newIndex)
+  {
+    OldIndex = oldIndex;
+    NewIndex = newIndex;
+
+    await Task.Yield();
+  }
+
+  async Task HandleSortableUpdate(EventArgs args)
+  {
+    if (OnUpdate.HasValue)
+    {
+      await OnUpdate.Value.InvokeAsync(new OnUpdatePayload(OldIndex, NewIndex));
+    }
+
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "version": "4",
+  "remote": {
+    "https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.js": "4a335afc6fec35a63b6e926c987313472a011692ce73115ed7526765604c8223",
+    "https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js": "6d0a831fc19b4bae851797ad3393157e861afb7862459c11226359b27e2c4337"
+  }
+}
