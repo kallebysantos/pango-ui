@@ -2,14 +2,35 @@
 
 @inject IJSRuntime JS
 
-<ul @ref=@(ContainerRef) id="items" class=@Tw([ "max-w-xs flex flex-col",
-                                      AdditionalAttributes?.GetValueOrDefault("class")?.ToString() ])>
-  @(ChildContent)
-</ul>
+<div @ref=@(ContainerRef) id="pango-ui-sortable">
+  <ul class=@Tw(["max-w-xs flex flex-col", AdditionalAttributes?.GetValueOrDefault("class")?.ToString()])>
+    @(ChildContent)
+  </ul>
+
+  <form id="pango-ui-sortable-handler" @formname="pango-ui-sortable-handler" @onsubmit=@(HandleSortableUpdate)
+    method="post" data-enhance>
+    <AntiforgeryToken />
+    <input type="submit" hidden />
+
+    <InputNumber id="pango-ui-sortable-old-index" @bind-Value=@(OldIndex) hidden />
+    <InputNumber id="pango-ui-sortable-new-index" @bind-Value=@(NewIndex) hidden />
+  </form>
+</div>
 
 @code {
+  public record struct OnUpdatePayload(int OldIndex, int NewIndex);
+
   [Parameter]
   public RenderFragment? ChildContent { get; set; }
+
+  [Parameter]
+  public EventCallback<OnUpdatePayload>? OnUpdate { get; set; }
+
+  [SupplyParameterFromForm]
+  protected int OldIndex { get; set; }
+
+  [SupplyParameterFromForm]
+  protected int NewIndex { get; set; }
 
   /// <summary>
   /// Gets or sets a collection of additional attributes that will be applied to the created element.
@@ -27,7 +48,14 @@
 
   private ElementReference ContainerRef;
 
+  private DotNetObjectReference<Sortable>? SortableRef;
+
   private IJSObjectReference? jsModule;
+
+  protected override void OnInitialized()
+  {
+    SortableRef = DotNetObjectReference.Create(this);
+  }
 
   protected override async Task OnAfterRenderAsync(bool firstRender)
   {
@@ -45,6 +73,24 @@
 
     if (jsModule is null) return;
 
-    await jsModule.InvokeVoidAsync("ApplySortable", ContainerRef);
+    await jsModule.InvokeVoidAsync("ApplySortable", ContainerRef, SortableRef);
+  }
+
+  [JSInvokable]
+  public async Task UpdateIndex(int oldIndex, int newIndex)
+  {
+    OldIndex = oldIndex;
+    NewIndex = newIndex;
+
+    await Task.Yield();
+  }
+
+  async Task HandleSortableUpdate(EventArgs args)
+  {
+    if (OnUpdate.HasValue)
+    {
+      await OnUpdate.Value.InvokeAsync();
+    }
+
   }
 }
