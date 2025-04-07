@@ -89,7 +89,7 @@
   {
     if (OnUpdate.HasValue)
     {
-      await OnUpdate.Value.InvokeAsync();
+      await OnUpdate.Value.InvokeAsync(new OnUpdatePayload(OldIndex, NewIndex));
     }
 
   }
