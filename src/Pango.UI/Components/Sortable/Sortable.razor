@@ -3,7 +3,7 @@
 @inject IJSRuntime JS
 
 <div @ref=@(ContainerRef) id="pango-ui-sortable">
-  <ul class=@Tw(["max-w-xs flex flex-col", AdditionalAttributes?.GetValueOrDefault("class")?.ToString()])>
+  <ul class=@Tw(["flex flex-col", AdditionalAttributes?.GetValueOrDefault("class")?.ToString()])>
     @(ChildContent)
   </ul>
 
@@ -24,7 +24,7 @@
   public RenderFragment? ChildContent { get; set; }
 
   [Parameter]
-  public EventCallback<OnUpdatePayload>? OnUpdate { get; set; }
+  public EventCallback<OnUpdatePayload> OnUpdate { get; set; }
 
   [SupplyParameterFromForm]
   protected int OldIndex { get; set; }
@@ -87,10 +87,6 @@
 
   async Task HandleSortableUpdate(EventArgs args)
   {
-    if (OnUpdate.HasValue)
-    {
-      await OnUpdate.Value.InvokeAsync(new OnUpdatePayload(OldIndex, NewIndex));
-    }
-
+    await OnUpdate.InvokeAsync(new OnUpdatePayload(OldIndex, NewIndex));
   }
 }
