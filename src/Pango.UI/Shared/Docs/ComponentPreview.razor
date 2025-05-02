@@ -1,0 +1,22 @@
+<Tabs DefaultValue="preview" Variant=@(Tabs.Variants.Underline)>
+  <TabsList>
+    <TabsTrigger Value="preview">Preview</TabsTrigger>
+    <TabsTrigger Value="code">Code</TabsTrigger>
+  </TabsList>
+
+  <TabsContent Value="preview" class="flex flex-col gap-8 px-4 py-8 items-center border">
+    @(ChildContent)
+  </TabsContent>
+
+  <TabsContent Value="code" class="flex flex-col gap-4 items-center">
+    <ExternalCode Src=@(CodeSrc) Language="razor" class="[&_pre]:max-h-80" />
+  </TabsContent>
+</Tabs>
+
+@code {
+  [Parameter]
+  public required RenderFragment ChildContent { get; set; }
+
+  [Parameter]
+  public required string CodeSrc { get; set; }
+}

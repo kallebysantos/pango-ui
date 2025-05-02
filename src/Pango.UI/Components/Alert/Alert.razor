@@ -3,7 +3,7 @@
 @inherits UIComponent
 
 <dialog open role="alert" class=@Tw([
-    "relative w-full rounded-lg border bg-background px-4 py-3 text-sm",
+    "relative w-full flex flex-col rounded-lg border bg-background px-4 py-3 text-sm",
     (AlertSide is not null) ? " pl-10": string.Empty,
     GetStyledVariant(Variant),
     AdditionalAttributes?.GetValueOrDefault("class")?.ToString()
@@ -16,22 +16,24 @@
     </div>
   }
 
-  @if (AlertTitle is not null)
-  {
-    <h2 class="mb-1 leading-none font-medium tracking-tight">
-      @AlertTitle
-    </h2>
-  }
+  <div class="flex gap-2 justify-between items-center">
+    @if (AlertTitle is not null)
+    {
+      <h2 class="mb-1 leading-none font-medium tracking-tight">
+        @AlertTitle
+      </h2>
+    }
 
-  @if (EnableClose)
-  {
-    <form method="dialog" class="absolute top-2 right-4">
-      <button type="submit" class="cursor-pointer" @onclick=@(OnDismiss)>
-        <span class="sr-only">dismiss</span>
-        <i class="ph ph-x"></i>
-      </button>
-    </form>
-  }
+    @if (EnableClose)
+    {
+      <form method="dialog" class="absolute top-2 right-4">
+        <button type="submit" class="cursor-pointer" @onclick=@(OnDismiss)>
+          <span class="sr-only">dismiss</span>
+          <i class="ph ph-x"></i>
+        </button>
+      </form>
+    }
+  </div>
 
   @if (AlertDescription is not null)
   {
