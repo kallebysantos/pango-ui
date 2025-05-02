@@ -1,0 +1,42 @@
+@using System.ComponentModel.DataAnnotations
+
+<Tabs DefaultValue="account">
+  <TabsList class="grid w-full grid-cols-2">
+    <TabsTrigger Value="account">Account</TabsTrigger>
+    <TabsTrigger Value="password">Password</TabsTrigger>
+  </TabsList>
+
+  <TabsContent Value="account" class="p-4 rounded-md border">
+    <FormMappingScope Name="example-1">
+      <ExamplesTabsAccountForm />
+    </FormMappingScope>
+  </TabsContent>
+
+  <TabsContent Value="password" class="p-4 rounded-md border">
+    <FormMappingScope Name="example-1">
+      <ExamplesTabsPasswordForm />
+    </FormMappingScope>
+  </TabsContent>
+</Tabs>
+
+<Separator />
+
+<Tabs Variant=@(Tabs.Variants.Underline) DefaultValue="password">
+  <TabsList>
+    <TabsTrigger Value="account">Account</TabsTrigger>
+    <TabsTrigger Value="password">Password</TabsTrigger>
+  </TabsList>
+
+  <TabsContent Value="account" class="p-4 rounded-md border">
+    <FormMappingScope Name="example-2">
+      <ExamplesTabsAccountForm />
+    </FormMappingScope>
+  </TabsContent>
+
+  <TabsContent Value="password" class="p-4 rounded-md border">
+    <FormMappingScope Name="example-2">
+      <ExamplesTabsPasswordForm />
+    </FormMappingScope>
+  </TabsContent>
+</Tabs>
+
