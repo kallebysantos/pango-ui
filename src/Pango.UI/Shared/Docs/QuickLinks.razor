@@ -35,7 +35,7 @@
     .ToList();
   }
 
-  record struct PageDefinition(string Name, string Route)
+  public record struct PageDefinition(string Name, string Route)
   {
     public string DisplayName => Name.EndsWith("Page")
     ? Name.Substring(0, Name.Length - "Page".Length)
