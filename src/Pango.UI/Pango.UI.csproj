@@ -1,5 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
     <PropertyGroup>
+        <Version>0.0.1</Version>
         <TargetFramework>net8.0</TargetFramework>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
