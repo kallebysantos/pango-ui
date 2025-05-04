@@ -31,16 +31,16 @@ jobs:
 
         # url '/index.html'
         if [[ "${{ github.ref }}" == refs/heads/main ]]; then
-          echo "DEPLOY_DIR=" >> $GITHUB_ENV
+          echo "DEPLOY_DIR=./" >> $GITHUB_ENV
         #
         # url '/dev/index.html'
         elif [[ "${{ github.ref }}" == refs/heads/dev ]]; then
-          echo "DEPLOY_DIR=dev" >> $GITHUB_ENV
+          echo "DEPLOY_DIR=./_v/dev" >> $GITHUB_ENV
         #
         # url '/{TAG}/index.html
         elif [[ "${{ github.ref }}" == refs/tags/* ]]; then
           TAG_NAME=$(echo "${{ github.ref }}" | sed 's/refs\/tags\/v//')
-          echo "DEPLOY_DIR=$TAG_NAME" >> $GITHUB_ENV
+          echo "DEPLOY_DIR=./_v/$TAG_NAME" >> $GITHUB_ENV
         fi
 
     - uses: cardinalby/export-env-action@v2
@@ -73,7 +73,7 @@ jobs:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: publish/site/wwwroot
         destination_dir: ${{ env.DEPLOY_DIR }}
-        keep_files: false
+        keep_files: true
 
     - name: Install Pango registry builder
       run: ./scripts/install_pango.sh ${{ env.PANGO_VERSION }}
