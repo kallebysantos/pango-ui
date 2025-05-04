@@ -3,7 +3,7 @@
 <PageTitle>Home</PageTitle>
 
 <div class="flex flex-col gap-4">
-  <nav class="grid grid-cols-1 gap-2 items-center">
+  <nav class="grid grid-cols-1 gap-2 items-center md:grid-flow-col md:grid-rows-2">
     @foreach (var page in GettingStartedPages)
     {
       <NavLink href=@(page.RelativeURI) class="w-fit">
@@ -43,5 +43,6 @@ new("Tabs", "./docs/tabs"),
 
   private List<QuickLinks.PageDefinition> GettingStartedPages = [
   new("Introduction", "./docs/introduction"),
+new("Installation", "./docs/installation"),
 ];
 }
