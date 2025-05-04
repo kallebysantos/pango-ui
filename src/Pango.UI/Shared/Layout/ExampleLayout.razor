@@ -1,7 +1,11 @@
 @inherits LayoutComponentBase
 
 <div class="flex h-screen flex-col">
-  <div class="w-full flex justify-end p-4">
+  <div class="w-full flex gap-2 justify-end p-4">
+    <RepositoryLink />
+
+    <Separator Orientation=@(Separator.Orientations.Vertical) />
+
     <ThemeToggle />
   </div>
 
