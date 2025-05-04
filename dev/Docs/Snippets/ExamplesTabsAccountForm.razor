@@ -1,0 +1,57 @@
+@using System.ComponentModel.DataAnnotations
+
+<EditForm Model=@(this) OnValidSubmit=@(HandleAccount) FormName="account-form" Enhance>
+  <div class="flex flex-col gap-4">
+    <div class="space-y-2">
+      <h3 class="font-semibold leading-none tracking-tight">
+        Account
+      </h3>
+      <p class="text-sm text-muted-foreground">
+        Make changes to your account here. Click save when you're done.
+      </p>
+    </div>
+
+    <div class="flex flex-col gap-2">
+      <label class="flex flex-col gap-1">
+        <span class="text-sm font-medium">Name</span>
+        <Input @bind-Value="@(Fullname)" placeholder="Please enter your name here." />
+      </label>
+
+      <label class="flex flex-col gap-1 text-sm font-medium">
+        <span class="text-sm font-medium">Username</span>
+        <Input @bind-Value="@(Username)" placeholder="Please enter your username here." />
+      </label>
+    </div>
+
+    @if (hasAccountSaved)
+    {
+      <Alert Variant=@(Alert.Variants.Sucess) OnDismiss=@(() => hasAccountSaved = false)>
+        <AlertSide>
+          <i class="ph ph-check text-lg"></i>
+        </AlertSide>
+        <AlertTitle>Sucess</AlertTitle>
+        <AlertDescription>
+          Your account was saved, you can now log in as <strong class="font-medium">@_username</strong>
+        </AlertDescription>
+      </Alert>
+    }
+
+    <Button>Save Changes</Button>
+  </div>
+</EditForm>
+
+@code {
+  [SupplyParameterFromForm(FormName = "account-form")]
+  public string Fullname { get; set; } = "Kalleby Santos";
+
+  [SupplyParameterFromForm(FormName = "account-form")]
+  public string Username { get; set; } = "@kallebysantos";
+
+  bool hasAccountSaved;
+  string _username = string.Empty;
+  protected void HandleAccount()
+  {
+    hasAccountSaved = true;
+    _username = Username;
+  }
+}
