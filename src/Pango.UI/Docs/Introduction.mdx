@@ -1,0 +1,102 @@
+```json :pango-ui-document-metadata
+{
+  "Title": "Introduction",
+  "Description": "A collection of UI components for Blazor that you can copy and paste into your apps, built with Tailwind CSS",
+  "Featured": true,
+  "IsComponent": false,
+  "Tags": ["Guides"],
+  "Sections": [
+    { "Title": "Introduction" },
+    {
+      "Id": "why-pango",
+      "Title": "Why Pango?",
+      "Sections": [
+        {
+          "Id": "the-problem-with-traditional-component-libraries",
+          "Title": "The Problem with Traditional Component Libraries"
+        },
+        {
+          "Id": "the-shadcnui-inspiration",
+          "Title": "The Shadcn/ui inspiration"
+        },
+        {
+          "Id": "why-tailwind-css",
+          "Title": "Why Tailwind CSS?"
+        }
+      ]
+    },
+    {
+      "Id": "how-pango-works",
+      "Title": "How Pango Works",
+      "Sections": [
+        { "Id": "pango-cli", "Title": "Pango CLI" },
+        { "Id": "pango-registries", "Title": "Pango Registries" }
+      ]
+    }
+  ]
+}
+```
+
+## Introduction
+
+Pango UI is a [Shadcn/UI](https://ui.shadcn.com) inspired component registry for Blazor. It provides beautifully designed and accessible components that you can copy directly into your project, giving you **complete ownership** and **control over your UI**.
+
+## Why Pango?
+
+### The Problem with Traditional Component Libraries
+
+Most UI libraries for Blazor offer components as pre-built packages that you include as dependencies. While this approach works, it presents several limitations:
+
+- **Limited Customization**: You're often restricted to the styling options provided by the library.
+- **Version Lock-in**: Updating the library might break your UI if component APIs change.
+- **Black Box Development**: When issues occur, debugging becomes challenging as you can't easily inspect or modify the library's internals.
+- **Learning Overhead**: Each library has its own patterns and conventions to learn.
+
+### The Shadcn/ui inspiration
+
+[Shadcn/ui](https://ui.shadcn.com/) has been the [top project](https://risingstars.js.org/2024/en#section-all) on JavaScript Rising Stars for two years running—and for good reason. It offers a unique approach: instead of installing a component library as a dependency, you copy and paste the actual component code into your project. You get complete control over customization, styling, and behavior, with components that feel like part of your project.
+
+Pango takes total advantages of this concept:
+
+- **Download, Don't Depend**: Instead of adding a package reference, you download only the components you need directly into your project.
+- **Complete Ownership**: Once downloaded, these components are yours to customize, modify, and extend.
+- **No Version Anxiety**: Since you own the component code, you're not affected by breaking changes in future releases.
+- **Learn Once, Apply Anywhere**: The skills you develop working with Tailwind CSS and component patterns can be applied across different frameworks.
+
+### Why Tailwind CSS?
+
+Pango is built with [Tailwind CSS](https://tailwindcss.com) v4 at its core, which offers significant advantages over traditional CSS frameworks like Bootstrap:
+
+- **Utility-First**: Compose designs directly in your markup with utility classes.
+- **Highly Customizable**: Tailor the design system to your brand through simple configuration.
+- **Optimized**: Unlike Bootstrap where you need to import the whole library, Tailwind is compiled to a purely and compact CSS, resulting in better performance.
+- **Perfect for Component Ownership**: Tailwind's utility classes make it easy to modify component styles without writing new CSS.
+
+With Pango + Tailwind CSS, you can:
+
+- Use `TailwindMerge.NET` for extending component designs
+- Directly modify component internals when needed
+- Create consistent UI patterns across your entire application
+- Transfer your knowledge to other frameworks that use Tailwind (React, Vue, etc.)
+
+## How Pango Works
+
+Pango consists of two main projects:
+
+### Pango CLI
+
+The [Pango CLI](https://github.com/kallebysantos/pango) is a command-line tool that allows you to:
+
+1. **Download components** from any Pango-compatible registry
+2. **Create your own registry** of components
+3. **Package and distribute** custom components for your team or the community
+
+The CLI acts as the bridge between registries and your project, handling all the file operations needed to seamlessly integrate components into your codebase.
+
+### Pango Registries
+
+Registries are collections of components that follow the Pango specification. The main registry is [Pango UI](https://github.com/kallebysantos/pango-ui), but the architecture supports:
+
+- **Community Registries**: Specialized component collections created by the community
+- **Internal Registries**: Custom component sets maintained by teams for consistent branding
+- **Framework-Specific Registries**: Components tailored for specific Blazor frameworks (Server, WebAssembly, MAUI)

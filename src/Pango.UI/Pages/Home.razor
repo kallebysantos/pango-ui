@@ -3,8 +3,21 @@
 <PageTitle>Home</PageTitle>
 
 <div class="flex flex-col gap-4">
+  <nav class="grid grid-cols-1 gap-2 items-center">
+    @foreach (var page in GettingStartedPages)
+    {
+      <NavLink href=@(page.RelativeURI) class="w-fit">
+        <Button Variant=@(Button.Variants.Link)>
+          @(page.DisplayName)
+        </Button>
+      </NavLink>
+    }
+  </nav>
+
+  <Separator />
+
   <nav class="grid grid-cols-1 gap-2 items-center md:grid-flow-col md:grid-rows-6">
-    @foreach (var page in Pages.OrderBy(p => p.Name))
+    @foreach (var page in ComponentsPages.OrderBy(p => p.Name))
     {
       <NavLink href=@(page.RelativeURI) class="w-fit">
         <Button Variant=@(Button.Variants.Link)>
@@ -17,14 +30,18 @@
 
 @code {
 
-  private List<QuickLinks.PageDefinition> Pages = [
-    new("Alert", "./docs/alert"),
-    new("Badge", "./docs/badge"),
-    new("Button", "./docs/button"),
-    new("Code", "./docs/code"),
-    new("DataTable", "./docs/data-table"),
-    new("Input", "./docs/input"),
-    new("Separator", "./docs/separator"),
-    new("Tabs", "./docs/tabs"),
-  ];
+  private List<QuickLinks.PageDefinition> ComponentsPages = [
+  new("Alert", "./docs/alert"),
+new("Badge", "./docs/badge"),
+new("Button", "./docs/button"),
+new("Code", "./docs/code"),
+new("DataTable", "./docs/data-table"),
+new("Input", "./docs/input"),
+new("Separator", "./docs/separator"),
+new("Tabs", "./docs/tabs"),
+];
+
+  private List<QuickLinks.PageDefinition> GettingStartedPages = [
+  new("Introduction", "./docs/introduction"),
+];
 }
