@@ -12,12 +12,15 @@
       "Title": "Installing Pango CLI"
     },
     {
-      "Id": "installing-tailwind-css",
-      "Title": "Installing Tailwind CSS"
+      "Id": "add-tailwind-css",
+      "Title": "Add Tailwind CSS",
+      "Sections": [
+        { "Title": "Theming" }
+      ]
     },
     {
-      "Id": "installing-tailwindmerge",
-      "Title": "Installing TailwindMerge"
+      "Id": "add-tailwindmerge",
+      "Title": "Add TailwindMerge"
     }
   ]
 }
@@ -38,10 +41,20 @@ Verify the installation:
 
 <Code Language="fish" class="py-2">dotnet pango --version</Code>
 
-## Installing Tailwind CSS
+## Add Tailwind CSS
 
 In order to add **tailwindcss** is high recommended to use the native [Tailwind .NET](https://github.com/kallebysantos/tailwind-dotnet) intergration.
 
-## Installing TailwindMerge
+### Theming
+
+Pango UI uses CSS Variables and color utilities for theming following conventions from shadcn/ui.
+In order to setup your own theme, its recommended to use the [themux](https://themux.vercel.app/shadcn-themes) customizer.
+
+You can customize themes by overriding these variables in your own `styles.css` file.
+The snippet bellow applies the default neutral theme colors.
+
+<ExternalCode Language="css" Src="Docs/Snippets/ExamplesInstallationDefaultTheme.css" class="[&_pre]:max-h-80" />
+
+## Add TailwindMerge
 
 Many of the **Pango UI** components uses [`TailwindMerge.NET`](https://github.com/desmondinho/tailwind-merge-dotnet) to allow simple extensibility.

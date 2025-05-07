@@ -31,7 +31,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="Docs/**/Examples/*.razor">
+    <None Include="Docs/**/Examples/*">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <Link>wwwroot/Docs/Snippets/%(Filename)%(Extension)</Link>
