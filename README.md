@@ -208,6 +208,8 @@ Pango UI theme is based on [Shadcn/UI Theme](https://ui.shadcn.com/docs/theming)
 - A comprehensive color system
 - Consistent spacing and sizing
 
+In order to setup your own theme, its recommended to use the [themux](https://themux.vercel.app/shadcn-themes) customizer.
+
 ## Contributing
 
 I'm welcome contributions to both Pango CLI and Pango UI! Check out our contribution guidelines at [GitHub](https://github.com/kallebysantos/pango/blob/main/CONTRIBUTING.md) to get started or just ping me on [Discord](https://discord.com/users/kallebysantos)
