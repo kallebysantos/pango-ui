@@ -7,27 +7,26 @@
   "Tags": ["Guides"],
   "Sections": [
     {
-      "Title": "Usage",
+      "Title": "Getting Started",
       "Sections": [
         { "Title": "Prerequisites" },
-        { "Id": "setup-your-project", "Title": "Setup Your Project" },
-        { "Id": "adding-components", "Title": "Adding Components" }
+        { "Title": "Setup Your Project" },
+        { "Title": "Adding Components" },
+        { "Title": "The Component Structure" }
       ]
     },
     {
-      "Id": "using-pango-components",
-      "Title": "Using Pango Components",
+      "Title": "Using Components",
       "Sections": [
-        { "Title": "Prerequisites" },
-        { "Id": "the-base-component-structure", "Title": "The Base Component Structure" },
-        { "Id": "tailwind-merging", "Title": "Tailwind Merging" }
+        {  "Title": "Extending styles" },
+        { "Id": "ssr-components", "Title": "SSR Components" }
       ]
     }
   ]
 }
 ```
 
-## Usage
+## Getting Started
 
 Once you have the CLI installed, you can add Pango UI components to your Blazor project.
 
@@ -57,23 +56,48 @@ To add a component is pretty simple, use the `add` command:
 
 This will download the Button component files into your project structure, as well update it to match your project namespace.
 
-## Using Pango Components
-
-Once you've added components to your project, you can use them in your Blazor pages and other components.
-
-### The Base Component Structure
+### The Component Structure
 
 Pango components typically include:
 
 1. A main component file (e.g., `Button.razor`) with the component markup
 2. A code-behind file (e.g., `Button.razor.cs`) with the component logic
 3. Optional CSS or JS files for component-specific behaviour
-4. Some components may also include a `PageScript.js` file to allow SSR support, see **TODO! PageScript**
+4. Some components may also include a `PageScript.js` file to allow SSR interactivity
 
-### Tailwind Merging
+## Using Components
 
-Pango UI uses [TailwindMerge .NET](https://github.com/desmondinho/tailwind-merge-dotnet) for class merging. This allows you to easily extend component styles without conflicts.
+After adding Pango components to your project,
+you can start using them in your Blazor pages and other components.
 
-<ComponentPreview CodeSrc="Docs/Snippets/ExamplesUsageTailwindMerge.razor">
+By default, the components are available under the `Project.Components.UI` namespace.
+To simplify usage throughout your project, it's recommended to add a global `using` directive in your `_Imports.razor` file:
+
+<Code Language="razor">
+@using Project.Components.UI
+</Code>
+
+Once imported, Pango components can be used just like any standard Blazor component:
+
+<ComponentPreview DefaultTab="code" CodeSrc="Docs/Snippets/ExamplesButtonDefault.razor">
+    <ExamplesButtonDefault />
+</ComponentPreview>
+
+### Extending styles
+
+Pango UI uses [TailwindMerge .NET](https://github.com/desmondinho/tailwind-merge-dotnet) for class merging.
+This allows you to easily extend component styles without conflicts.
+
+<ComponentPreview DefaultTab="code" CodeSrc="Docs/Snippets/ExamplesUsageTailwindMerge.razor">
     <ExamplesUsageTailwindMerge />
 </ComponentPreview>
+
+### SSR Components
+
+Pango UI components are built to support all Blazor @rendermode options,
+including [Static Server-Side Rendering (SSR)](https://learn.microsoft.com/en-us/aspnet/core/blazor/components/render-modes?view=aspnetcore-8.0#static-server-side-rendering-static-ssr).
+
+To maintain interactivity in SSR scenarios, Pango leverages [Page Scripts](https://learn.microsoft.com/en-us/aspnet/core/blazor/javascript-interoperability/static-server-rendering?view=aspnetcore-8.0).
+Each SSR-compatible component includes a corresponding `*PageScript.razor` file.
+
+You must include the `<PageScript />` component once in your layout to enable the required interactivity.
