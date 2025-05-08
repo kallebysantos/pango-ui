@@ -1,4 +1,4 @@
-<Tabs DefaultValue="preview" Variant=@(Tabs.Variants.Underline)>
+<Tabs DefaultValue=@(DefaultTab) Variant=@(Tabs.Variants.Underline)>
   <TabsList>
     <TabsTrigger Value="preview">Preview</TabsTrigger>
     <TabsTrigger Value="code">Code</TabsTrigger>
@@ -19,4 +19,7 @@
 
   [Parameter]
   public required string CodeSrc { get; set; }
+
+  [Parameter]
+  public string DefaultTab { get; set; } = "preview";
 }
