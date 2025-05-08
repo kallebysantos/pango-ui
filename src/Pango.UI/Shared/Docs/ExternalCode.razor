@@ -17,6 +17,7 @@
 
   protected override async Task OnInitializedAsync()
   {
-    CodeContent = await Http.GetStringAsync(Src);
+    var content = await Http.GetStringAsync(Src);
+    CodeContent = content?.Trim();
   }
 }
