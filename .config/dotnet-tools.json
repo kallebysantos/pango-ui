@@ -3,7 +3,7 @@
   "isRoot": true,
   "tools": {
     "pangoui.tool": {
-      "version": "0.0.3-develop.2",
+      "version": "0.0.3-develop.3",
       "commands": [
         "pango"
       ],
