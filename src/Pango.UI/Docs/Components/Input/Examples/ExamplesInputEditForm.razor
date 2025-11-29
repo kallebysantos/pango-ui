@@ -5,13 +5,10 @@
     class="w-80 flex flex-col gap-2">
     <DataAnnotationsValidator />
     <div class="flex gap-2 flex-col md:flex-row md:items-end">
-      <label class="flex-1 flex flex-col gap-1">
-        <span class="text-sm font-medium">
-          Email address
-        </span>
+      <Label Value="Teste" For=@(() => EmailText)>
         <Input @bind-Value=@(EmailText) placeholder="your best email here" />
         <ValidationMessage class="md:hidden text-sm text-destructive" For=@(() => EmailText) />
-      </label>
+      </Label>
 
       <Button type="submit">
         Submit
@@ -37,6 +34,7 @@
 
 @code {
   [SupplyParameterFromForm]
+  [Display(Name = "Email address", Prompt = "your best email here")]
   [EmailAddress(ErrorMessage = "Its not a valid email address.")]
   [Required(ErrorMessage = "Email address is required.")]
   public string? EmailText { get; set; }
