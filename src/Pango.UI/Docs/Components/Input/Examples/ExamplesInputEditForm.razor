@@ -5,7 +5,7 @@
     class="w-80 flex flex-col gap-2">
     <DataAnnotationsValidator />
     <div class="flex gap-2 flex-col md:flex-row md:items-end">
-      <Label Value="Teste" For=@(() => EmailText)>
+      <Label For=@(() => EmailText)>
         <Input @bind-Value=@(EmailText) placeholder="your best email here" />
         <ValidationMessage class="md:hidden text-sm text-destructive" For=@(() => EmailText) />
       </Label>
