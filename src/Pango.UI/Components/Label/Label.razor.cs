@@ -50,7 +50,7 @@ public partial class Label(TwMerge TwMerge)
     }
 
     _value = Value ?? _value;
-    _for = AdditionalAttributes?.GetValueOrDefault("for") as string ?? _for;
+    _for = AdditionalAttributes?.GetValueOrDefault("htmlFor") as string ?? _for;
 
 
     await base.SetParametersAsync(parameters);
