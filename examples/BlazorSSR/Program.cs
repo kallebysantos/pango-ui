@@ -5,8 +5,8 @@ using TailwindMerge.Extensions;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder
-    .Services.AddRazorComponents()
+builder.Services
+    .AddRazorComponents()
     .AddInteractiveServerComponents()
     .AddInteractiveWebAssemblyComponents();
 
@@ -17,17 +17,21 @@ builder.Services.AddTailwindMerge();
 
 builder.Services.AddScoped(sp => new HttpClient
 {
-    BaseAddress = new Uri(builder.WebHost.GetSetting("urls") ?? string.Empty),
+  BaseAddress = new Uri(builder.WebHost.GetSetting("urls") ?? string.Empty),
 });
 
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (!app.Environment.IsDevelopment())
+if (app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Error", createScopeForErrors: true);
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-    app.UseHsts();
+  app.UseWebAssemblyDebugging();
+}
+else
+{
+  app.UseExceptionHandler("/Error", createScopeForErrors: true);
+  // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+  app.UseHsts();
 }
 
 // Alternatively, use AppDomain.CurrentDomain.BaseDirectory
@@ -45,23 +49,24 @@ contentTypeProvider.Mappings[".mdx"] = "text/markdown"; // Serve .mdx as markdow
 app.UseStaticFiles(
     new StaticFileOptions
     {
-        FileProvider = fileProvider,
-        RequestPath = requestPath,
-        ContentTypeProvider = contentTypeProvider,
+      FileProvider = fileProvider,
+      RequestPath = requestPath,
+      ContentTypeProvider = contentTypeProvider,
     }
 );
 
 if (builder.Environment.IsDevelopment())
 {
-    app.UseDirectoryBrowser(
-        new DirectoryBrowserOptions { FileProvider = fileProvider, RequestPath = requestPath }
-    );
+  app.UseDirectoryBrowser(
+      new DirectoryBrowserOptions { FileProvider = fileProvider, RequestPath = requestPath }
+  );
 }
 app.UseHttpsRedirection();
 
 app.UseFileServer(enableDirectoryBrowsing: true);
 
 app.UseAntiforgery();
+app.MapStaticAssets();
 
 app.MapRazorComponents<BlazorSSR.App>()
     .AddInteractiveServerRenderMode()

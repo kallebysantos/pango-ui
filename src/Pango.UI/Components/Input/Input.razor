@@ -1,10 +1,13 @@
+@using System.Linq.Expressions
+
 @namespace Pango.UI.Components
 
 @inherits InputText
 
 <input
   @attributes="@(AdditionalAttributes)"
-  name="@(NameAttributeValue)"
+  id="@(_id)"
+  name="@(_name)"
   readonly=@(ReadOnly)
   @bind="@(CurrentValueAsString)" 
   @bind:event="oninput"
@@ -22,7 +25,10 @@
     [Parameter]
     public bool ReadOnly { get; set; } = false;
 
-    public override Task SetParametersAsync(ParameterView parameters)
+    string? _id { get; set; }
+    string? _name { get; set; }
+
+    public override async Task SetParametersAsync(ParameterView parameters)
     {
         parameters.SetParameterProperties(this);
 
@@ -31,6 +37,20 @@
             ValueExpression = () => this.Value;
         }
 
-        return base.SetParametersAsync(parameters);
+        await base.SetParametersAsync(parameters);
+
+        _id = AdditionalAttributes?.GetValueOrDefault("id")?.ToString() ?? NameAttributeValue;
+        _name = AdditionalAttributes?.GetValueOrDefault("name")?.ToString() ?? NameAttributeValue;
+
+        if(string.IsNullOrEmpty(_id) && !ReadOnly)
+        {
+          var exp = ValueExpression?.Body as MemberExpression;
+          _id = exp?.Member.Name;
+        }
+
+        if(string.IsNullOrEmpty(_name))
+        {
+          _name = _id;
+        }
     }
 }

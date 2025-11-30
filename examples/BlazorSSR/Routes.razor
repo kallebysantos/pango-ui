@@ -1,6 +1,6 @@
 ﻿@using Pango.UI.Shared.Layout
 
-<Router AppAssembly="typeof(Program).Assembly">
+<Router AppAssembly="typeof(Program).Assembly" AdditionalAssemblies="new[] { typeof(Pango.UI._Imports).Assembly }">
   <Found Context="routeData">
     <RouteView RouteData="routeData" DefaultLayout="typeof(MainLayout)" />
     <FocusOnNavigate RouteData="routeData" Selector="h1" />
