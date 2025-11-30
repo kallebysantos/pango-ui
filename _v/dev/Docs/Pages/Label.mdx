@@ -1,0 +1,48 @@
+```json :pango-ui-document-metadata
+{
+  "Title": "Label",
+  "Description": "Renders an accessible label associated with controls.",
+  "Featured": true,
+  "IsComponent": true,
+  "Tags": ["UI", "Interactive"],
+  "Sections": [
+    { "Title": "Installation" },
+    {
+      "Title": "Examples",
+      "Sections": [
+        { "Id": "usage", "Title": "Usage" },
+        { "Id": "with-editform", "Title": "EditForm" }
+      ]
+    }
+  ]
+}
+```
+
+# Label
+
+Renders an accessible label associated with controls.
+
+<ComponentPreview CodeSrc="Docs/Snippets/ExamplesLabelDefault.razor" >
+    <ExamplesLabelDefault />
+</ComponentPreview>
+
+## Installation
+
+<Code Language="fish" class="py-2">dotnet pango add label</Code>
+
+## Examples
+
+### Usage
+
+<ComponentPreview CodeSrc="Docs/Snippets/ExamplesLabelUsage.razor" >
+    <ExamplesLabelUsage />
+</ComponentPreview>
+
+### With [`EditForm`](https://learn.microsoft.com/en-us/aspnet/core/blazor/forms/binding?view=aspnetcore-8.0#editformeditcontext-model)
+
+The label component integrates directly with `DataAnnotations` and can
+automatically render the respective value of `Display(Name)`.
+
+<ComponentPreview CodeSrc="Docs/Snippets/ExamplesInputEditForm.razor" >
+    <ExamplesInputEditForm />
+</ComponentPreview>
