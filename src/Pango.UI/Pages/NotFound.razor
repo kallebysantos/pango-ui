@@ -1,0 +1,18 @@
+@page "/not-found"
+
+<p role="alert" class="@Tw("text-emerald-500  ")">
+    Sorry, there's nothing at this address.
+</p>
+
+@code {
+
+    [Inject] protected TwMerge TwMerge { get; set; } = null!;
+
+    public string? Tw(params string?[] classNames)
+    {
+        var a = Tw("text-emerald-500 gap ");
+
+        return TwMerge.Merge(classNames);
+    }
+
+}
