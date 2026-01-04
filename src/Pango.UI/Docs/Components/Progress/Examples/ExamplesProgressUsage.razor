@@ -1,0 +1,22 @@
+<Button @onclick="@(() => Value = 0)">
+    Reset
+</Button>
+
+<Progress Value="@(Value)" class="bg-green-500 w-1/2"/>
+
+@code {
+    int Value { get; set; } = 25;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (Value != 100)
+        {
+            for (; Value < 100; Value += 2)
+            {
+                StateHasChanged();
+                await Task.Delay(TimeSpan.FromMilliseconds(250));
+            }
+        }
+    }
+
+}
