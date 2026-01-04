@@ -1,0 +1,16 @@
+@namespace Pango.UI.Components
+
+<div @attributes="@AdditionalAttributes"
+     class=@Tw("bg-primary/20 relative h-2 w-full overflow-hidden rounded-full",
+         AdditionalAttributes?.GetValueOrDefault("class")?.ToString()?.Split().Where(style => !style.StartsWith("bg")).JoinMerge(' ')
+     )>
+    <div class=@Tw(
+        "bg-primary h-full w-full flex-1 transition-all",
+        AdditionalAttributes?.GetValueOrDefault("class")?.ToString()?.Split().Where(style => style.StartsWith("bg")).JoinMerge(' ')
+    )
+         style="transform: translateX(-@(100 - Value)%)"></div>
+</div>
+
+@code {
+    [Parameter] public int Value { get; set; }
+}
