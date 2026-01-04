@@ -20,7 +20,7 @@
     <div class="space-y-2 max-xl:hidden sticky top-14 max-h-[calc(100svh-3.5rem)] overflow-x-hidden px-6 pt-10 pb-24">
       @if (Metadata.Tags.Any())
       {
-        <ul class="space-x-1 space-y-1">
+        <ul class="space-x-1 space-y-1 mb-4">
           @foreach (var tag in Metadata.Tags)
           {
             <Badge Variant="@(Badge.Variants.Secondary)">#@tag</Badge>
