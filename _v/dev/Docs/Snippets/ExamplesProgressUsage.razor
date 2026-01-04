@@ -1,21 +1,24 @@
-<Button @onclick="@(() => Value = 0)">
-    Reset
+<Button @onclick="@(Download)" disabled="@(Value is > 0 and < 100)">
+    <i class="hidden group-disabled:block ph ph-spinner animate-spin"></i>
+    <span class="block group-disabled:hidden">
+        Download
+    </span>
+    <span class="hidden group-disabled:block">
+        Downloading
+    </span>
 </Button>
 
 <Progress Value="@(Value)" class="bg-green-500 w-1/2"/>
 
 @code {
-    int Value { get; set; } = 25;
+    int Value { get; set; }
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    async Task Download()
     {
-        if (Value != 100)
+        for (Value = 0; Value < 100; Value += 25)
         {
-            for (; Value < 100; Value += 2)
-            {
-                StateHasChanged();
-                await Task.Delay(TimeSpan.FromMilliseconds(250));
-            }
+            StateHasChanged();
+            await Task.Delay(TimeSpan.FromMilliseconds(250));
         }
     }
 
