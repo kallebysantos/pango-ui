@@ -156,7 +156,7 @@ Pango components typically include:
 Pango UI uses [TailwindMerge .NET](https://github.com/desmondinho/tailwind-merge-dotnet) for class merging. This allows you to easily extend component styles without conflicts.
 
 ```razor
-<Button class="bg-green-500 hove:bg-green-500/70">
+<Button class="bg-green-500 hover:bg-green-500/70">
   A custom styled button
 </Button>
 ```
