@@ -2,20 +2,14 @@
 
 @using System.Linq.Expressions
 
-<label 
-  @attributes="@(AdditionalAttributes)"
-  for="@(_for)"
-  class=@Tw([
-    "flex-1 flex flex-col gap-2",
-    AdditionalAttributes?.GetValueOrDefault("class")?.ToString() 
-])>
+<label @attributes="@(AdditionalAttributes)" for="@(_for)" class=@Tw([ "flex-1 flex flex-col gap-2  peer-disabled:cursor-not-allowed peer-disabled:opacity-50",
+                                                             AdditionalAttributes?.GetValueOrDefault("class")?.ToString() ])>
   @if (_value is not null)
   {
     <span
-      class="text-sm leading-none font-medium select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50">
+      class="text-sm leading-none font-medium select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50">
       @(_value)
     </span>
   }
   @(ChildContent)
 </label>
-
