@@ -14,7 +14,7 @@
       </Button>
     </NavLink>
 
-    <Separator/>
+    <Separator />
   }
 
   <nav class="grid grid-cols-1 gap-2 items-center md:grid-flow-col md:grid-rows-2">
@@ -28,7 +28,7 @@
     }
   </nav>
 
-  <Separator/>
+  <Separator />
 
   <nav class="grid grid-cols-1 gap-2 items-center md:grid-flow-col md:grid-rows-6">
     @foreach (var page in ComponentsPages.OrderBy(p => p.Name))
@@ -46,23 +46,24 @@
 
   private List<QuickLinks.PageDefinition> ComponentsPages =
   [
-    new("Alert", "./docs/alert"),
-    new("Badge", "./docs/badge"),
-    new("Button", "./docs/button"),
-    new("Code", "./docs/code"),
-    new("DataTable", "./docs/data-table"),
-    new("Input", "./docs/input"),
-    new("Label", "./docs/label"),
-    new("Progress", "./docs/progress"),
-    new("Separator", "./docs/separator"),
-    new("Tabs", "./docs/tabs")
+  new("Alert", "./docs/alert"),
+new("Badge", "./docs/badge"),
+new("Button", "./docs/button"),
+new("Checkbox", "./docs/checkbox"),
+new("Code", "./docs/code"),
+new("DataTable", "./docs/data-table"),
+new("Input", "./docs/input"),
+new("Label", "./docs/label"),
+new("Progress", "./docs/progress"),
+new("Separator", "./docs/separator"),
+new("Tabs", "./docs/tabs")
   ];
 
   private List<QuickLinks.PageDefinition> GettingStartedPages =
   [
-    new("Introduction", "./docs/introduction"),
-    new("Installation", "./docs/installation"),
-    new("Usage", "./docs/usage")
+  new("Introduction", "./docs/introduction"),
+new("Installation", "./docs/installation"),
+new("Usage", "./docs/usage")
   ];
 
 }
