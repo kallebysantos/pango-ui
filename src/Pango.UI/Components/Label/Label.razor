@@ -2,8 +2,10 @@
 
 @using System.Linq.Expressions
 
-<label @attributes="@(AdditionalAttributes)" for="@(_for)" class=@Tw([ "flex-1 flex flex-col gap-2  peer-disabled:cursor-not-allowed peer-disabled:opacity-50",
-                                                             AdditionalAttributes?.GetValueOrDefault("class")?.ToString() ])>
+<label @attributes="@(AdditionalAttributes)" for="@(_for)" class=@Tw([
+  "flex-1 flex flex-col gap-2  peer-disabled:cursor-not-allowed peer-disabled:opacity-50",
+  AdditionalAttributes?.GetValueOrDefault("class")?.ToString()
+])>
   @if (_value is not null)
   {
     <span
