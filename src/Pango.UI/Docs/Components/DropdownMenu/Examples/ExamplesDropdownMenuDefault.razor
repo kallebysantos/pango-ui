@@ -1,0 +1,23 @@
+<DropdownMenu>
+    <DropdownMenuTrigger>
+        <Button Variant="@Button.Variants.Outline">
+            Open
+        </Button>
+    </DropdownMenuTrigger>
+
+    <DropdownMenuContent>
+        <DropdownMenuLabel>My Account</DropdownMenuLabel>
+
+        <Separator class="my-1"/>
+
+        <DropdownMenuItem @onclick=@(() => Console.WriteLine("1"))>
+            Profile
+        </DropdownMenuItem>
+        <DropdownMenuItem @onclick=@(() => Console.WriteLine("2"))>
+            Billing
+        </DropdownMenuItem>
+        <DropdownMenuItem @onclick=@(() => Console.WriteLine("3"))>
+            Settings
+        </DropdownMenuItem>
+    </DropdownMenuContent>
+</DropdownMenu>

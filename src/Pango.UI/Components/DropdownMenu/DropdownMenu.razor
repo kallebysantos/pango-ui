@@ -1,0 +1,116 @@
+@namespace Pango.UI.Components
+@inject IJSRuntime JS
+
+<div class="relative" data-state="@State">
+    @if (DropdownMenuTrigger is not null)
+    {
+        <div @onclick=@ToggleState @ref=@DropdownTriggerRef data-state="@State" type="button"
+             aria-expanded=@(State == "open") aria-haspopup="true">
+            @DropdownMenuTrigger
+        </div>
+    }
+
+    @if (DropdownMenuContent is not null)
+    {
+        <dialog @ref=@DropdownContentRef
+                class='@Tw([
+                           "absolute min-w-[8rem] w-max my-1 left-0 top-6 overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-md",
+                           "animate-dialog-close zoom-out-95",
+                           "open:animate-dialog-show zoom-in-95"
+                       ])'>
+            @DropdownMenuContent
+        </dialog>
+    }
+</div>
+
+@code {
+    [Parameter] public string State { get; set; } = "default";
+
+    [Parameter] public RenderFragment? DropdownMenuTrigger { get; set; }
+
+    [Parameter] public RenderFragment? DropdownMenuContent { get; set; }
+
+    private ElementReference DropdownTriggerRef;
+
+    private ElementReference DropdownContentRef;
+
+    private IJSObjectReference? jsDropdownRender;
+
+    private IJSObjectReference? jsDropdownCleaner;
+
+    private DotNetObjectReference<DropdownMenu>? csDropdownMenuRef;
+
+    /// <summary>
+    /// Gets or sets a collection of additional attributes that will be applied to the created element.
+    /// </summary>
+    [Parameter(CaptureUnmatchedValues = true)]
+    public IReadOnlyDictionary<string, object>? AdditionalAttributes { get; set; }
+
+    [Inject] protected TwMerge TwMerge { get; set; } = null!;
+
+    /// <summary>
+    /// Merge Tailwind CSS classes without style conflicts
+    /// </summary>
+    public string? Tw(params string?[] classNames)
+    {
+        return TwMerge.Merge(classNames);
+    }
+
+    protected override void OnInitialized()
+    {
+        csDropdownMenuRef = DotNetObjectReference.Create(this);
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            jsDropdownRender = await JS.InvokeAsync<IJSObjectReference>(
+                "import",
+                "./Components/DropdownMenu/DropdownMenu.razor.js"
+            );
+        }
+
+        await base.OnAfterRenderAsync(firstRender);
+    }
+
+    public async Task OpenDropdown()
+    {
+        State = "open";
+
+        if (jsDropdownRender is not null)
+        {
+            jsDropdownCleaner = await jsDropdownRender.InvokeAsync<IJSObjectReference>("ComputeDialogPosition", DropdownTriggerRef,
+                DropdownContentRef,
+                csDropdownMenuRef,
+                nameof(CloseDropdown)
+            );
+        }
+    }
+
+    [JSInvokable]
+    public async Task CloseDropdown()
+    {
+        State = "closed";
+
+        if (jsDropdownCleaner is not null)
+        {
+            await jsDropdownCleaner.InvokeVoidAsync("CleanUpPosition");
+        }
+    }
+
+    protected async Task ToggleState()
+    {
+        switch (State)
+        {
+            case "open":
+                await CloseDropdown();
+                break;
+
+            default:
+                await OpenDropdown();
+                break;
+        }
+    }
+
+}
