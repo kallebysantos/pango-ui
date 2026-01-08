@@ -1,0 +1,53 @@
+<EditForm Model="_termsAndConditions">
+  <div class="flex flex-col gap-6">
+    <div class="flex items-center gap-3">
+      <Checkbox id="terms" @bind-Value="_termsAndConditions.FirstTerm"/>
+      <label for="terms">Accept terms and conditions</label>
+    </div>
+    <div class="flex items-start gap-3">
+      <Checkbox id="terms-2" @bind-Value="_termsAndConditions.SecondTerm"/>
+      <div class="grid gap-2">
+        <label class="leading-none" for="terms-2">Accept terms and conditions</label>
+        <p class="text-muted-foreground text-sm">
+          By clicking this checkbox, you agree to the terms and conditions.
+        </p>
+      </div>
+    </div>
+    <div class="flex items-center gap-3">
+      <Checkbox id="toggle" @bind-Value="_termsAndConditions.NotificationsDisabled" disabled />
+      <Label htmlFor="toggle">Enable notifications</Label>
+    </div>
+    <label
+      class="hover:bg-accent/50 flex items-start gap-3 rounded-lg border p-3 has-checked:border-blue-600 has-checked:bg-blue-50 dark:has-checked:border-blue-900 dark:has-checked:bg-blue-950">
+      <Checkbox
+        class="checked:border-blue-600 checked:bg-blue-600 checked:text-white dark:checked:border-blue-700 dark:checked:bg-blue-700"
+        @bind-Value="_termsAndConditions.NotificationsEnabled" />
+      <div class="grid gap-1.5 font-normal">
+        <p class="text-sm leading-none font-medium">
+          Enable notifications
+        </p>
+        <p class="text-muted-foreground text-sm">
+          You can enable or disable notifications at any time.
+        </p>
+      </div>
+    </label>
+  </div>
+</EditForm>
+
+@code {
+  readonly TermsAndConditions _termsAndConditions = new()
+  {
+    FirstTerm = false,
+    SecondTerm = true,
+    NotificationsDisabled = false,
+    NotificationsEnabled = true,
+  };
+
+  class TermsAndConditions
+  {
+    public bool FirstTerm { get; set; }
+    public bool SecondTerm { get; set; }
+    public bool NotificationsDisabled { get; set; }
+    public bool NotificationsEnabled { get; set; }
+  }
+}
