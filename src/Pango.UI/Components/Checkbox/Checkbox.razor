@@ -1,21 +1,52 @@
 @namespace Pango.UI.Components
 
-<input @attributes="@AdditionalAttributes" checked="@IsChecked" @onchange="OnCheckboxChanged" aria-checked="@IsChecked"
-    type="checkbox" class=@Tw([ "appearance-none cursor-pointer text-center text-sm peer border-input dark:bg-input/30 checked:bg-primary not-checked:text-transparent ph ph-check checked:text-primary-foreground dark:checked:bg-primary    checked:border-primary focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20    dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive size-4 shrink-0 rounded-[4px] border shadow-xs transition-shadow outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50",
-                        AdditionalAttributes?.GetValueOrDefault("class")?.ToString()]) />
+@using System.Linq.Expressions
+@inherits InputCheckbox
 
-@code {
-    [Parameter]
-    public bool IsChecked { get; set; } = false;
+<input
+  type="checkbox"
+  @attributes="@AdditionalAttributes"
+  id="@(_id)"
+  name="@(_name)"
+  readonly="@(ReadOnly)"
+  @bind="@CurrentValue"
+  @bind:event="onchange"
+  class=@Tw([
+    "appearance-none cursor-pointer text-center text-sm peer border-input dark:bg-input/30 checked:bg-primary not-checked:text-transparent ph ph-check checked:text-primary-foreground dark:checked:bg-primary checked:border-primary focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive size-4 shrink-0 rounded-[4px] border shadow-xs transition-shadow outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50",
+    CssClass,
+    AdditionalAttributes?.GetValueOrDefault("class")?.ToString()
+  ])/>
+@code
+{
+  [Parameter]
+  public bool ReadOnly { get; set; }
 
-    [Parameter]
-    public EventCallback<bool> IsCheckedChanged { get; set; }
+  string? _id { get; set; }
+  string? _name { get; set; }
 
-    private async Task OnCheckboxChanged(ChangeEventArgs e)
+  public override async Task SetParametersAsync(ParameterView parameters)
+  {
+    parameters.SetParameterProperties(this);
+
+    if(ReadOnly)
     {
-        if (e.Value is null) return;
-
-        IsChecked = (bool)e.Value;
-        await IsCheckedChanged.InvokeAsync(IsChecked);
+      ValueExpression = () => this.Value;
     }
+
+    await base.SetParametersAsync(parameters);
+
+    _id = AdditionalAttributes?.GetValueOrDefault("id")?.ToString() ?? NameAttributeValue;
+    _name = AdditionalAttributes?.GetValueOrDefault("name")?.ToString() ?? NameAttributeValue;
+
+    if(string.IsNullOrEmpty(_id) && !ReadOnly)
+    {
+      var exp = ValueExpression?.Body as MemberExpression;
+      _id = exp?.Member.Name;
+    }
+
+    if(string.IsNullOrEmpty(_name))
+    {
+      _name = _id;
+    }
+  }
 }
