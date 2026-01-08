@@ -1,3 +1,7 @@
 <label>
-    <Checkbox /> <span>Default checkbox</span>
+  <Checkbox @bind-Value="_value"/> <span>Default checkbox</span>
 </label>
+
+@code{
+  bool _value;
+}
