@@ -1,0 +1,60 @@
+@using Markdig.Extensions.Footnotes
+<CheckboxGroup class="flex flex-col gap-2" @bind-Value="_value">
+  <label>
+    <CheckboxGroupTrigger/>
+    <span class="font-semibold text-lg">Check all</span>
+  </label>
+  <CheckboxGroupContent class="px-4">
+    @foreach (Group<List<Food>> group in _groups)
+    {
+      <CheckboxGroup @bind-Value="group.Value">
+        <CheckboxGroupTrigger/>
+        <CheckboxGroupContent class="flex flex-col gap-2 px-4">
+          @foreach (Food food in group.Entity)
+          {
+            <label>
+              <Checkbox @bind-Value="food.ToBuy"/>
+              <span>@(food.Name)</span>
+            </label>
+          }
+        </CheckboxGroupContent>
+      </CheckboxGroup>
+    }
+  </CheckboxGroupContent>
+</CheckboxGroup>
+
+@code {
+  bool _value;
+
+  List<Group<List<Food>>> _groups =
+  [
+    new([
+      new("Banana", false),
+      new("Apple", false),
+      new("Mango", false),
+    ]),
+    new([
+      new("Rice", false),
+      new("Beans", false),
+      new("Pasta", false),
+    ]),
+    new([
+      new("Kit Kat", false),
+      new("Waffles", false),
+      new("Cake", false),
+    ]),
+  ];
+
+  class Food(string name, bool toBuy)
+  {
+    public string Name { get; set; } = name;
+    public bool ToBuy { get; set; } = toBuy;
+  }
+
+  class Group<T>(T entity)
+  {
+    public bool Value { get; set; }
+    public T Entity { get; set; } = entity;
+  }
+
+}
