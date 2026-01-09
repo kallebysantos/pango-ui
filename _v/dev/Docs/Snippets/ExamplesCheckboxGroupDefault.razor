@@ -1,0 +1,27 @@
+<CheckboxGroup class="flex flex-col gap-2" @bind-Value="_groupValue">
+  <label>
+    <CheckboxGroupTrigger/>
+    <span class="font-semibold text-lg">Check all</span>
+  </label>
+  <CheckboxGroupContent class="flex flex-col gap-2 px-4">
+    <label>
+      <Checkbox @bind-Value="_firstValue"/>
+      <span>First</span>
+    </label>
+    <label>
+      <Checkbox @bind-Value="_secondValue"/>
+      <span>Second</span>
+    </label>
+    <label>
+      <Checkbox @bind-Value="_thirdValue"/>
+      <span>Third</span>
+    </label>
+  </CheckboxGroupContent>
+</CheckboxGroup>
+
+@code {
+  bool _groupValue;
+  bool _firstValue;
+  bool _secondValue;
+  bool _thirdValue;
+}
