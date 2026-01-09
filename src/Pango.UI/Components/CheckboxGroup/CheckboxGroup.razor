@@ -1,0 +1,20 @@
+@using System.Linq.Expressions
+
+@namespace Pango.UI.Components
+
+<div @attributes="AdditionalAttributes">
+  <CascadingValue Value="this">
+    @(ChildContent)
+  </CascadingValue>
+</div>
+
+@code {
+
+  [Parameter] public bool Value { get; set; }
+
+  [Parameter] public EventCallback<bool> ValueChanged { get; set; }
+
+  [Parameter] public Expression<Func<bool>>? ValueExpression { get; set; }
+
+  [Parameter] public RenderFragment? ChildContent { get; set; }
+}
