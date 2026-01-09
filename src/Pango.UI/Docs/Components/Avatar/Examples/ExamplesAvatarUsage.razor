@@ -1,5 +1,20 @@
-<h3>ExamplesAvatarUsage</h3>
-
-@code {
-  
-}
+<div class="flex flex-row flex-wrap items-center gap-12">
+  <Avatar Src="https://github.com/kallebysantos.png" Alt=@("@kallebysantos")>
+    <AvatarFallback>KS</AvatarFallback>
+  </Avatar>
+  <Avatar class="rounded-lg" Src="https://github.com/Saraivinha1703.png" Alt=@("@Saraivinha1703")>
+    <AvatarFallback>CS</AvatarFallback>
+  </Avatar>
+  <div
+    class="*:data-[slot=avatar]:ring-background flex -space-x-2 *:data-[slot=avatar]:ring-2 *:data-[slot=avatar]:grayscale">
+    <Avatar Src="https://github.com/kallebysantos.png" Alt=@("@kallebysantos")>
+      <AvatarFallback>KS</AvatarFallback>
+    </Avatar>
+    <Avatar class="rounded-lg" Src="https://github.com/Saraivinha1703.png" Alt=@("@Saraivinha1703")>
+      <AvatarFallback>CS</AvatarFallback>
+    </Avatar>
+    <Avatar Src="https://github.com/shadcn.png" Alt=@("@shadcn")>
+      <AvatarFallback>CN</AvatarFallback>
+    </Avatar>
+  </div>
+</div>
