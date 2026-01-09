@@ -1,0 +1,37 @@
+@namespace Pango.UI.Components
+
+<div @attributes="@(AdditionalAttributes)"
+     class=@Tw([
+       "relative flex size-8 shrink-0 overflow-hidden rounded-full",
+       AdditionalAttributes?.GetValueOrDefault("class")?.ToString()
+     ])
+     data-slot="avatar"
+>
+  <img src="@(Src)" alt="@(Alt)"
+       class="peer not-data-[state=loaded]:hidden aspect-square size-full"
+       onload='this.dataset.state = "loaded"'
+       onerror='this.dataset.state = "error"'
+       data-slot="avatar-image"
+       data-state="loading"
+  />
+
+  <span
+    class="hidden peer-data-[state=loading]:flex animate-pulse bg-muted size-full items-center justify-center rounded-full"
+    data-slot="avatar-loading">
+  </span>
+
+  @if (AvatarFallback is not null)
+  {
+    <span
+      class="hidden peer-data-[state=error]:flex bg-muted size-full items-center justify-center rounded-full"
+      data-slot="avatar-fallback">
+      @(AvatarFallback)
+    </span>
+  }
+</div>
+
+@code {
+  [Parameter] [EditorRequired] public string? Src { get; set; }
+  [Parameter] [EditorRequired] public string? Alt { get; set; }
+  [Parameter] public RenderFragment? AvatarFallback { get; set; }
+}
