@@ -2,6 +2,25 @@
   <Checkbox @bind-Value="_value"/> <span>Default checkbox</span>
 </label>
 
+<label>
+  <Checkbox
+    Value="_indeterminateCheckbox"
+    ValueChanged="OnValueChanged"
+    ValueExpression="() => _indeterminateCheckbox"
+    Indeterminate="_isIndeterminate" />
+  <span>Supports indeterminate behavior</span>
+</label>
+
 @code{
   bool _value;
+  bool _indeterminateCheckbox;
+  bool _isIndeterminate = true;
+
+
+  private void OnValueChanged(bool value)
+  {
+    Console.WriteLine("value changed");
+   _indeterminateCheckbox = value;
+   _isIndeterminate = false;
+  }
 }
