@@ -8,63 +8,17 @@
            AdditionalAttributes?.GetValueOrDefault("class")?.ToString()
          ])"
   data-state="@State">
-  @if (DropdownMenuTrigger is not null)
-  {
-    <div class="w-fit" @onclick=@ToggleState @ref=@DropdownTriggerRef data-state="@State" type="button"
-         aria-expanded=@(State == "open") aria-haspopup="true">
-      @DropdownMenuTrigger
-    </div>
-  }
-
-  @if (DropdownMenuContent is not null)
-  {
-    <dialog @ref=@DropdownContentRef
-            class='@Tw([
-                     "absolute min-w-[8rem] w-max my-1 left-0 top-6 overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-md",
-                     "animate-dialog-close zoom-out-95",
-                     "open:animate-dialog-show zoom-in-95"
-                   ])'>
-      @DropdownMenuContent
-    </dialog>
-  }
+  <CascadingValue Value="this">
+    @ChildContent
+  </CascadingValue>
 </div>
 
 @code {
   [Parameter] public string State { get; set; } = "default";
 
-  [Parameter] public RenderFragment? DropdownMenuTrigger { get; set; }
+  [Parameter] public RenderFragment? ChildContent { get; set; }
 
-  [Parameter] public RenderFragment? DropdownMenuContent { get; set; }
-
-  [Parameter] public Variants Placement { get; set; }
-
-  [Parameter] public int Offset { get; set; }
-
-  private ElementReference DropdownTriggerRef;
-
-  private ElementReference DropdownContentRef;
-
-  private IJSObjectReference? jsDropdownRender;
-
-  private IJSObjectReference? jsDropdownCleaner;
-
-  private DotNetObjectReference<DropdownMenu>? csDropdownMenuRef;
-
-  /// <summary>
-  /// Gets or sets a collection of additional attributes that will be applied to the created element.
-  /// </summary>
-  [Parameter(CaptureUnmatchedValues = true)]
-  public IReadOnlyDictionary<string, object>? AdditionalAttributes { get; set; }
-
-  [Inject] protected TwMerge TwMerge { get; set; } = null!;
-
-  /// <summary>
-  /// Merge Tailwind CSS classes without style conflicts
-  /// </summary>
-  public string? Tw(params string?[] classNames)
-  {
-    return TwMerge.Merge(classNames);
-  }
+  [Parameter] public Placements Placement { get; set; } = Placements.BottomStart;
 
   protected override void OnInitialized()
   {
@@ -92,8 +46,7 @@
     {
       jsDropdownCleaner = await jsDropdownRender.InvokeAsync<IJSObjectReference>("ComputeDialogPosition", DropdownTriggerRef,
         DropdownContentRef,
-        GetVariantPlacement(Placement),
-        Offset,
+        _placements[Placement],
         csDropdownMenuRef,
         nameof(CloseDropdown)
       );
@@ -111,7 +64,7 @@
     }
   }
 
-  protected async Task ToggleState()
+  internal async Task ToggleState()
   {
     switch (State)
     {
@@ -123,47 +76,6 @@
         await OpenDropdown();
         break;
     }
-  }
-
-  public enum Variants
-  {
-    BottomStart,
-    TopStart,
-    LeftStart,
-    RightStart,
-
-    BottomCenter,
-    TopCenter,
-    LeftCenter,
-    RightCenter,
-
-    BottomEnd,
-    TopEnd,
-    LeftEnd,
-    RightEnd,
-  }
-
-  public static string GetVariantPlacement(Variants variant)
-  {
-    return variant switch
-    {
-      Variants.BottomStart => "bottom-start",
-      Variants.TopStart => "top-start",
-      Variants.LeftStart => "left-start",
-      Variants.RightStart => "right-start",
-
-      Variants.BottomCenter => "bottom-center",
-      Variants.TopCenter => "top-center",
-      Variants.LeftCenter => "left-center",
-      Variants.RightCenter => "right-center",
-
-      Variants.BottomEnd => "bottom-end",
-      Variants.TopEnd => "top-end",
-      Variants.LeftEnd => "left-end",
-      Variants.RightEnd => "right-end",
-      // Default behavior is pop up below the trigger
-      _ => "bottom-start"
-    };
   }
 
 }
