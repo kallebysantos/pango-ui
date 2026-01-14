@@ -1,1 +1,1 @@
-{"name":"card","source":"Card","files":["CardHeader.razor.br","CardFooter.razor.br","LoadingCard.razor.br","CardDescription.razor.br","Card.razor.br","CardTitle.razor.br","CardContent.razor.br"]}
+{"name":"card","source":"Card","files":["CardHeader.razor.br","CardFooter.razor.br","CardAction.razor.br","LoadingCard.razor.br","CardDescription.razor.br","Card.razor.br","CardTitle.razor.br","CardContent.razor.br"]}

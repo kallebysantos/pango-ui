@@ -1,1 +1,1 @@
-{"name":"dropdown-menu","source":"DropdownMenu","files":["DropdownMenu.razor.js.br","DropdownMenu.razor.br","DropdownMenuLabel.razor.br","DropdownMenuItem.razor.br"]}
+{"name":"dropdown-menu","source":"DropdownMenu","files":["DropdownMenu.razor.js.br","DropdownMenu.razor.br","DropdownMenuContent.razor.br","DropdownMenuLabel.razor.br","DropdownMenu.razor.cs.br","DropdownMenuItem.razor.br","DropdownMenuTrigger.razor.br"]}
