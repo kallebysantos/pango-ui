@@ -12,7 +12,7 @@ public partial class CheckboxGroupContent : ComponentBase
     /// </summary>
     private string? Tw(params string?[] classNames) => TwMerge.Merge(classNames);
 
-    [CascadingParameter] internal CheckboxGroup Group { get; set; } = null!;
+    [CascadingParameter] internal CheckboxGroup? Group { get; set; }
 
     [Parameter(CaptureUnmatchedValues = true)]
     public IReadOnlyDictionary<string, object>? AdditionalAttributes { get; set; }

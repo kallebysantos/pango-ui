@@ -9,7 +9,7 @@ public partial class Checkbox : InputCheckbox
 
     protected override void OnInitialized()
     {
-        Content?.Group.RegisterCheckbox(this);
+        Content?.Group?.RegisterCheckbox(this);
     }
 
     internal async Task SetValueAsync(bool value)
