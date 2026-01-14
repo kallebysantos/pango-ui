@@ -1,0 +1,29 @@
+@namespace Pango.UI.Components
+
+<dialog
+  @attributes="AdditionalAttributes"
+  @ref="@(_dropdownMenu.DropdownContentRef)"
+  class="@Tw([
+           "absolute min-w-[8rem] w-max my-1 left-0 top-6 overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-md",
+           "animate-dialog-close zoom-out-95",
+           "open:animate-dialog-show zoom-in-95",
+           AdditionalAttributes?.GetValueOrDefault("class")?.ToString(),
+         ])">
+  @ChildContent
+</dialog>
+
+@code {
+  [CascadingParameter] private DropdownMenu _dropdownMenu { get; set; } = null!;
+  [Parameter] public RenderFragment? ChildContent { get; set; }
+
+  [Parameter(CaptureUnmatchedValues = true)]
+  public IReadOnlyDictionary<string, object>? AdditionalAttributes { get; set; }
+
+  [Inject] protected TwMerge TwMerge { get; set; } = null!;
+
+  /// <summary>
+  /// Merge Tailwind CSS classes without style conflicts
+  /// </summary>
+  private string? Tw(params string?[] classNames) => TwMerge.Merge(classNames);
+
+}

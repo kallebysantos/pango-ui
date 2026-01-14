@@ -1,116 +1,81 @@
 @namespace Pango.UI.Components
 @inject IJSRuntime JS
 
-<div class="relative" data-state="@State">
-    @if (DropdownMenuTrigger is not null)
-    {
-        <div @onclick=@ToggleState @ref=@DropdownTriggerRef data-state="@State" type="button"
-             aria-expanded=@(State == "open") aria-haspopup="true">
-            @DropdownMenuTrigger
-        </div>
-    }
-
-    @if (DropdownMenuContent is not null)
-    {
-        <dialog @ref=@DropdownContentRef
-                class='@Tw([
-                           "absolute min-w-[8rem] w-max my-1 left-0 top-6 overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-md",
-                           "animate-dialog-close zoom-out-95",
-                           "open:animate-dialog-show zoom-in-95"
-                       ])'>
-            @DropdownMenuContent
-        </dialog>
-    }
+<div
+  @attributes="AdditionalAttributes"
+  class="@Tw([
+           "relative",
+           AdditionalAttributes?.GetValueOrDefault("class")?.ToString()
+         ])"
+  data-state="@State">
+  <CascadingValue Value="this">
+    @ChildContent
+  </CascadingValue>
 </div>
 
 @code {
-    [Parameter] public string State { get; set; } = "default";
+  [Parameter] public string State { get; set; } = "default";
 
-    [Parameter] public RenderFragment? DropdownMenuTrigger { get; set; }
+  [Parameter] public RenderFragment? ChildContent { get; set; }
 
-    [Parameter] public RenderFragment? DropdownMenuContent { get; set; }
+  [Parameter] public Placements Placement { get; set; } = Placements.BottomStart;
 
-    private ElementReference DropdownTriggerRef;
+  protected override void OnInitialized()
+  {
+    csDropdownMenuRef = DotNetObjectReference.Create(this);
+  }
 
-    private ElementReference DropdownContentRef;
-
-    private IJSObjectReference? jsDropdownRender;
-
-    private IJSObjectReference? jsDropdownCleaner;
-
-    private DotNetObjectReference<DropdownMenu>? csDropdownMenuRef;
-
-    /// <summary>
-    /// Gets or sets a collection of additional attributes that will be applied to the created element.
-    /// </summary>
-    [Parameter(CaptureUnmatchedValues = true)]
-    public IReadOnlyDictionary<string, object>? AdditionalAttributes { get; set; }
-
-    [Inject] protected TwMerge TwMerge { get; set; } = null!;
-
-    /// <summary>
-    /// Merge Tailwind CSS classes without style conflicts
-    /// </summary>
-    public string? Tw(params string?[] classNames)
+  protected override async Task OnAfterRenderAsync(bool firstRender)
+  {
+    if (firstRender)
     {
-        return TwMerge.Merge(classNames);
+      jsDropdownRender = await JS.InvokeAsync<IJSObjectReference>(
+        "import",
+        "./Components/DropdownMenu/DropdownMenu.razor.js"
+      );
     }
 
-    protected override void OnInitialized()
+    await base.OnAfterRenderAsync(firstRender);
+  }
+
+  public async Task OpenDropdown()
+  {
+    State = "open";
+
+    if (jsDropdownRender is not null)
     {
-        csDropdownMenuRef = DotNetObjectReference.Create(this);
+      jsDropdownCleaner = await jsDropdownRender.InvokeAsync<IJSObjectReference>("ComputeDialogPosition", DropdownTriggerRef,
+        DropdownContentRef,
+        _placements[Placement],
+        csDropdownMenuRef,
+        nameof(CloseDropdown)
+      );
     }
+  }
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+  [JSInvokable]
+  public async Task CloseDropdown()
+  {
+    State = "closed";
+
+    if (jsDropdownCleaner is not null)
     {
-        if (firstRender)
-        {
-            jsDropdownRender = await JS.InvokeAsync<IJSObjectReference>(
-                "import",
-                "./Components/DropdownMenu/DropdownMenu.razor.js"
-            );
-        }
-
-        await base.OnAfterRenderAsync(firstRender);
+      await jsDropdownCleaner.InvokeVoidAsync("CleanUpPosition");
     }
+  }
 
-    public async Task OpenDropdown()
+  internal async Task ToggleState()
+  {
+    switch (State)
     {
-        State = "open";
+      case "open":
+        await CloseDropdown();
+        break;
 
-        if (jsDropdownRender is not null)
-        {
-            jsDropdownCleaner = await jsDropdownRender.InvokeAsync<IJSObjectReference>("ComputeDialogPosition", DropdownTriggerRef,
-                DropdownContentRef,
-                csDropdownMenuRef,
-                nameof(CloseDropdown)
-            );
-        }
+      default:
+        await OpenDropdown();
+        break;
     }
-
-    [JSInvokable]
-    public async Task CloseDropdown()
-    {
-        State = "closed";
-
-        if (jsDropdownCleaner is not null)
-        {
-            await jsDropdownCleaner.InvokeVoidAsync("CleanUpPosition");
-        }
-    }
-
-    protected async Task ToggleState()
-    {
-        switch (State)
-        {
-            case "open":
-                await CloseDropdown();
-                break;
-
-            default:
-                await OpenDropdown();
-                break;
-        }
-    }
+  }
 
 }

@@ -1,0 +1,32 @@
+@namespace Pango.UI.Components
+
+<div
+  @attributes="AdditionalAttributes"
+  class="@Tw([
+           "w-fit",
+           AdditionalAttributes?.GetValueOrDefault("class")?.ToString()
+         ])"
+  @onclick="@(_dropdownMenu.ToggleState)"
+  @ref="@(_dropdownMenu.DropdownTriggerRef)"
+  data-state="@(_dropdownMenu.State)"
+  type="button"
+  aria-expanded=@(_dropdownMenu.State == "open")
+  aria-haspopup="true">
+  @ChildContent
+</div>
+
+@code {
+  [CascadingParameter] private DropdownMenu _dropdownMenu { get; set; } = null!;
+  [Parameter] public RenderFragment? ChildContent { get; set; }
+
+  [Parameter(CaptureUnmatchedValues = true)]
+  public IReadOnlyDictionary<string, object>? AdditionalAttributes { get; set; }
+
+  [Inject] protected TwMerge TwMerge { get; set; } = null!;
+
+  /// <summary>
+  /// Merge Tailwind CSS classes without style conflicts
+  /// </summary>
+  private string? Tw(params string?[] classNames) => TwMerge.Merge(classNames);
+
+}

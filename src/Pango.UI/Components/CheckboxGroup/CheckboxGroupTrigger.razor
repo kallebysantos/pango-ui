@@ -1,8 +1,12 @@
 @namespace Pango.UI.Components
 
-<Checkbox
-  @attributes="AdditionalAttributes"
-  Value="Group.Value"
-  ValueExpression="Group.ValueExpression"
-  ValueChanged="Group.OnValueChanged"
-  Indeterminate="Group.IsIndeterminate"/>
+@if (Group is not null)
+{
+  <Checkbox
+    @attributes="AdditionalAttributes"
+    Value="Group.Value"
+    ValueExpression="Group.ValueExpression"
+    ValueChanged="Group.OnValueChanged"
+    IsTrigger="true"
+    Indeterminate="Group.IsIndeterminate"/>
+}
