@@ -26,20 +26,4 @@ public partial class CheckboxGroup : ComponentBase
 
         await InvokeAsync(StateHasChanged);
     }
-
-    internal async Task OnChildValueChanged()
-    {
-        if (_children.All(c => c.Value))
-        {
-            Value = true;
-            await ValueChanged.InvokeAsync(true);
-        }
-        else if (_children.All(c => !c.Value))
-        {
-            Value = false;
-            await ValueChanged.InvokeAsync(false);
-        }
-
-        await InvokeAsync(StateHasChanged);
-    }
 }

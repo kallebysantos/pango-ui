@@ -6,7 +6,7 @@ public partial class CheckboxGroupTrigger : ComponentBase
 {
 
     [CascadingParameter]
-    internal CheckboxGroup Group { get; set; }
+    internal CheckboxGroup Group { get; set; } = null!;
 
     [Parameter]
     public IReadOnlyDictionary<string, object>? AdditionalAttributes { get; set; }
