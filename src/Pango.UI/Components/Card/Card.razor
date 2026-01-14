@@ -1,9 +1,10 @@
 @namespace Pango.UI.Components
 
-<article 
+<article
   @attributes="@(AdditionalAttributes)"
+  data-slot="card"
   class=@Tw([
-      "w-full rounded-xl border bg-card text-card-foreground shadow-sm",
+      "bg-card text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm",
       AdditionalAttributes?.GetValueOrDefault("class")?.ToString()
   ])>
   @ChildContent
