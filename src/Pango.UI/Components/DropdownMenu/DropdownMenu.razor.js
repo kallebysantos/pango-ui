@@ -1,15 +1,27 @@
-import {computePosition, flip, shift, autoUpdate} from 'https://cdn.jsdelivr.net/npm/@floating-ui/dom@1.7.4/+esm';
+import {
+    computePosition,
+    flip,
+    shift,
+    autoUpdate,
+    offset
+} from 'https://cdn.jsdelivr.net/npm/@floating-ui/dom@1.7.4/+esm';
 
 export async function ComputeDialogPosition(
     anchorElement,
     dialogElement,
+    placement,
+    offsetValue,
     callbackInstance,
     callbackName
 ) {
     async function updatePosition() {
         const {x, y} = await computePosition(anchorElement, dialogElement, {
-            placement: 'bottom-start',
-            middleware: [flip(), shift()],
+            placement,
+            middleware: [
+                flip(),
+                shift(),
+                offset(offsetValue),
+            ],
         });
 
         Object.assign(dialogElement.style, {
