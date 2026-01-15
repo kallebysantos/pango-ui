@@ -1,0 +1,30 @@
+@namespace Pango.UI.Components
+
+<span
+    @attributes="AdditionalAttributes"
+    class="@Tw([
+        "line-clamp-1 pointer-events-none",
+        AdditionalAttributes?.GetValueOrDefault("class")?.ToString()
+    ])">
+    @if (!string.IsNullOrEmpty(_select.SelectedText))
+    {
+        @_select.SelectedText
+    }
+    else
+    {
+        @(_select.Placeholder ?? "Select an option...")
+    }
+</span>
+
+@code {
+    [CascadingParameter]
+    private ISelect _select { get; set; } = null!;
+
+    [Parameter(CaptureUnmatchedValues = true)]
+    public IReadOnlyDictionary<string, object>? AdditionalAttributes { get; set; }
+
+    [Inject]
+    protected TwMerge TwMerge { get; set; } = null!;
+
+    private string? Tw(params string?[] classNames) => TwMerge.Merge(classNames);
+}

@@ -1,0 +1,32 @@
+@namespace Pango.UI.Components
+
+<dialog
+    @attributes="AdditionalAttributes"
+    @ref="_select.SelectContentRef"
+    role="listbox"
+    class="@Tw([
+        "absolute min-w-[8rem] w-max my-1 left-0 top-full overflow-hidden",
+        "rounded-md border bg-popover p-1 text-popover-foreground shadow-md",
+        "z-50 max-h-96 overflow-y-auto",
+        "animate-dialog-close zoom-out-95",
+        "open:animate-dialog-show zoom-in-95",
+        AdditionalAttributes?.GetValueOrDefault("class")?.ToString()
+    ])">
+    @ChildContent
+</dialog>
+
+@code {
+    [CascadingParameter]
+    private ISelect _select { get; set; } = null!;
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    [Parameter(CaptureUnmatchedValues = true)]
+    public IReadOnlyDictionary<string, object>? AdditionalAttributes { get; set; }
+
+    [Inject]
+    protected TwMerge TwMerge { get; set; } = null!;
+
+    private string? Tw(params string?[] classNames) => TwMerge.Merge(classNames);
+}

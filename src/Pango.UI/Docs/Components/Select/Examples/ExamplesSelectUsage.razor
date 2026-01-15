@@ -1,0 +1,64 @@
+<div class="flex flex-col gap-9 items-center">
+  <label class="w-full flex flex-col gap-1">
+    <span class="text-sm font-medium">
+      Basic
+    </span>
+    <Select @bind-Value="_framework" Placeholder="Select a framework">
+      <SelectTrigger>
+        <SelectValue />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectItem Value=@("blazor") Text="Blazor" />
+        <SelectItem Value=@("react") Text="React" />
+        <SelectItem Value=@("vue") Text="Vue" />
+        <SelectItem Value=@("angular") Text="Angular" />
+      </SelectContent>
+    </Select>
+  </label>
+
+  <label class="w-full flex flex-col gap-1">
+    <span class="text-sm font-medium">
+      With Groups
+    </span>
+    <Select @bind-Value="_timezone" Placeholder="Select timezone">
+      <SelectTrigger class="w-[280px]">
+        <SelectValue />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectGroup>
+          <SelectLabel>North America</SelectLabel>
+          <SelectItem Value=@("est") Text="Eastern Standard Time (EST)" />
+          <SelectItem Value=@("cst") Text="Central Standard Time (CST)" />
+          <SelectItem Value=@("pst") Text="Pacific Standard Time (PST)" />
+        </SelectGroup>
+        <SelectSeparator />
+        <SelectGroup>
+          <SelectLabel>Europe</SelectLabel>
+          <SelectItem Value=@("gmt") Text="Greenwich Mean Time (GMT)" />
+          <SelectItem Value=@("cet") Text="Central European Time (CET)" />
+        </SelectGroup>
+      </SelectContent>
+    </Select>
+  </label>
+
+  <label class="w-full flex flex-col gap-1">
+    <span class="text-sm font-medium">
+      Disabled
+    </span>
+    <Select @bind-Value="_disabled" Disabled="true" Placeholder="Select a framework">
+      <SelectTrigger>
+        <SelectValue />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectItem Value=@("blazor") Text="Blazor" />
+        <SelectItem Value=@("react") Text="React" />
+      </SelectContent>
+    </Select>
+  </label>
+</div>
+
+@code {
+  string? _framework;
+  string? _timezone;
+  string? _disabled = "blazor";
+}

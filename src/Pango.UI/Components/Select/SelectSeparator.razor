@@ -1,0 +1,20 @@
+@namespace Pango.UI.Components
+
+<div
+    @attributes="AdditionalAttributes"
+    role="separator"
+    class="@Tw([
+        "bg-border pointer-events-none -mx-1 my-1 h-px",
+        AdditionalAttributes?.GetValueOrDefault("class")?.ToString()
+    ])">
+</div>
+
+@code {
+    [Parameter(CaptureUnmatchedValues = true)]
+    public IReadOnlyDictionary<string, object>? AdditionalAttributes { get; set; }
+
+    [Inject]
+    protected TwMerge TwMerge { get; set; } = null!;
+
+    private string? Tw(params string?[] classNames) => TwMerge.Merge(classNames);
+}

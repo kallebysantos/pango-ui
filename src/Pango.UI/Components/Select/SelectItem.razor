@@ -1,0 +1,83 @@
+@namespace Pango.UI.Components
+@typeparam TValue
+@implements IDisposable
+
+<div
+    @attributes="AdditionalAttributes"
+    @onclick="HandleClick"
+    role="option"
+    aria-selected="@IsSelected"
+    data-selected="@IsSelected"
+    data-disabled="@Disabled"
+    tabindex="-1"
+    class="@Tw([
+        "relative flex w-full cursor-default select-none items-center gap-2",
+        "rounded-sm py-1.5 pr-8 pl-2 text-sm outline-hidden",
+        "data-[focused=true]:bg-accent data-[focused=true]:text-accent-foreground",
+        "hover:bg-accent hover:text-accent-foreground",
+        "data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50",
+        AdditionalAttributes?.GetValueOrDefault("class")?.ToString()
+    ])">
+
+    @* Checkmark indicator *@
+    <span class="@Tw([
+        "absolute right-2 flex h-3.5 w-3.5 items-center justify-center",
+        IsSelected ? "opacity-100" : "opacity-0"
+    ])">
+        <i class="ph ph-check text-sm"></i>
+    </span>
+
+    @if (ChildContent is not null)
+    {
+        @ChildContent
+    }
+    else
+    {
+        @Text
+    }
+</div>
+
+@code {
+    [CascadingParameter]
+    private Select<TValue> _select { get; set; } = null!;
+
+    [Parameter, EditorRequired]
+    public required TValue Value { get; set; }
+
+    [Parameter]
+    public string? Text { get; set; }
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    [Parameter]
+    public bool Disabled { get; set; }
+
+    [Parameter(CaptureUnmatchedValues = true)]
+    public IReadOnlyDictionary<string, object>? AdditionalAttributes { get; set; }
+
+    [Inject]
+    protected TwMerge TwMerge { get; set; } = null!;
+
+    private string? Tw(params string?[] classNames) => TwMerge.Merge(classNames);
+
+    private bool IsSelected => EqualityComparer<TValue>.Default.Equals(Value, _select.SelectedValue);
+
+    protected override void OnInitialized()
+    {
+        _select.RegisterItem(this);
+    }
+
+    public void Dispose()
+    {
+        _select.UnregisterItem(this);
+    }
+
+    internal string GetDisplayText() => Text ?? Value?.ToString() ?? string.Empty;
+
+    private async Task HandleClick()
+    {
+        if (Disabled) return;
+        await _select.SelectItemAsync(Value, GetDisplayText());
+    }
+}

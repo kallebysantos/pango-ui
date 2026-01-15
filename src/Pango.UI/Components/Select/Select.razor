@@ -1,0 +1,22 @@
+@namespace Pango.UI.Components
+@typeparam TValue
+@inherits InputBase<TValue>
+
+<div
+    @attributes="AdditionalAttributes"
+    class="@Tw([
+        "relative",
+        AdditionalAttributes?.GetValueOrDefault("class")?.ToString()
+    ])"
+    data-state="@State">
+    <CascadingValue Value="(ISelect)this">
+        <CascadingValue Value="this">
+            @ChildContent
+        </CascadingValue>
+    </CascadingValue>
+
+    @* Hidden input for form submission (SSR support) *@
+    <input type="hidden"
+           name="@NameAttributeValue"
+           value="@CurrentValueAsString" />
+</div>

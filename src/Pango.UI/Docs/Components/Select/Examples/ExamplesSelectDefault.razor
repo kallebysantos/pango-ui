@@ -1,0 +1,23 @@
+<div class="flex flex-col gap-8 items-center">
+  @if (!string.IsNullOrEmpty(_selected))
+  {
+    <p class="text-4xl text-muted-foreground/50">
+      @_selected
+    </p>
+  }
+  <Select @bind-Value="_selected" Placeholder="Select a fruit">
+    <SelectTrigger>
+      <SelectValue />
+    </SelectTrigger>
+    <SelectContent>
+      <SelectItem Value=@("apple") Text="Apple" />
+      <SelectItem Value=@("banana") Text="Banana" />
+      <SelectItem Value=@("cherry") Text="Cherry" />
+      <SelectItem Value=@("grape") Text="Grape" />
+    </SelectContent>
+  </Select>
+</div>
+
+@code {
+  string? _selected;
+}

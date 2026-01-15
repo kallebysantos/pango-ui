@@ -1,0 +1,24 @@
+@namespace Pango.UI.Components
+
+<div
+    @attributes="AdditionalAttributes"
+    role="group"
+    class="@Tw([
+        "overflow-hidden p-1",
+        AdditionalAttributes?.GetValueOrDefault("class")?.ToString()
+    ])">
+    @ChildContent
+</div>
+
+@code {
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    [Parameter(CaptureUnmatchedValues = true)]
+    public IReadOnlyDictionary<string, object>? AdditionalAttributes { get; set; }
+
+    [Inject]
+    protected TwMerge TwMerge { get; set; } = null!;
+
+    private string? Tw(params string?[] classNames) => TwMerge.Merge(classNames);
+}

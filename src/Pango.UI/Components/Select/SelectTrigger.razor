@@ -1,0 +1,45 @@
+@namespace Pango.UI.Components
+
+<button
+    @attributes="AdditionalAttributes"
+    @ref="_select.SelectTriggerRef"
+    @onclick="_select.ToggleState"
+    type="button"
+    role="combobox"
+    aria-expanded="@(_select.State == "open")"
+    aria-haspopup="listbox"
+    disabled="@(_select.Disabled)"
+    data-state="@_select.State"
+    data-placeholder="@(string.IsNullOrEmpty(_select.SelectedText))"
+    class="@Tw([
+        "flex w-full items-center justify-between gap-2 rounded-md border border-input",
+        "bg-transparent px-3 py-2 text-sm shadow-xs whitespace-nowrap",
+        "transition-[color,box-shadow] outline-none",
+        "focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]",
+        "disabled:cursor-not-allowed disabled:opacity-50",
+        "data-[placeholder=true]:text-muted-foreground",
+        "[&>svg]:text-muted-foreground",
+        "dark:bg-input/30 dark:hover:bg-input/50",
+        "h-9",
+        AdditionalAttributes?.GetValueOrDefault("class")?.ToString()
+    ])">
+    @ChildContent
+
+    <i class="ph ph-caret-down text-sm opacity-50 shrink-0"></i>
+</button>
+
+@code {
+    [CascadingParameter]
+    private ISelect _select { get; set; } = null!;
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    [Parameter(CaptureUnmatchedValues = true)]
+    public IReadOnlyDictionary<string, object>? AdditionalAttributes { get; set; }
+
+    [Inject]
+    protected TwMerge TwMerge { get; set; } = null!;
+
+    private string? Tw(params string?[] classNames) => TwMerge.Merge(classNames);
+}
