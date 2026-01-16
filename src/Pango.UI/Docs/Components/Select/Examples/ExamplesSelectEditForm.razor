@@ -7,11 +7,11 @@
         <div class="flex gap-2 flex-col">
             <Label For="@(() => SelectedCountry)">
                 <Select @bind-Value="@SelectedCountry" Placeholder="Select your country...">
-                    <SelectOption Value="us">United States</SelectOption>
-                    <SelectOption Value="uk">United Kingdom</SelectOption>
-                    <SelectOption Value="ca">Canada</SelectOption>
-                    <SelectOption Value="au">Australia</SelectOption>
-                    <SelectOption Value="de">Germany</SelectOption>
+                    <SelectOption value="us">United States</SelectOption>
+                    <SelectOption value="uk">United Kingdom</SelectOption>
+                    <SelectOption value="ca">Canada</SelectOption>
+                    <SelectOption value="au">Australia</SelectOption>
+                    <SelectOption value="de">Germany</SelectOption>
                 </Select>
                 <ValidationMessage class="text-sm text-destructive" For="@(() => SelectedCountry)" />
             </Label>
