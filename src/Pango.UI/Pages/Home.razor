@@ -17,7 +17,7 @@
     <Separator/>
   }
 
-  <nav class="grid grid-cols-1 gap-2 items-center md:grid-flow-col md:grid-rows-2">
+  <nav class="w-fit grid grid-cols-1 gap-2 items-center md:grid-flow-col md:grid-rows-2">
     @foreach (var page in GettingStartedPages)
     {
       <NavLink href=@(page.RelativeURI) class="w-fit">
@@ -30,7 +30,7 @@
 
   <Separator/>
 
-  <nav class="grid grid-cols-1 gap-2 items-center md:grid-flow-col md:grid-rows-6">
+  <nav class="w-fit grid grid-cols-1 gap-2 items-center md:grid-flow-col md:grid-rows-10">
     @foreach (var page in ComponentsPages.OrderBy(p => p.Name))
     {
       <NavLink href=@(page.RelativeURI) class="w-fit">
