@@ -1,0 +1,28 @@
+@namespace Pango.UI.Components
+
+<div class="flex justify-between gap-2 items-start">
+    <div class="flex flex-1 pt-2 flex-col gap-1 text-center sm:text-left">
+        @if (DialogTitle is not null)
+        {
+            <h2 class="text-lg font-semibold leading-none tracking-tight">@(DialogTitle)</h2>
+        }
+        @if (DialogDescription is not null)
+        {
+            <p class="text-sm text-muted-foreground">@(DialogDescription)</p>
+        }
+    </div>
+
+    <DialogClose>
+        <Button Variant="@(Button.Variants.Ghost)" Size="@(Button.Sizes.Icon)" class="w-auto! h-auto! p-1">
+            <i class="ph ph-x"></i>
+        </Button>
+    </DialogClose>
+</div>
+
+@code {
+    [Parameter]
+    public RenderFragment? DialogTitle { get; set; }
+
+    [Parameter]
+    public RenderFragment? DialogDescription { get; set; }
+}
