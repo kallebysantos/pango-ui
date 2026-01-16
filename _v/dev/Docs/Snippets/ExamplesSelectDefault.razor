@@ -1,0 +1,19 @@
+<div class="flex flex-col gap-8 items-center">
+    @if (!string.IsNullOrEmpty(SelectedFruit))
+    {
+        <p class="text-4xl text-muted-foreground/50">
+            @SelectedFruit
+        </p>
+    }
+    <Select @bind-Value="@SelectedFruit" Placeholder="Select a fruit..." class="w-48">
+        <SelectOption value="apple">Apple</SelectOption>
+        <SelectOption value="banana">Banana</SelectOption>
+        <SelectOption value="orange">Orange</SelectOption>
+        <SelectOption value="grape">Grape</SelectOption>
+        <SelectOption value="mango">Mango</SelectOption>
+    </Select>
+</div>
+
+@code {
+    string SelectedFruit = string.Empty;
+}
