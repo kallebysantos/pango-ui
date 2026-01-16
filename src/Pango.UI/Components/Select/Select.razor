@@ -20,14 +20,15 @@
             string.IsNullOrEmpty(CurrentValueAsString) ? "text-muted-foreground" : null,
             CssClass,
             AdditionalAttributes?.GetValueOrDefault("class")?.ToString()
-        ])>
+        ])
+        aria-label=@(AdditionalAttributes?.GetValueOrDefault("aria-label")?.ToString() ?? Placeholder)>
         @if (!string.IsNullOrEmpty(Placeholder))
         {
             <option value="" disabled selected="@(string.IsNullOrEmpty(CurrentValueAsString))">@Placeholder</option>
         }
         @ChildContent
     </select>
-    <i class="ph ph-caret-down absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-muted-foreground"></i>
+    <i aria-hidden="true" class="ph ph-caret-down absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-muted-foreground"></i>
 </div>
 
 @code
