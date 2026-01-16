@@ -160,6 +160,10 @@ div[data-table-scope-id][data-table-scope-id] {
     from { background-color: color-mix(in oklab, var(--accent) 0%, transparent) }
     to {background-color: color-mix(in oklab, var(--accent) 80%, transparent)}
 }
+/* /Components/Dialog/Dialog.razor.rz.scp.css */
+dialog[b-88xymw82sc] {
+    overflow: visible;
+}
 /* /Shared/Docs/MdxRenderer/MdxRenderer.razor.rz.scp.css */
 @layer markdown {
   .pango-ui-markdown[b-b5g76webcz] {

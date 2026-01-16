@@ -1,0 +1,64 @@
+@using System.ComponentModel.DataAnnotations
+
+<Dialog>
+  <DialogTrigger>
+    <Button>Open Dialog</Button>
+  </DialogTrigger>
+
+  <DialogContent>
+    <DialogHeader>
+      <DialogTitle>Edit profile</DialogTitle>
+      <DialogDescription>Make changes to your profile here. Click save when you're done.</DialogDescription>
+    </DialogHeader>
+
+    <EditForm class="flex flex-col gap-4" Model=@(this) FormName="example-dialog-profile-form"
+      OnValidSubmit=@(HandleSave) Enhance>
+      <DataAnnotationsValidator />
+      <div class="flex gap-4 flex-col">
+        <Label For=@(() => Name)>
+          <Input @bind-Value=@(Name) placeholder="Enter your name here" />
+          <ValidationMessage class="md:hidden text-sm text-destructive" For=@(() => Name) />
+        </Label>
+
+        <Label For=@(() => Username)>
+          <Input Value=@(Username) ReadOnly />
+        </Label>
+      </div>
+
+      <div class="flex flex-row-reverse gap-2 items-end">
+        <Button type="submit" id="dialog-close">
+          <i class="hidden group-disabled:block ph ph-spinner text-lg animate-spin"></i>
+          Submit
+        </Button>
+
+        <Button Variant="@(Button.Variants.Outline)" type="reset" id="dialog-close">
+          Cancel
+        </Button>
+      </div>
+
+
+      <ValidationMessage class="hidden md:block text-sm text-destructive" For=@(() => Name) />
+    </EditForm>
+  </DialogContent>
+</Dialog>
+
+
+@code {
+  [SupplyParameterFromForm]
+  [Display(Name = "Name", Prompt = "Enter your name here")]
+  [Required(ErrorMessage = "Name is required.")]
+  public string? Name { get; set; }
+
+  [Display(Name = "Username")]
+  public string Username { get; init; } = "@kallebysantos";
+
+  protected override async Task OnInitializedAsync()
+  {
+    Name ??= "Kalleby Santos";
+  }
+
+  protected async Task HandleSave()
+  {
+    Console.WriteLine(Name);
+  }
+}
