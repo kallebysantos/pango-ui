@@ -7,7 +7,8 @@
         <div id="dialog-trigger" type="button" @onclick=@(OpenDialog) data-open="dialog-@Id"
              data-prevent-keyboard-dismiss=@(PreventKeyboardDismiss) data-state=@(GetDialogStateName())
              aria-expanded=@(GetDialogStateName())
-             aria-haspopup="true">
+             aria-haspopup="true"
+             class="w-fit">
             @DialogTrigger
         </div>
     }

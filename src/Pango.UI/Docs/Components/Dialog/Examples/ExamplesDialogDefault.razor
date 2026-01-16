@@ -1,6 +1,6 @@
 @using System.ComponentModel.DataAnnotations
 
-<Dialog>
+<Dialog @ref="@(_dialogRef)">
   <DialogTrigger>
     <Button>Open Dialog</Button>
   </DialogTrigger>
@@ -11,8 +11,11 @@
       <DialogDescription>Make changes to your profile here. Click save when you're done.</DialogDescription>
     </DialogHeader>
 
-    <EditForm class="flex flex-col gap-4" Model=@(this) FormName="example-dialog-profile-form"
-      OnValidSubmit=@(HandleSave) Enhance>
+    <EditForm class="flex flex-col gap-4" 
+      EditContext=@(_editContext)
+      FormName="example-dialog-profile-form"
+      OnValidSubmit=@(HandleSave)
+      Enhance>
       <DataAnnotationsValidator />
       <div class="flex gap-4 flex-col">
         <Label For=@(() => Name)>
@@ -26,12 +29,12 @@
       </div>
 
       <div class="flex flex-row-reverse gap-2 items-end">
-        <Button type="submit" id="dialog-close">
+        <Button type="submit" id="dialog-close" @onclick="@(HandleSave)">
           <i class="hidden group-disabled:block ph ph-spinner text-lg animate-spin"></i>
           Submit
         </Button>
 
-        <Button Variant="@(Button.Variants.Outline)" type="reset" id="dialog-close">
+        <Button Variant="@(Button.Variants.Outline)"type="reset" id="dialog-close" @onclick="@(HandleReset)">
           Cancel
         </Button>
       </div>
@@ -50,15 +53,33 @@
   public string? Name { get; set; }
 
   [Display(Name = "Username")]
-  public string Username { get; init; } = "@kallebysantos";
+  public string? Username { get; set; }
+
+  private EditContext? _editContext;
+  private Dialog? _dialogRef;
 
   protected override async Task OnInitializedAsync()
   {
     Name ??= "Kalleby Santos";
+    Username ??= "@kallebysantos";
+    _editContext = new(this);
+  }
+
+  protected async Task HandleReset()
+  {
+    Name = "Kalleby Santos";
+    Username = "@kallebysantos";
+    _editContext = new(this);
+
+    StateHasChanged();
+    await Task.Yield();
+
+    if (_dialogRef is not null) await _dialogRef.CloseDialog();
   }
 
   protected async Task HandleSave()
   {
-    Console.WriteLine(Name);
+    Console.WriteLine($"HandleSave: {Name}");
+    if (_dialogRef is not null) await _dialogRef.CloseDialog();
   }
 }
