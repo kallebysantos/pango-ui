@@ -1,0 +1,51 @@
+@using System.ComponentModel.DataAnnotations
+
+<div class="flex flex-col gap-6 items-center">
+    <EditForm Model="@this" FormName="country-example-form" Enhance OnValidSubmit="@HandleSubmit"
+        class="w-80 flex flex-col gap-2">
+        <DataAnnotationsValidator />
+        <div class="flex gap-2 flex-col">
+            <Label For="@(() => SelectedCountry)">
+                <Select @bind-Value="@SelectedCountry" Placeholder="Select your country...">
+                    <SelectOption value="us">United States</SelectOption>
+                    <SelectOption value="uk">United Kingdom</SelectOption>
+                    <SelectOption value="ca">Canada</SelectOption>
+                    <SelectOption value="au">Australia</SelectOption>
+                    <SelectOption value="de">Germany</SelectOption>
+                </Select>
+                <ValidationMessage class="text-sm text-destructive" For="@(() => SelectedCountry)" />
+            </Label>
+
+            <Button type="submit">
+                Submit
+            </Button>
+        </div>
+    </EditForm>
+
+    @if (!string.IsNullOrEmpty(SubmittedCountry))
+    {
+        <Alert Variant="@(Alert.Variants.Sucess)" OnDismiss="@(() => SubmittedCountry = string.Empty)">
+            <AlertSide>
+                <i class="ph ph-check text-lg"></i>
+            </AlertSide>
+            <AlertTitle>Success</AlertTitle>
+            <AlertDescription>
+                Selected country: <strong class="font-medium">@SubmittedCountry</strong>
+            </AlertDescription>
+        </Alert>
+    }
+</div>
+
+@code {
+    [SupplyParameterFromForm]
+    [Display(Name = "Country")]
+    [Required(ErrorMessage = "Please select a country.")]
+    public string? SelectedCountry { get; set; }
+
+    string SubmittedCountry = string.Empty;
+
+    protected void HandleSubmit()
+    {
+        SubmittedCountry = SelectedCountry ?? string.Empty;
+    }
+}
