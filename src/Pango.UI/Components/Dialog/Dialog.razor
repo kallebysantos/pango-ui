@@ -1,0 +1,94 @@
+@namespace Pango.UI.Components
+@inject IJSRuntime JS
+
+<div id="dialog-wrapper" data-state="@(GetDialogStateName())">
+    @if (DialogTrigger is not null)
+    {
+        <div id="dialog-trigger" type="button" @onclick=@(OpenDialog) data-open="dialog-@Id"
+             data-prevent-keyboard-dismiss=@(PreventKeyboardDismiss) data-state=@(GetDialogStateName())
+             aria-expanded=@(GetDialogStateName())
+             aria-haspopup="true">
+            @DialogTrigger
+        </div>
+    }
+
+    @if (DialogContent is not null)
+    {
+        <dialog @ref=@DialogRef id="dialog-@Id" @attributes=@(AdditionalAttributes)
+                class=@(Tw("w-full m-auto md:max-w-lg border bg-background text-foreground p-6 pt-4 shadow-lg rounded md:rounded-lg", "backdrop:bg-black/50 backdrop:backdrop-blur-xs", "animate-dialog-close zoom-out-95", "open:animate-dialog-show zoom-in-95 open:flex", AdditionalAttributes?.GetValueOrDefault("class")?.ToString() ?? string.Empty))>
+            <div class="flex max-h-screen w-full flex-1 flex-col gap-5 lg:max-w-(--breakpoint-lg)">
+                @DialogContent
+            </div>
+        </dialog>
+    }
+</div>
+
+@code {
+    [Parameter] public string? Id { get; set; }
+
+    [Parameter] public bool PreventKeyboardDismiss { get; set; } = false;
+
+    [Parameter] public RenderFragment? DialogTrigger { get; set; }
+
+    [Parameter] public RenderFragment? DialogContent { get; set; }
+
+    private ElementReference DialogRef;
+
+    private IJSObjectReference? jsDialogManager;
+
+    private DotNetObjectReference<Dialog>? csDialogRef;
+
+    protected override void OnInitialized()
+    {
+        Id ??= GetHashCode().ToString();
+        csDialogRef = DotNetObjectReference.Create(this);
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            jsDialogManager = await JS.InvokeAsync<IJSObjectReference>(
+                "import",
+                "./Components/Dialog/Dialog.razor.js"
+            );
+
+            if (State is DialogState.Open)
+            {
+                State = DialogState.Default;
+                await OpenDialog();
+            }
+        }
+
+        await base.OnAfterRenderAsync(firstRender);
+    }
+
+    public async Task OpenDialog()
+    {
+        if (State is DialogState.Open) return;
+
+        State = DialogState.Open;
+
+        if (jsDialogManager is not null)
+        {
+            await jsDialogManager.InvokeVoidAsync(
+                "ShowDialog", DialogRef, PreventKeyboardDismiss, csDialogRef, nameof(CloseDialog)
+            );
+        }
+    }
+
+    [JSInvokable]
+    public async Task CloseDialog()
+    {
+        if (State is DialogState.Closed) return;
+
+        State = DialogState.Closed;
+
+        if (jsDialogManager is not null)
+        {
+            await jsDialogManager.InvokeVoidAsync(
+                "CloseDialog", DialogRef
+            );
+        }
+    }
+}
