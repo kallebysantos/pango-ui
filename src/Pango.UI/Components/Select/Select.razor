@@ -1,0 +1,61 @@
+@using System.Linq.Expressions
+
+@namespace Pango.UI.Components
+
+@inherits InputSelect<TValue>
+@typeparam TValue
+
+<div class="relative">
+    <select
+        @attributes="@(AdditionalAttributes)"
+        id="@(_id)"
+        name="@(_name)"
+        @bind="@(CurrentValueAsString)"
+        @bind:event="onchange"
+        class=@Tw([
+            "flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 pr-8 text-sm shadow-sm cursor-pointer appearance-none",
+            "transition-colors placeholder:text-muted-foreground",
+            "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50",
+            "aria-[invalid]:ring-1 aria-[invalid]:ring-red-500",
+            string.IsNullOrEmpty(CurrentValueAsString) ? "text-muted-foreground" : null,
+            CssClass,
+            AdditionalAttributes?.GetValueOrDefault("class")?.ToString()
+        ])>
+        @if (!string.IsNullOrEmpty(Placeholder))
+        {
+            <option value="" disabled selected="@(string.IsNullOrEmpty(CurrentValueAsString))">@Placeholder</option>
+        }
+        @ChildContent
+    </select>
+    <i class="ph ph-caret-down absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-muted-foreground"></i>
+</div>
+
+@code
+{
+    [Parameter]
+    public string? Placeholder { get; set; }
+
+    string? _id { get; set; }
+    string? _name { get; set; }
+
+    public override async Task SetParametersAsync(ParameterView parameters)
+    {
+        parameters.SetParameterProperties(this);
+
+        await base.SetParametersAsync(parameters);
+
+        _id = AdditionalAttributes?.GetValueOrDefault("id")?.ToString() ?? NameAttributeValue;
+        _name = AdditionalAttributes?.GetValueOrDefault("name")?.ToString() ?? NameAttributeValue;
+
+        if (string.IsNullOrEmpty(_id))
+        {
+            var exp = ValueExpression?.Body as MemberExpression;
+            _id = exp?.Member.Name;
+        }
+
+        if (string.IsNullOrEmpty(_name))
+        {
+            _name = _id;
+        }
+    }
+}
