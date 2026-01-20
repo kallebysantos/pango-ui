@@ -1,0 +1,39 @@
+<div class="flex flex-col gap-9 items-center">
+    <label class="w-full flex flex-col gap-1">
+        <span class="text-sm font-medium">
+            Default
+        </span>
+        <NativeSelect @bind-Value="@Selected" Placeholder="Select an option...">
+            <NativeSelectOption value="option1">Option 1</NativeSelectOption>
+            <NativeSelectOption value="option2">Option 2</NativeSelectOption>
+            <NativeSelectOption value="option3">Option 3</NativeSelectOption>
+        </NativeSelect>
+    </label>
+
+    <label class="w-full flex flex-col gap-1">
+        <span class="text-sm font-medium">
+            With disabled option
+        </span>
+        <NativeSelect @bind-Value="@Selected2" Placeholder="Select an option...">
+            <NativeSelectOption value="available">Available</NativeSelectOption>
+            <NativeSelectOption value="soldout" disabled>Sold Out</NativeSelectOption>
+            <NativeSelectOption value="preorder">Pre-order</NativeSelectOption>
+        </NativeSelect>
+    </label>
+
+    <label class="w-full flex flex-col gap-1">
+        <span class="text-sm font-medium">
+            Disabled
+        </span>
+        <NativeSelect @bind-Value="@Selected" disabled Placeholder="Select an option...">
+            <NativeSelectOption value="option1">Option 1</NativeSelectOption>
+            <NativeSelectOption value="option2">Option 2</NativeSelectOption>
+            <NativeSelectOption value="option3">Option 3</NativeSelectOption>
+        </NativeSelect>
+    </label>
+</div>
+
+@code {
+    string Selected = string.Empty;
+    string Selected2 = string.Empty;
+}

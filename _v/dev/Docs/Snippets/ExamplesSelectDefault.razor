@@ -1,19 +1,28 @@
-<div class="flex flex-col gap-8 items-center">
-    @if (!string.IsNullOrEmpty(SelectedFruit))
-    {
-        <p class="text-4xl text-muted-foreground/50">
-            @SelectedFruit
-        </p>
-    }
-    <Select @bind-Value="@SelectedFruit" Placeholder="Select a fruit..." class="w-48">
-        <SelectOption value="apple">Apple</SelectOption>
-        <SelectOption value="banana">Banana</SelectOption>
-        <SelectOption value="orange">Orange</SelectOption>
-        <SelectOption value="grape">Grape</SelectOption>
-        <SelectOption value="mango">Mango</SelectOption>
-    </Select>
-</div>
+@if (_selectedValue is not null)
+{
+  <div class="p-8 border border-primary rounded-md text-xl text-center text-primary font-light">
+    @_selectedValue
+  </div>
+}
+
+<Select TValue="string" @bind-Value="_selectedValue">
+  <SelectTrigger class="w-[180px]">
+    <SelectValue placeholder="Select a fruit"/>
+  </SelectTrigger>
+  <SelectContent>
+    <SelectGroup>
+      <SelectLabel>Fruits</SelectLabel>
+      <SelectItem value="apple">Apple</SelectItem>
+      <SelectItem value="banana">Banana</SelectItem>
+      <SelectItem value="blueberry">Blueberry</SelectItem>
+      <SelectItem value="grapes">Grapes</SelectItem>
+      <SelectItem value="pineapple">Pineapple</SelectItem>
+    </SelectGroup>
+  </SelectContent>
+</Select>
 
 @code {
-    string SelectedFruit = string.Empty;
+
+  private string? _selectedValue;
+
 }
