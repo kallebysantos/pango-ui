@@ -1,0 +1,75 @@
+@namespace Pango.UI.Components
+
+@if (Select is not null)
+{
+  <dialog
+    @attributes="AdditionalAttributes"
+    @onkeydown="(args) => HandleKeyDown(args.Key)"
+    data-slot="select-content"
+    data-state="@(Select.Open ? "open" : "closed")"
+    class="@Tw([
+             "bg-popover [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-accent " +
+             "[&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-primary " +
+             "[&::-webkit-scrollbar-thumb:hover]:bg-primary/70 overflow-y-auto max-h-96 text-popover-foreground p-1 " +
+             "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 " +
+             "data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 " +
+             "data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 " +
+             "data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 " +
+             "relative z-50 max-h min-w-[8rem] rounded-md border shadow-md",
+             AdditionalAttributes?.GetValueOrDefault("class")?.ToString()
+           ])"
+    @ref="Select.SelectContentRef">
+    @ChildContent
+  </dialog>
+}
+
+@code {
+
+  [CascadingParameter] internal ISelect? Select { get; set; }
+  [Parameter] public RenderFragment? ChildContent { get; set; }
+
+  [Parameter(CaptureUnmatchedValues = true)]
+  public IReadOnlyDictionary<string, object>? AdditionalAttributes { get; set; }
+
+  [Inject] protected TwMerge TwMerge { get; set; } = null!;
+
+  /// <summary>
+  /// Merge Tailwind CSS classes without style conflicts
+  /// </summary>
+  private string? Tw(params string?[] classNames) => TwMerge.Merge(classNames);
+
+  private async Task HandleKeyDown(string key)
+  {
+    if (Select is null || !Select.Open) return;
+
+    switch (key)
+    {
+      case "ArrowDown":
+        if (Select.FocusedIndex + 1 > Select.AllItems.Count - 1) return;
+        Select.FocusedIndex++;
+        await FocusItemAsync(key);
+        break;
+      case "ArrowUp":
+        if (Select.FocusedIndex - 1 < 0) return;
+        Select.FocusedIndex--;
+        await FocusItemAsync(key);
+        break;
+      case "Escape":
+        await Select.CloseSelect();
+        break;
+    }
+  }
+
+  private async Task FocusItemAsync(string key)
+  {
+    if (Select is null) return;
+
+    if (Select.FocusedIndex < 0 || Select.FocusedIndex >= Select.AllItems.Count)
+      return;
+
+    if (Select.AllItems[Select.FocusedIndex].AdditionalAttributes?.GetValueOrDefault("disabled") is true)
+      await HandleKeyDown(key);
+
+    await Select.AllItems[Select.FocusedIndex].FocusAsync();
+  }
+}

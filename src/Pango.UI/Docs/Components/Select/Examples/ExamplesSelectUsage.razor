@@ -1,39 +1,54 @@
 <div class="flex flex-col gap-9 items-center">
-    <label class="w-full flex flex-col gap-1">
-        <span class="text-sm font-medium">
-            Default
-        </span>
-        <Select @bind-Value="@Selected" Placeholder="Select an option...">
-            <SelectOption value="option1">Option 1</SelectOption>
-            <SelectOption value="option2">Option 2</SelectOption>
-            <SelectOption value="option3">Option 3</SelectOption>
-        </Select>
-    </label>
+  <label class="w-full flex flex-col gap-1">
+    <span class="text-sm font-medium">
+      Default
+    </span>
+    <Select TValue="string" @bind-Value="@Selected" placeholder="Select an option...">
+      <SelectTrigger>
+        <SelectValue/>
+      </SelectTrigger>
+      <SelectContent>
+        <SelectItem value="option1">Option 1</SelectItem>
+        <SelectItem value="option2">Option 2</SelectItem>
+        <SelectItem value="option3">Option 3</SelectItem>
+      </SelectContent>
+    </Select>
+  </label>
 
-    <label class="w-full flex flex-col gap-1">
-        <span class="text-sm font-medium">
-            With disabled option
-        </span>
-        <Select @bind-Value="@Selected2" Placeholder="Select an option...">
-            <SelectOption value="available">Available</SelectOption>
-            <SelectOption value="soldout" disabled>Sold Out</SelectOption>
-            <SelectOption value="preorder">Pre-order</SelectOption>
-        </Select>
-    </label>
+  <label class="w-full flex flex-col gap-1">
+    <span class="text-sm font-medium">
+      With disabled option
+    </span>
+    <Select TValue="string" @bind-Value="@Selected2" placeholder="Select an option...">
+      <SelectTrigger>
+        <SelectValue/>
+      </SelectTrigger>
+      <SelectContent>
+        <SelectItem value="available">Available</SelectItem>
+        <SelectItem value="soldout" disabled>Sold Out</SelectItem>
+        <SelectItem value="preorder">Pre-order</SelectItem>
+      </SelectContent>
+    </Select>
+  </label>
 
-    <label class="w-full flex flex-col gap-1">
-        <span class="text-sm font-medium">
-            Disabled
-        </span>
-        <Select @bind-Value="@Selected" disabled Placeholder="Select an option...">
-            <SelectOption value="option1">Option 1</SelectOption>
-            <SelectOption value="option2">Option 2</SelectOption>
-            <SelectOption value="option3">Option 3</SelectOption>
-        </Select>
-    </label>
+  <label class="w-full flex flex-col gap-1">
+    <span class="text-sm font-medium">
+      Disabled
+    </span>
+    <Select TValue="string" @bind-Value="@Selected" disabled placeholder="Select an option...">
+      <SelectTrigger>
+        <SelectValue/>
+      </SelectTrigger>
+      <SelectContent>
+        <SelectItem value="option1">Option 1</SelectItem>
+        <SelectItem value="option2">Option 2</SelectItem>
+        <SelectItem value="option3">Option 3</SelectItem>
+      </SelectContent>
+    </Select>
+  </label>
 </div>
 
 @code {
-    string Selected = string.Empty;
-    string Selected2 = string.Empty;
+  string Selected = string.Empty;
+  string Selected2 = string.Empty;
 }

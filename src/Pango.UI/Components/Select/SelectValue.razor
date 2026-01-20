@@ -1,0 +1,76 @@
+@using System.Collections
+@namespace Pango.UI.Components
+
+@if (Select is not null)
+{
+  <span
+    @attributes="AdditionalAttributes"
+    data-slot="select-value"
+    class="@Tw([
+             "pointer-events-none",
+             _placeholder is not null && !HasValue() ? "opacity-50" : null,
+             AdditionalAttributes?.GetValueOrDefault("class")?.ToString()
+           ])">
+    @if (Select.SelectedItems.Count > 0)
+    {
+      @foreach (SelectItem item in Select.SelectedItems)
+      {
+        <span class="flex flex-row gap-0">
+        @item.ChildContent
+          @if (Select.SelectedItems.IndexOf(item) < Select.SelectedItems.Count - 1)
+          {
+            <span>, </span>
+          }
+        </span>
+      }
+    }
+    else
+    {
+      if (Select.SelectedItem is not null)
+      {
+        @Select.SelectedItem.ChildContent
+      }
+      else
+      {
+        if (Select.SelectValue is IList { Count: > 0 })
+        {
+          @string.Join(", ", Select.SelectValue)
+        }
+        else
+        {
+          @_placeholder
+        }
+      }
+    }
+  </span>
+}
+
+@code {
+  [Inject] protected TwMerge TwMerge { get; set; } = null!;
+
+  /// <summary>
+  /// Merge Tailwind CSS classes without style conflicts
+  /// </summary>
+  private string? Tw(params string?[] classNames) => TwMerge.Merge(classNames);
+
+  [CascadingParameter] public ISelect? Select { get; set; }
+
+  [Parameter(CaptureUnmatchedValues = true)]
+  public IReadOnlyDictionary<string, object>? AdditionalAttributes { get; set; }
+
+  private object? _placeholder;
+
+  protected override void OnInitialized()
+  {
+    _placeholder = Select?.Placeholder ?? AdditionalAttributes?.GetValueOrDefault("placeholder");
+  }
+
+  private bool HasValue()
+  {
+    if (Select?.SelectedItems.Count > 0) return true;
+    if (Select?.SelectedItem is not null) return true;
+
+    return Select?.SelectValue is IList { Count: > 0 };
+  }
+
+}
