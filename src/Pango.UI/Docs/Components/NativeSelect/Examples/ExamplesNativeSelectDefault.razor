@@ -1,0 +1,19 @@
+<div class="flex flex-col gap-8 items-center">
+    @if (!string.IsNullOrEmpty(SelectedFruit))
+    {
+        <p class="text-4xl text-muted-foreground/50">
+            @SelectedFruit
+        </p>
+    }
+    <NativeSelect @bind-Value="@SelectedFruit" Placeholder="Select a fruit..." class="w-48">
+        <NativeSelectOption value="apple">Apple</NativeSelectOption>
+        <NativeSelectOption value="banana">Banana</NativeSelectOption>
+        <NativeSelectOption value="orange">Orange</NativeSelectOption>
+        <NativeSelectOption value="grape">Grape</NativeSelectOption>
+        <NativeSelectOption value="mango">Mango</NativeSelectOption>
+    </NativeSelect>
+</div>
+
+@code {
+    string SelectedFruit = string.Empty;
+}
