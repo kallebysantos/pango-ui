@@ -9,19 +9,3 @@
          ])">
   @ChildContent
 </div>
-
-@code {
-
-  [Parameter(CaptureUnmatchedValues = true)]
-  public IReadOnlyDictionary<string, object>? AdditionalAttributes { get; set; }
-
-  [Parameter] public RenderFragment? ChildContent { get; set; }
-
-  [Inject] protected TwMerge TwMerge { get; set; } = null!;
-
-  /// <summary>
-  /// Merge Tailwind CSS classes without style conflicts
-  /// </summary>
-  private string? Tw(params string?[] classNames) => TwMerge.Merge(classNames);
-
-}
