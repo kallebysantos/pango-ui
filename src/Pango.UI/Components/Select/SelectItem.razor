@@ -1,0 +1,92 @@
+@using System.Collections
+@namespace Pango.UI.Components
+
+@if (Select is not null)
+{
+  <div
+    @attributes="AdditionalAttributes"
+    class="@Tw([
+             "cursor-pointer hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground &_svg:not([class*='text-'])]:text-muted-foreground relative flex justify-between w-full items-center gap-2 rounded-sm py-1.5 px-2 text-sm outline-hidden select-none data-[disabled]:hover:bg-transparent data-[disabled]:opacity-50 data-[disabled]:cursor-not-allowed [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 *:[span]:last:flex *:[span]:last:items-center *:[span]:last:gap-2",
+             AdditionalAttributes?.GetValueOrDefault("class")?.ToString()
+           ])"
+    data-slot="select-item"
+    role="option"
+    data-state="@(CompareSelectedValue() ? "checked" : "unchecked")"
+    aria-disabled="@(_disabled)"
+    data-disabled="@(_disabled ? "" : null)"
+    @onclick:preventdefault
+    @onclick="OnItemSelected"
+    @onkeydown:preventDefault
+    @onkeydown="OnKeyDown"
+    tabindex="@(Select.FocusedIndex == _focusedIndex ? 0 : -1)"
+    @ref="_itemRef"
+    >
+    @ChildContent
+    @if (CompareSelectedValue())
+    {
+      <i class="ph ph-check"></i>
+    }
+  </div>
+}
+
+@code {
+  [Inject] protected TwMerge TwMerge { get; set; } = null!;
+  private ElementReference? _itemRef;
+  private int _focusedIndex = -1;
+
+  /// <summary>
+  /// Merge Tailwind CSS classes without style conflicts
+  /// </summary>
+  private string? Tw(params string?[] classNames) => TwMerge.Merge(classNames);
+  [CascadingParameter] internal ISelect? Select { get; set; }
+  [Parameter] public RenderFragment? ChildContent { get; set; }
+
+  [Parameter(CaptureUnmatchedValues = true)]
+  public IReadOnlyDictionary<string, object>? AdditionalAttributes { get; set; }
+
+  private object? _value;
+  private bool _disabled;
+
+  protected override void OnInitialized()
+  {
+    _value = AdditionalAttributes?.GetValueOrDefault("value");
+    _disabled = AdditionalAttributes?.GetValueOrDefault("disabled") is not null;
+    Select?.RegisterItem(this);
+    base.OnInitialized();
+  }
+
+  private async Task OnKeyDown(KeyboardEventArgs args)
+  {
+    if (Select is not null && Select.SelectKeys.Contains(args.Key))
+    {
+      await OnItemSelected();
+    }
+  }
+
+  private async Task OnItemSelected()
+  {
+    if (_disabled) return;
+
+    if (Select is not null)
+    {
+      await Select.SelectItem(_value, this);
+    }
+  }
+
+  private bool CompareSelectedValue()
+  {
+    if (Select is null) return false;
+
+    return Select.SelectValue is IList list
+      ? list.Contains(_value)
+      : Equals(Select.SelectValue, _value);
+  }
+
+  internal async Task FocusAsync()
+  {
+    if (_itemRef is not null)
+    {
+      await _itemRef.Value.FocusAsync();
+    }
+  }
+}

@@ -1,0 +1,94 @@
+@using System.Text.Json
+<div class="">
+  <Tabs DefaultValue="id">
+    <TabsList>
+      <TabsTrigger Value="id">With Guid</TabsTrigger>
+      <TabsTrigger Value="object">With Object</TabsTrigger>
+      <TabsTrigger Value="string">With String</TabsTrigger>
+    </TabsList>
+    <TabsContent Value="id" class="flex flex-col gap-4 p-4 rounded-md border">
+      @if (_selectedIds.Count > 0)
+      {
+        <div class="p-8 border border-primary rounded-md text-xl text-center text-primary font-light">
+          @string.Join(", ", _selectedIds)
+        </div>
+      }
+      <Select TValue="List<Guid>" @bind-Value="_selectedIds">
+        <SelectTrigger>
+          <SelectValue placeholder="Select a fruit"/>
+        </SelectTrigger>
+        <SelectContent>
+          @foreach (Fruit fruit in _fruits)
+          {
+            <SelectItem value="@fruit.Id">@fruit.Name</SelectItem>
+          }
+        </SelectContent>
+      </Select>
+    </TabsContent>
+
+    <TabsContent Value="object" class="flex flex-col gap-4 p-4 rounded-md border">
+      @if (_selectedFruits.Count > 0)
+      {
+        <div class="p-8 border border-primary rounded-md text-xl text-center text-primary font-light">
+          @foreach (Fruit fruit in _selectedFruits)
+          {
+            <span class="">@(JsonSerializer.Serialize(fruit))</span>
+          }
+        </div>
+      }
+      <Select TValue="List<Fruit>" @bind-Value="_selectedFruits">
+        <SelectTrigger>
+          <SelectValue placeholder="Select a fruit"/>
+        </SelectTrigger>
+        <SelectContent>
+          @foreach (Fruit fruit in _fruits)
+          {
+            <SelectItem value="@fruit">@fruit.Name</SelectItem>
+          }
+        </SelectContent>
+      </Select>
+    </TabsContent>
+
+    <TabsContent Value="string" class="flex flex-col gap-4 p-4 rounded-md border">
+      @if (_selectedFruitsNames.Count > 0)
+      {
+        <div class="p-8 border border-primary rounded-md text-xl text-center text-primary font-light">
+          @string.Join(", ", _selectedFruitsNames)
+        </div>
+      }
+      <Select TValue="List<string>" @bind-Value="_selectedFruitsNames">
+        <SelectTrigger>
+          <SelectValue placeholder="Select a fruit"/>
+        </SelectTrigger>
+        <SelectContent>
+          @foreach (Fruit fruit in _fruits)
+          {
+            <SelectItem value="@fruit.Name">@fruit.Name</SelectItem>
+          }
+        </SelectContent>
+      </Select>
+    </TabsContent>
+  </Tabs>
+</div>
+
+@code {
+  List<Guid> _selectedIds = [];
+  List<Fruit> _selectedFruits = [];
+  List<string> _selectedFruitsNames = [];
+
+  readonly List<Fruit> _fruits =
+  [
+    new("Apple"),
+    new("Banana"),
+    new("Blueberry"),
+    new("Grapes"),
+    new("Pineapple"),
+  ];
+
+  class Fruit(string name)
+  {
+    public Guid Id { get; set; } = Guid.NewGuid();
+    public string Name { get; set; } = name;
+  }
+
+}

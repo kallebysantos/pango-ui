@@ -1,0 +1,27 @@
+@namespace Pango.UI.Components
+
+<div
+  @attributes="AdditionalAttributes"
+  data-slot="select-label"
+  class="@Tw([
+           "text-muted-foreground px-2 py-1.5 text-xs",
+           AdditionalAttributes?.GetValueOrDefault("class")?.ToString()
+         ])">
+  @ChildContent
+</div>
+
+@code {
+
+  [Parameter] public RenderFragment? ChildContent { get; set; }
+
+  [Parameter(CaptureUnmatchedValues = true)]
+  public IReadOnlyDictionary<string, object>? AdditionalAttributes { get; set; }
+
+  [Inject] protected TwMerge TwMerge { get; set; } = null!;
+
+  /// <summary>
+  /// Merge Tailwind CSS classes without style conflicts
+  /// </summary>
+  private string? Tw(params string?[] classNames) => TwMerge.Merge(classNames);
+
+}

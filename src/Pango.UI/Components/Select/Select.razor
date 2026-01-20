@@ -1,62 +1,123 @@
-@using System.Linq.Expressions
-
 @namespace Pango.UI.Components
 
-@inherits InputSelect<TValue>
-@typeparam TValue
+@inject IJSRuntime JS
 
-<div class="relative">
-    <select
-        @attributes="@(AdditionalAttributes)"
-        id="@(_id)"
-        name="@(_name)"
-        @bind="@(CurrentValueAsString)"
-        @bind:event="onchange"
-        class=@Tw([
-            "flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 pr-8 text-sm shadow-sm cursor-pointer appearance-none",
-            "transition-colors placeholder:text-muted-foreground",
-            "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50",
-            "aria-[invalid]:ring-1 aria-[invalid]:ring-red-500",
-            string.IsNullOrEmpty(CurrentValueAsString) ? "text-muted-foreground" : null,
-            CssClass,
-            AdditionalAttributes?.GetValueOrDefault("class")?.ToString()
-        ])
-        aria-label=@(AdditionalAttributes?.GetValueOrDefault("aria-label")?.ToString() ?? Placeholder)>
-        @if (!string.IsNullOrEmpty(Placeholder))
-        {
-            <option value="" disabled selected="@(string.IsNullOrEmpty(CurrentValueAsString))">@Placeholder</option>
-        }
-        @ChildContent
-    </select>
-    <i aria-hidden="true" class="ph ph-caret-down absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-muted-foreground"></i>
+@typeparam TValue
+@using System.Collections
+@inherits InputBase<TValue>
+
+<div
+  @attributes="AdditionalAttributes"
+  data-slot="select"
+  aria-disabled="@(Disabled)"
+  data-disabled="@(Disabled ? "" : null)"
+  class="@Tw(["relative group data-[disabled]:opacity-50", AdditionalAttributes?.GetValueOrDefault("class")?.ToString()])">
+  <CascadingValue Value="@this">
+    @ChildContent
+  </CascadingValue>
 </div>
 
-@code
-{
-    [Parameter]
-    public string? Placeholder { get; set; }
+@code {
+  [Parameter] public RenderFragment? ChildContent { get; set; }
+  [Parameter] public Placements Placement { get; set; } = Placements.BottomCenter;
+  [Parameter] public TValue? Default { get; set; }
 
-    string? _id { get; set; }
-    string? _name { get; set; }
+  public object? Placeholder { get; private set; }
+  public bool Disabled { get; private set; }
 
-    public override async Task SetParametersAsync(ParameterView parameters)
+  protected override void OnInitialized()
+  {
+    _csSelectRef = DotNetObjectReference.Create(this);
+    Placeholder = AdditionalAttributes?.GetValueOrDefault("placeholder");
+    Disabled = AdditionalAttributes?.GetValueOrDefault("disabled") is not null;
+  }
+
+  protected override async Task OnAfterRenderAsync(bool firstRender)
+  {
+    if (firstRender)
     {
-        parameters.SetParameterProperties(this);
-
-        await base.SetParametersAsync(parameters);
-
-        _id = AdditionalAttributes?.GetValueOrDefault("id")?.ToString() ?? NameAttributeValue;
-        _name = AdditionalAttributes?.GetValueOrDefault("name")?.ToString() ?? NameAttributeValue;
-
-        if (string.IsNullOrEmpty(_id))
-        {
-            var exp = ValueExpression?.Body as MemberExpression;
-            _id = exp?.Member.Name;
-        }
-
-        if (string.IsNullOrEmpty(_name))
-        {
-            _name = _id;
-        }
+      SelectValue = Default is not null
+        ? Default
+        : AdditionalAttributes?.GetValueOrDefault("placeholder")?.ToString() ?? string.Empty;
+      _jsDropdownRender = await JS.InvokeAsync<IJSObjectReference>(
+        "import",
+        "./Components/Select/Select.razor.js"
+      );
     }
+
+    await base.OnAfterRenderAsync(firstRender);
+  }
+
+  public async Task OpenSelect()
+  {
+    Open = true;
+    FocusedIndex = 0;
+
+    if (_jsDropdownRender is not null)
+    {
+      _jsDropdownCleaner = await _jsDropdownRender.InvokeAsync<IJSObjectReference>("ComputeDialogPosition", SelectTriggerRef,
+        SelectContentRef,
+        _placements[Placement],
+        _csSelectRef,
+        nameof(CloseSelect)
+      );
+    }
+  }
+
+  [JSInvokable]
+  public async Task CloseSelect()
+  {
+    Open = false;
+
+    if (_jsDropdownCleaner is not null)
+    {
+      await _jsDropdownCleaner.InvokeVoidAsync("CleanUpPosition");
+    }
+  }
+
+  public async Task SelectItem(object? value, SelectItem item)
+  {
+    if (value is null) return;
+
+    if (CurrentValue is IList list)
+    {
+      var newList = (IList)Activator.CreateInstance(CurrentValue.GetType())!;
+      foreach (var i in list)
+      {
+        newList.Add(i);
+      }
+
+      if (newList.Contains(value))
+      {
+        newList.Remove(value);
+        SelectedItems.Remove(item);
+      }
+      else
+      {
+        newList.Add(value);
+        SelectedItems.Add(item);
+      }
+
+      CurrentValue = (TValue)newList;
+      SelectValue = newList.Count > 0 ? newList : null;
+    }
+    else
+    {
+      if (Equals(CurrentValue, value))
+      {
+        CurrentValue = default;
+        SelectValue = null;
+        SelectedItem = null;
+      }
+      else
+      {
+        CurrentValue = (TValue)value;
+        SelectValue = value;
+        SelectedItem = item;
+      }
+    }
+
+    await InvokeAsync(StateHasChanged);
+  }
+
 }

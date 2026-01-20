@@ -1,0 +1,17 @@
+@namespace Pango.UI.Components
+
+<div
+  @attributes="AdditionalAttributes"
+  role="group"
+  data-slot="select-group">
+  @ChildContent
+</div>
+
+@code {
+
+  [Parameter] public RenderFragment? ChildContent { get; set; }
+
+  [Parameter(CaptureUnmatchedValues = true)]
+  public IReadOnlyDictionary<string, object>? AdditionalAttributes { get; set; }
+
+}
