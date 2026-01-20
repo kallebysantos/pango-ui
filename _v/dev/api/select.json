@@ -1,1 +1,1 @@
-{"name":"select","source":"Select","files":["SelectOption.razor.br","Select.razor.cs.br","Select.razor.br"]}
+{"name":"select","source":"Select","files":["Select.razor.cs.br","SelectItem.razor.br","SelectValue.razor.br","SelectTrigger.razor.br","Select.razor.br","Select.razor.js.br","SelectGroup.razor.br","SelectContent.razor.br","SelectTrigger.razor.cs.br","SelectLabel.razor.br"]}
