@@ -81,7 +81,6 @@
 
     if (CurrentValue is IList list)
     {
-      Console.WriteLine("is list");
       var newList = (IList)Activator.CreateInstance(CurrentValue.GetType())!;
       foreach (var i in list)
       {
@@ -104,7 +103,6 @@
     }
     else
     {
-      Console.WriteLine($"is not list {CurrentValue?.ToString()}");
       if (Equals(CurrentValue, value))
       {
         CurrentValue = default;

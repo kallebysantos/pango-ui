@@ -7,6 +7,9 @@ export async function ComputeDialogPosition(
     callbackInstance,
     callbackName
 ) {
+    const scrollX = window.scrollX;
+    const scrollY = window.scrollY;
+
     async function updatePosition() {
         const {x, y} = await computePosition(anchorElement, dialogElement, {
             placement,
@@ -27,6 +30,8 @@ export async function ComputeDialogPosition(
 
     if (!dialogElement.open && !!dialogElement.showModal) {
         dialogElement.showModal();
+
+        window.scrollTo(scrollX, scrollY);
 
         dialogElement.addEventListener('click', () => {
             dialogElement.close();
