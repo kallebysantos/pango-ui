@@ -1,0 +1,188 @@
+@namespace Pango.UI.Components
+
+@typeparam TValue
+@using System.Globalization
+@inherits InputBase<TValue>
+
+<div
+  @attributes="AdditionalAttributes"
+  @itemtype="_typeAttributeValue"
+  class="@Tw([
+           "max-w-72 border border-border rounded-md",
+           AdditionalAttributes?.GetValueOrDefault("class")?.ToString()
+         ])"
+  @ref="Element">
+
+  <div class="w-full flex items-center justify-between px-4 py-2 border-b border-border">
+    <button
+      @onclick="PreviousMonth"
+      class="@Tw([
+               "cursor-pointer transition-colors duration-200 size-7 rounded-md bg-transparent hover:bg-accent hover:text-foreground",
+               !CheckPreviousMonth() ? "opacity-50 cursor-not-allowed hover:bg-transparent" : null
+             ])">
+      <i class="ph ph-caret-left text-foreground/60"></i>
+    </button>
+    @_monthStart.ToString("MMMM yyyy")
+    <button
+      @onclick="NextMonth"
+      class="@Tw([
+               "cursor-pointer transition-colors duration-200 size-7 rounded-md bg-transparent hover:bg-accent hover:text-foreground",
+               !CheckNextMonth() ? "opacity-50 cursor-not-allowed hover:bg-transparent" : null
+             ])">
+      <i class="ph ph-caret-right text-foreground/60"></i>
+    </button>
+  </div>
+  <div class="@Tw(["grid grid-cols-7 m-4 gap-2", FixedHeight ? "grid-rows-7" : null])">
+    @foreach (string day in CultureInfo.CurrentCulture.DateTimeFormat.AbbreviatedDayNames)
+    {
+      <span class="text-xs text-foreground/70 text-center">@day</span>
+    }
+
+    @foreach (var (day, index) in _daysOfCurrentMonth.Select((item, i) => (item, i)))
+    {
+      <button
+        type="button"
+        @onclick:preventDefault
+        @onclick="() => OnSelectedDateChange(day)"
+        @disabled="@(day <= MinDate || day >= MaxDate)"
+        @aria-disabled="@(day <= MinDate || day >= MaxDate)"
+        @data-disabled="@(day <= MinDate || day >= MaxDate ? "" : null)"
+        class="@Tw([
+                 "transition-colors cursor-pointer duration-200 size-7 text-sm text-muted rounded-sm hover:bg-accent hover:text-foreground",
+                 IsSameMonth(day) && day > MinDate && day < MaxDate ? "text-foreground/80" : null,
+                 day <= MinDate || day >= MaxDate ? "hover:bg-transparent hover:text-muted cursor-not-allowed" : null,
+                 index == 0 ? ColWeekShift[day.DayOfWeek] : null,
+                 day == CastToDateTime(SelectedDate) ? "bg-primary text-primary-foreground hover:bg-primary/60 hover:text-primary-foreground" : null,
+               ])">
+        <time datetime="@day.Date.ToString("yyyy-MM-dd")">
+          @day.Day
+        </time>
+      </button>
+    }
+  </div>
+</div>
+
+@code {
+  private static readonly DateTime _today = DateTime.Now.Date;
+
+  [Parameter] public TValue? SelectedDate { get; set; } = CastToTValue(_today);
+  [Parameter] public bool FixedHeight { get; set; } = true;
+  [Parameter] public DateTime MinDate { get; set; } = DateTime.MinValue;
+  [Parameter] public DateTime MaxDate { get; set; } = DateTime.MaxValue;
+
+  private DateTime _monthStart;
+  private DateTime _monthEnd;
+
+  private List<DateTime> _daysOfCurrentMonth;
+
+  protected override void OnInitialized()
+  {
+    base.OnInitialized();
+    DateTime? date = CastToDateTime(SelectedDate);
+
+    _monthStart = new(date?.Year ?? _today.Year, date?.Month ?? _today.Month, 1);
+
+    _monthEnd = new(
+      _monthStart.Year,
+      _monthStart.Month,
+      DateTime.DaysInMonth(_monthStart.Year, _monthStart.Month)
+    );
+
+    _daysOfCurrentMonth = GetEachDayOfInterval(
+      GetExtendedDateAtFirstWeek(_monthStart, DayOfWeek.Sunday),
+      GetExtendedDateAtLastWeek(_monthEnd, DayOfWeek.Saturday)).ToList();
+
+    CurrentValue = SelectedDate;
+  }
+
+  protected override void OnParametersSet()
+  {
+    (_typeAttributeValue, _format, var formatDescription) = Type switch
+    {
+      InputDateType.Date => ("date", DateFormat, "date"),
+      InputDateType.DateTimeLocal => ("datetime-local", DateTimeLocalFormat, "date and time"),
+      InputDateType.Month => ("month", MonthFormat, "year and month"),
+      InputDateType.Time => ("time", TimeFormat, "time"),
+      _ => throw new InvalidOperationException($"Unsupported {nameof(InputDateType)} '{Type}'.")
+    };
+
+    _parsingErrorMessage = string.IsNullOrEmpty(ParsingErrorMessage)
+      ? $"The {{0}} field must be a {formatDescription}."
+      : ParsingErrorMessage;
+
+    SelectedDate = CurrentValue;
+  }
+
+  private void OnSelectedDateChange(DateTime day)
+  {
+    if (day <= MinDate || day >= MaxDate) return;
+
+    if (Equals(SelectedDate, CastToTValue(day)) && Nullable.GetUnderlyingType(typeof(TValue)) != null)
+    {
+      SelectedDate = default;
+    }
+    else
+    {
+      SelectedDate = CastToTValue(day);
+    }
+
+    CurrentValue = SelectedDate;
+  }
+
+  private bool CheckPreviousMonth()
+  {
+    DateTime date;
+
+    if (DateTime.DaysInMonth(_monthStart.Year, _monthStart.Month) > MinDate.Day)
+    {
+      date = new(_monthStart.Year, _monthStart.Month, MinDate.Day);
+    }
+    else
+    {
+      date = new(_monthStart.Year, _monthStart.Month, DateTime.DaysInMonth(_monthStart.Year, _monthStart.Month));
+    }
+
+    date = date.AddMonths(-1);
+    return date >= MinDate && _daysOfCurrentMonth.All(d => d != date);
+  }
+
+  private void PreviousMonth()
+  {
+    if (!CheckPreviousMonth()) return;
+
+    _monthStart = _monthStart.AddMonths(-1);
+    _monthEnd = new(_monthStart.Year, _monthStart.Month, DateTime.DaysInMonth(_monthStart.Year, _monthStart.Month));
+    _daysOfCurrentMonth = GetEachDayOfInterval(
+      GetExtendedDateAtFirstWeek(_monthStart, DayOfWeek.Sunday),
+      GetExtendedDateAtLastWeek(_monthEnd, DayOfWeek.Saturday)).ToList();
+  }
+
+  private bool CheckNextMonth()
+  {
+    DateTime date;
+
+    if (DateTime.DaysInMonth(_monthEnd.Year, _monthEnd.Month) > MaxDate.Day)
+    {
+      date = new(_monthEnd.Year, _monthEnd.Month, MaxDate.Day);
+    }
+    else
+    {
+      date = new(_monthEnd.Year, _monthEnd.Month, DateTime.DaysInMonth(_monthEnd.Year, _monthEnd.Month));
+    }
+    
+    date = date.AddMonths(1);
+    return date <= MaxDate && _daysOfCurrentMonth.All(d => d != date);
+  }
+
+  private void NextMonth()
+  {
+    if (!CheckNextMonth()) return;
+
+    _monthStart = _monthStart.AddMonths(1);
+    _monthEnd = new(_monthStart.Year, _monthStart.Month, DateTime.DaysInMonth(_monthStart.Year, _monthStart.Month));
+    _daysOfCurrentMonth = GetEachDayOfInterval(
+      GetExtendedDateAtFirstWeek(_monthStart, DayOfWeek.Sunday),
+      GetExtendedDateAtLastWeek(_monthEnd, DayOfWeek.Saturday)).ToList();
+  }
+
+}
