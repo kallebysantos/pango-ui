@@ -17,8 +17,10 @@ public partial class Select<TValue> : InputBase<TValue>, ISelect
 
     private IJSObjectReference? _jsDropdownRender;
     private IJSObjectReference? _jsDropdownCleaner;
+    private IJSObjectReference? _jsGetElementWidth;
     private DotNetObjectReference<Select<TValue>>? _csSelectRef;
 
+    public float? TriggerWidth { get; set; }
     public List<SelectItem> AllItems { get; } = [];
     public int FocusedIndex { get; set; }
     public ElementReference? SelectTriggerRef { get; set; }

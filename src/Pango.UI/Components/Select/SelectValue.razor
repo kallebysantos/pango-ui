@@ -7,7 +7,7 @@
     @attributes="AdditionalAttributes"
     data-slot="select-value"
     class="@Tw([
-             "pointer-events-none",
+             "pointer-events-none max-w-full",
              _placeholder is not null && !HasValue() ? "opacity-50" : null,
              AdditionalAttributes?.GetValueOrDefault("class")?.ToString()
            ])">
@@ -28,7 +28,9 @@
     {
       if (Select.SelectedItem is not null)
       {
-        @Select.SelectedItem.ChildContent
+        <span class="truncate">
+          @Select.SelectedItem.ChildContent
+        </span>
       }
       else
       {

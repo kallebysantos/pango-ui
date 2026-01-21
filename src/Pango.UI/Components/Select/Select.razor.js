@@ -52,3 +52,9 @@ export async function ComputeDialogPosition(
         }
     };
 }
+
+export function getElementWidth(el) {
+    if(!el) return;
+
+    return el.clientWidth;
+}

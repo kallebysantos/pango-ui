@@ -7,6 +7,7 @@ public interface ISelect
     public string[] SelectKeys { get; }
     internal object? Placeholder { get; }
     internal bool Disabled { get; }
+    internal float? TriggerWidth { get; }
     internal List<SelectItem> AllItems { get; }
     internal int FocusedIndex { get; set; }
     internal object? SelectValue { get; }
