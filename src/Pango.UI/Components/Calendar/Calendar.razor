@@ -34,7 +34,7 @@
     </button>
   </div>
   <div class="@Tw(["grid grid-cols-7 m-4 gap-y-1 gap-x-0", FixedHeight ? "grid-rows-7" : null])">
-    @foreach (string day in CultureInfo.CurrentCulture.DateTimeFormat.AbbreviatedDayNames)
+    @foreach (string day in GetWeekDaysNames())
     {
       <span class="text-xs text-foreground/70 text-center size-7">@day</span>
     }
@@ -53,14 +53,14 @@
                  day == _today ? "bg-accent/50" : null,
                  IsSameMonth(day) && day > MinDate && day < MaxDate ? "text-foreground/80" : null,
                  day <= MinDate || day >= MaxDate ? "hover:bg-transparent hover:text-muted cursor-not-allowed" : null,
-                 index == 0 ? ColWeekShift[day.DayOfWeek] : null,
                  IsDaySelected(day) ? "bg-primary text-primary-foreground hover:bg-primary/60 hover:text-primary-foreground" : null,
                  IsFromDate(day) ? "rounded-none rounded-l-md mx-1" : null,
                  IsToDate(day) ? "rounded-none rounded-r-md -mx-1" : null,
                  IsBetweenSelection(day) ? "bg-accent rounded-none w-full -mx-1 after:bg-accent" : null,
-                 IsBetweenSelection(day) && day.DayOfWeek is DayOfWeek.Saturday ? "rounded-r-md" : null,
-                 IsBetweenSelection(day) && day.DayOfWeek is DayOfWeek.Sunday ? "rounded-l-md" : null
-               ])">
+                 IsBetweenSelection(day) && day.DayOfWeek == WeekStart ? "rounded-r-md" : null,
+                 IsBetweenSelection(day) && day.DayOfWeek == _weekEnd ? "rounded-l-md" : null
+               ])"
+        style="grid-column-start: @(index == 0 ? GetColStart(day.DayOfWeek) : null)">
         <time datetime="@day.Date.ToString("yyyy-MM-dd")">
           @day.Day
         </time>
@@ -75,10 +75,13 @@
   [Parameter] public TValue? SelectedDate { get; set; } = CastToTValue(_today);
   [Parameter] public CalendarDateRangeBehavior Behavior { get; set; } = CalendarDateRangeBehavior.KeepFromMoveTo;
   [Parameter] public bool FixedHeight { get; set; } = true;
+
+  [Parameter] public DayOfWeek WeekStart { get; set; } = DayOfWeek.Sunday;
   // [Parameter] public bool CanSelectOneDateOnDateRange { get; set; } = true;
   [Parameter] public DateTime MinDate { get; set; } = DateTime.MinValue;
   [Parameter] public DateTime MaxDate { get; set; } = DateTime.MaxValue;
 
+  private DayOfWeek _weekEnd;
   private DateTime _monthStart;
   private DateTime _monthEnd;
   private DateTime? _rangeFrom;
@@ -89,6 +92,8 @@
   protected override void OnInitialized()
   {
     base.OnInitialized();
+    _weekEnd = (DayOfWeek)((int)(WeekStart + 6) % 7);
+
     (DateTime? date, _) = CastToDateTime(SelectedDate);
 
     _monthStart = new(date?.Year ?? _today.Year, date?.Month ?? _today.Month, 1);
@@ -100,8 +105,8 @@
     );
 
     _daysOfCurrentMonth = GetEachDayOfInterval(
-      GetExtendedDateAtFirstWeek(_monthStart, DayOfWeek.Sunday),
-      GetExtendedDateAtLastWeek(_monthEnd, DayOfWeek.Saturday)).ToList();
+      GetExtendedDateAtFirstWeek(_monthStart, WeekStart),
+      GetExtendedDateAtLastWeek(_monthEnd, _weekEnd)).ToList();
 
     CurrentValue = SelectedDate;
 
@@ -177,6 +182,7 @@
   private void HandleNewRangeBehavior(DateTime day, CalendarDateRange range)
   {
     NullabilityInfo nullability = _nullabilityInfoContext.Create(GetType().GetProperty(nameof(SelectedDate))!);
+
     if (day == range.From && _rangeTo is null && nullability.ReadState == NullabilityState.Nullable)
     {
       _rangeFrom = null;
@@ -213,6 +219,7 @@
   private void HandleSameRangeBehavior(DateTime day, CalendarDateRange range)
   {
     NullabilityInfo nullability = _nullabilityInfoContext.Create(GetType().GetProperty(nameof(SelectedDate))!);
+
     if (day == _rangeFrom && _rangeTo is null && nullability.ReadState == NullabilityState.Nullable)
     {
       _rangeFrom = null;
@@ -254,8 +261,8 @@
     _monthStart = _monthStart.AddMonths(-1);
     _monthEnd = new(_monthStart.Year, _monthStart.Month, DateTime.DaysInMonth(_monthStart.Year, _monthStart.Month));
     _daysOfCurrentMonth = GetEachDayOfInterval(
-      GetExtendedDateAtFirstWeek(_monthStart, DayOfWeek.Sunday),
-      GetExtendedDateAtLastWeek(_monthEnd, DayOfWeek.Saturday)).ToList();
+      GetExtendedDateAtFirstWeek(_monthStart, WeekStart),
+      GetExtendedDateAtLastWeek(_monthEnd, _weekEnd)).ToList();
   }
 
   private void NextMonth()
@@ -265,8 +272,8 @@
     _monthStart = _monthStart.AddMonths(1);
     _monthEnd = new(_monthStart.Year, _monthStart.Month, DateTime.DaysInMonth(_monthStart.Year, _monthStart.Month));
     _daysOfCurrentMonth = GetEachDayOfInterval(
-      GetExtendedDateAtFirstWeek(_monthStart, DayOfWeek.Sunday),
-      GetExtendedDateAtLastWeek(_monthEnd, DayOfWeek.Saturday)).ToList();
+      GetExtendedDateAtFirstWeek(_monthStart, WeekStart),
+      GetExtendedDateAtLastWeek(_monthEnd, _weekEnd)).ToList();
   }
 
 }

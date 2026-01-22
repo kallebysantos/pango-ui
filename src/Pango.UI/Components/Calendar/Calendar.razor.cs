@@ -85,6 +85,22 @@ public partial class Calendar<TValue> : InputBase<TValue>
         }
     }
 
+    private int? GetColStart(DayOfWeek dayOfWeek)
+    {
+        int colStart = ((int)dayOfWeek - (int)WeekStart + 7) % 7 + 1;
+        return colStart == 1 ? null : colStart;
+    }
+
+    private string[] GetWeekDaysNames()
+    {
+        string[] dayNames = CultureInfo.CurrentCulture.DateTimeFormat.AbbreviatedDayNames;
+        int startIndex = (int)WeekStart;
+
+        return dayNames.Skip(startIndex)
+            .Concat(dayNames.Take(startIndex))
+            .ToArray();
+    }
+
     private bool IsSameMonth(DateTime day)
         => day.Month == _monthStart.Month;
 
