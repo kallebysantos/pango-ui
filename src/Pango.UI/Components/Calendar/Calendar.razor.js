@@ -57,7 +57,12 @@ export function ScrollToElement(dialogElement, targetValue) {
     const options = dialogElement.querySelectorAll('[role="option"]');
     const targetOption = Array.from(options).find(opt => opt.textContent.trim() === targetValue);
 
-    if (targetOption) {
-        targetOption.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    }
+    if (!targetOption) return;
+
+    requestAnimationFrame(() => {
+        targetOption.scrollIntoView({
+            block: 'center',
+            behavior: 'auto'
+        });
+    });
 }
