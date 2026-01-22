@@ -2,7 +2,7 @@
 
 @typeparam TValue
 @using System.Globalization
-@using System.Reflection
+
 @inherits InputBase<TValue>
 
 <div
@@ -23,7 +23,25 @@
              ])">
       <i class="ph ph-caret-left text-foreground/60"></i>
     </button>
-    @_monthStart.ToString("MMMM yyyy")
+
+    @if (WithMonthAndYearSelection)
+    {
+      <CalendarMonthSelector
+        Label="@(_monthStart.ToString("MMMM"))"
+        AvailableMonths="DateTimeFormatInfo.CurrentInfo.MonthNames"
+        SelectedMonth="_monthStart.Month"
+        OnMonthChange="ChangeMonth"/>
+      <CalendarYearSelector
+        Label="@(_monthStart.ToString("yyyy"))"
+        AvailableYears="Enumerable.Range(1900, (_today.Year - 1899)).Reverse().ToArray()"
+        SelectedYear="_monthStart.Year"
+        OnYearChange="ChangeYear"/>
+    }
+    else
+    {
+      <span>@(_monthStart.ToString("MMMM yyyy"))</span>
+    }
+
     <button
       @onclick="NextMonth"
       class="@Tw([
@@ -33,7 +51,7 @@
       <i class="ph ph-caret-right text-foreground/60"></i>
     </button>
   </div>
-  <div class="@Tw(["grid grid-cols-7 m-4 gap-y-1 gap-x-0", FixedHeight ? "grid-rows-7" : null])">
+  <div class="@Tw(["grid grid-cols-7 m-4 gap-y-1", FixedHeight ? "grid-rows-7" : null])">
     @foreach (string day in GetWeekDaysNames())
     {
       <span class="text-xs text-foreground/70 text-center size-7">@day</span>
@@ -49,7 +67,7 @@
         @aria-disabled="@(day <= MinDate || day >= MaxDate)"
         @data-disabled="@(day <= MinDate || day >= MaxDate ? "" : null)"
         class="@Tw([
-                 "transition-colors cursor-pointer duration-200 size-7 text-sm text-muted rounded-sm hover:bg-accent hover:text-foreground",
+                 "transition-colors cursor-pointer duration-200 size-7 text-sm text-foreground/20 rounded-sm hover:bg-accent hover:text-foreground",
                  day == _today ? "bg-accent/50" : null,
                  IsSameMonth(day) && day > MinDate && day < MaxDate ? "text-foreground/80" : null,
                  day <= MinDate || day >= MaxDate ? "hover:bg-transparent hover:text-muted cursor-not-allowed" : null,
@@ -57,8 +75,8 @@
                  IsFromDate(day) ? "rounded-none rounded-l-md mx-1" : null,
                  IsToDate(day) ? "rounded-none rounded-r-md -mx-1" : null,
                  IsBetweenSelection(day) ? "bg-accent rounded-none w-full -mx-1 after:bg-accent" : null,
-                 IsBetweenSelection(day) && day.DayOfWeek == WeekStart ? "rounded-r-md" : null,
-                 IsBetweenSelection(day) && day.DayOfWeek == _weekEnd ? "rounded-l-md" : null
+                 IsBetweenSelection(day) && day.DayOfWeek == WeekStart ? "rounded-l-md" : null,
+                 IsBetweenSelection(day) && day.DayOfWeek == _weekEnd ? "rounded-r-md" : null
                ])"
         style="grid-column-start: @(index == 0 ? GetColStart(day.DayOfWeek) : null)">
         <time datetime="@day.Date.ToString("yyyy-MM-dd")">
@@ -75,8 +93,14 @@
   [Parameter] public TValue? SelectedDate { get; set; } = CastToTValue(_today);
   [Parameter] public CalendarDateRangeBehavior Behavior { get; set; } = CalendarDateRangeBehavior.KeepFromMoveTo;
   [Parameter] public bool FixedHeight { get; set; } = true;
+  [Parameter] public bool WithMonthAndYearSelection { get; set; }
+  /// <summary>
+  /// Only required for CalendarDateRange, requirement can be detected in primitive types nullability
+  /// </summary>
+  [Parameter] public bool Required { get; set; }
 
   [Parameter] public DayOfWeek WeekStart { get; set; } = DayOfWeek.Sunday;
+
   // [Parameter] public bool CanSelectOneDateOnDateRange { get; set; } = true;
   [Parameter] public DateTime MinDate { get; set; } = DateTime.MinValue;
   [Parameter] public DateTime MaxDate { get; set; } = DateTime.MaxValue;
@@ -181,9 +205,7 @@
 
   private void HandleNewRangeBehavior(DateTime day, CalendarDateRange range)
   {
-    NullabilityInfo nullability = _nullabilityInfoContext.Create(GetType().GetProperty(nameof(SelectedDate))!);
-
-    if (day == range.From && _rangeTo is null && nullability.ReadState == NullabilityState.Nullable)
+    if (day == range.From && _rangeTo is null && !Required)
     {
       _rangeFrom = null;
       _rangeTo = null;
@@ -218,9 +240,7 @@
 
   private void HandleSameRangeBehavior(DateTime day, CalendarDateRange range)
   {
-    NullabilityInfo nullability = _nullabilityInfoContext.Create(GetType().GetProperty(nameof(SelectedDate))!);
-
-    if (day == _rangeFrom && _rangeTo is null && nullability.ReadState == NullabilityState.Nullable)
+    if (day == _rangeFrom && _rangeTo is null && !Required)
     {
       _rangeFrom = null;
       _rangeTo = null;
@@ -252,6 +272,24 @@
 
     SelectedDate = (TValue)(object)range;
     CurrentValue = (TValue)(object)range;
+  }
+
+  private void ChangeMonth(int month)
+  {
+    _monthStart = new DateTime(_monthStart.Year, month, 1);
+    _monthEnd = new DateTime(_monthStart.Year, month, DateTime.DaysInMonth(_monthStart.Year, _monthStart.Month));
+    _daysOfCurrentMonth = GetEachDayOfInterval(
+      GetExtendedDateAtFirstWeek(_monthStart, WeekStart),
+      GetExtendedDateAtLastWeek(_monthEnd, _weekEnd)).ToList();
+  }
+
+  private void ChangeYear(int year)
+  {
+    _monthStart = new DateTime(year, _monthStart.Month, 1);
+    _monthEnd = new DateTime(year, _monthStart.Month, DateTime.DaysInMonth(_monthStart.Year, _monthStart.Month));
+    _daysOfCurrentMonth = GetEachDayOfInterval(
+      GetExtendedDateAtFirstWeek(_monthStart, WeekStart),
+      GetExtendedDateAtLastWeek(_monthEnd, _weekEnd)).ToList();
   }
 
   private void PreviousMonth()
