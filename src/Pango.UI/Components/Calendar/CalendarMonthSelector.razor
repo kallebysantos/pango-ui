@@ -1,3 +1,4 @@
+@using System.Globalization
 @namespace Pango.UI.Components
 
 @inject IJSRuntime JS
@@ -25,15 +26,14 @@
            "relative z-50 max-h min-w-[8rem] rounded-md border shadow-md",
          ])"
   @ref="_contentRef">
-  @foreach(var item in _availableMonths)
+  @foreach (string name in AvailableMonths)
   {
     <div
       role="option"
-      @onclick="() => OnMonthSelect(item.Key)"
-      tabindex="@(_focusedIndex == item.Key ? 0 : -1)"
+      @onclick="() => OnMonthSelect(name)"
       class="cursor-pointer hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground &_svg:not([class*='text-'])]:text-muted-foreground relative flex justify-between w-full items-center gap-2 rounded-sm py-1.5 px-2 text-sm outline-hidden select-none data-[disabled]:hover:bg-transparent data-[disabled]:opacity-50 data-[disabled]:cursor-not-allowed [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 *:[span]:last:flex *:[span]:last:items-center *:[span]:last:gap-2">
-      <span>@(item.Value)</span>
-      @if (SelectedMonth - 1 == item.Key)
+      <span>@(name)</span>
+      @if (DateTimeFormatInfo.CurrentInfo.GetMonthName(SelectedMonth).Equals(name, StringComparison.CurrentCultureIgnoreCase))
       {
         <i class="ph ph-check"></i>
       }
@@ -54,11 +54,11 @@
   /// Merge Tailwind CSS classes without style conflicts
   /// </summary>
   private string? Tw(params string?[] classNames) => TwMerge.Merge(classNames);
+
   private bool _open;
   private ElementReference _triggerRef;
   private ElementReference _contentRef;
   private int _focusedIndex;
-  private Dictionary<int, string> _availableMonths = new();
 
   private IJSObjectReference? _jsDropdownRender;
   private IJSObjectReference? _jsDropdownCleaner;
@@ -67,13 +67,6 @@
   protected override void OnInitialized()
   {
     base.OnInitialized();
-    for (int i = 0; i < AvailableMonths.Length; i++)
-    {
-      _availableMonths.Add(i, AvailableMonths[i]);
-    }
-
-    _availableMonths.Remove(AvailableMonths.Length - 1);
-
     _csSelectRef = DotNetObjectReference.Create(this);
   }
 
@@ -117,9 +110,14 @@
     }
   }
 
-  private async Task OnMonthSelect(int month)
+  private async Task OnMonthSelect(string month)
   {
-    await OnMonthChange.InvokeAsync(month + 1);
+    await OnMonthChange.InvokeAsync(DateTime.ParseExact(
+      month,
+      new[] { "MMM", "MMMM" },
+      CultureInfo.InvariantCulture,
+      DateTimeStyles.None
+    ).Month);
   }
 
   private async Task HandleKeyDown(string key)
@@ -141,4 +139,5 @@
         break;
     }
   }
+
 }

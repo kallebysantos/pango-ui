@@ -41,7 +41,6 @@ public partial class Calendar<TValue> : InputBase<TValue>
         { DayOfWeek.Saturday, "col-start-7" },
     };
 
-    static NullabilityInfoContext _nullabilityInfoContext = new NullabilityInfoContext();
 
     public Calendar()
     {
@@ -159,13 +158,25 @@ public partial class Calendar<TValue> : InputBase<TValue>
             extendedDate = extendedDate.AddDays(7);
         }
 
+        if (extendedDate > DateTime.MaxValue)
+        {
+            extendedDate = DateTime.MaxValue;
+        }
+
         return extendedDate;
     }
 
     private static DateTime GetExtendedDateAtFirstWeek(DateTime day, DayOfWeek firstWeekDay)
     {
         int daysToAdd = (day.DayOfWeek - firstWeekDay + 7) % 7;
-        return day.AddDays(-daysToAdd);
+        DateTime result = day.AddDays(-daysToAdd);
+
+        if (result < DateTime.MinValue)
+        {
+            result = DateTime.MinValue;
+        }
+
+        return result;
     }
 
     private bool CheckPreviousMonth()
@@ -204,25 +215,25 @@ public partial class Calendar<TValue> : InputBase<TValue>
 
     private bool IsDaySelected(DateTime day)
     {
-        (DateTime? from, DateTime? to) = CastToDateTime(SelectedDate);
+        (DateTime? from, DateTime? to) = CastToDateTime(CurrentValue);
         return day == from || day == to;
     }
 
     private bool IsBetweenSelection(DateTime day)
     {
-        (DateTime? from, DateTime? to) = CastToDateTime(SelectedDate);
+        (DateTime? from, DateTime? to) = CastToDateTime(CurrentValue);
         return day > from && day < to;
     }
 
     private bool IsFromDate(DateTime day)
     {
-        (DateTime? from, DateTime? to) = CastToDateTime(SelectedDate);
+        (DateTime? from, DateTime? to) = CastToDateTime(CurrentValue);
         return IsDaySelected(day) && day == from && to is not null && _isRangeMode;
     }
 
     private bool IsToDate(DateTime day)
     {
-        (_, DateTime? to) = CastToDateTime(SelectedDate);
+        (_, DateTime? to) = CastToDateTime(CurrentValue);
         return IsDaySelected(day) && day == to && _isRangeMode;
     }
 }
@@ -236,7 +247,7 @@ public enum CalendarDateRangeBehavior
     KeepFromMoveTo,
 }
 
-public class CalendarDateRange
+public sealed class CalendarDateRange
 {
     public DateTime From { get; set; }
     public DateTime? To { get; set; }
