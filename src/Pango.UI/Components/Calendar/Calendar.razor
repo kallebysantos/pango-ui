@@ -2,6 +2,7 @@
 
 @typeparam TValue
 @using System.Globalization
+@using System.Reflection
 @inherits InputBase<TValue>
 
 <div
@@ -32,10 +33,10 @@
       <i class="ph ph-caret-right text-foreground/60"></i>
     </button>
   </div>
-  <div class="@Tw(["grid grid-cols-7 m-4 gap-2", FixedHeight ? "grid-rows-7" : null])">
+  <div class="@Tw(["grid grid-cols-7 m-4 gap-y-1 gap-x-0", FixedHeight ? "grid-rows-7" : null])">
     @foreach (string day in CultureInfo.CurrentCulture.DateTimeFormat.AbbreviatedDayNames)
     {
-      <span class="text-xs text-foreground/70 text-center">@day</span>
+      <span class="text-xs text-foreground/70 text-center size-7">@day</span>
     }
 
     @foreach (var (day, index) in _daysOfCurrentMonth.Select((item, i) => (item, i)))
@@ -49,10 +50,16 @@
         @data-disabled="@(day <= MinDate || day >= MaxDate ? "" : null)"
         class="@Tw([
                  "transition-colors cursor-pointer duration-200 size-7 text-sm text-muted rounded-sm hover:bg-accent hover:text-foreground",
+                 day == _today ? "bg-accent/50" : null,
                  IsSameMonth(day) && day > MinDate && day < MaxDate ? "text-foreground/80" : null,
                  day <= MinDate || day >= MaxDate ? "hover:bg-transparent hover:text-muted cursor-not-allowed" : null,
                  index == 0 ? ColWeekShift[day.DayOfWeek] : null,
-                 day == CastToDateTime(SelectedDate) ? "bg-primary text-primary-foreground hover:bg-primary/60 hover:text-primary-foreground" : null,
+                 IsDaySelected(day) ? "bg-primary text-primary-foreground hover:bg-primary/60 hover:text-primary-foreground" : null,
+                 IsFromDate(day) ? "rounded-none rounded-l-md mx-1" : null,
+                 IsToDate(day) ? "rounded-none rounded-r-md -mx-1" : null,
+                 IsBetweenSelection(day) ? "bg-accent rounded-none w-full -mx-1 after:bg-accent" : null,
+                 IsBetweenSelection(day) && day.DayOfWeek is DayOfWeek.Saturday ? "rounded-r-md" : null,
+                 IsBetweenSelection(day) && day.DayOfWeek is DayOfWeek.Sunday ? "rounded-l-md" : null
                ])">
         <time datetime="@day.Date.ToString("yyyy-MM-dd")">
           @day.Day
@@ -66,19 +73,23 @@
   private static readonly DateTime _today = DateTime.Now.Date;
 
   [Parameter] public TValue? SelectedDate { get; set; } = CastToTValue(_today);
+  [Parameter] public CalendarDateRangeBehavior Behavior { get; set; } = CalendarDateRangeBehavior.KeepFromMoveTo;
   [Parameter] public bool FixedHeight { get; set; } = true;
+  // [Parameter] public bool CanSelectOneDateOnDateRange { get; set; } = true;
   [Parameter] public DateTime MinDate { get; set; } = DateTime.MinValue;
   [Parameter] public DateTime MaxDate { get; set; } = DateTime.MaxValue;
 
   private DateTime _monthStart;
   private DateTime _monthEnd;
+  private DateTime? _rangeFrom;
+  private DateTime? _rangeTo;
 
-  private List<DateTime> _daysOfCurrentMonth;
+  private List<DateTime> _daysOfCurrentMonth = [];
 
   protected override void OnInitialized()
   {
     base.OnInitialized();
-    DateTime? date = CastToDateTime(SelectedDate);
+    (DateTime? date, _) = CastToDateTime(SelectedDate);
 
     _monthStart = new(date?.Year ?? _today.Year, date?.Month ?? _today.Month, 1);
 
@@ -93,30 +104,42 @@
       GetExtendedDateAtLastWeek(_monthEnd, DayOfWeek.Saturday)).ToList();
 
     CurrentValue = SelectedDate;
+
+    if (!_isRangeMode) return;
+
+    CalendarDateRange? range = (CalendarDateRange?)(object?)CurrentValue;
+    _rangeFrom = range?.From;
+    _rangeTo = range?.To;
   }
 
   protected override void OnParametersSet()
   {
-    (_typeAttributeValue, _format, var formatDescription) = Type switch
+    if (SelectedDate is not null && CurrentValue is not null && !Equals(SelectedDate, CurrentValue))
     {
-      InputDateType.Date => ("date", DateFormat, "date"),
-      InputDateType.DateTimeLocal => ("datetime-local", DateTimeLocalFormat, "date and time"),
-      InputDateType.Month => ("month", MonthFormat, "year and month"),
-      InputDateType.Time => ("time", TimeFormat, "time"),
-      _ => throw new InvalidOperationException($"Unsupported {nameof(InputDateType)} '{Type}'.")
-    };
+      CurrentValue = SelectedDate;
+    }
 
-    _parsingErrorMessage = string.IsNullOrEmpty(ParsingErrorMessage)
-      ? $"The {{0}} field must be a {formatDescription}."
-      : ParsingErrorMessage;
+    if (CurrentValue is not null) return;
 
-    SelectedDate = CurrentValue;
+    SelectedDate = default;
   }
 
   private void OnSelectedDateChange(DateTime day)
   {
     if (day <= MinDate || day >= MaxDate) return;
 
+    if (_isRangeMode)
+    {
+      HandleDateRangeSelection(day);
+    }
+    else
+    {
+      HandleSingleDateSelection(day);
+    }
+  }
+
+  private void HandleSingleDateSelection(DateTime day)
+  {
     if (Equals(SelectedDate, CastToTValue(day)) && Nullable.GetUnderlyingType(typeof(TValue)) != null)
     {
       SelectedDate = default;
@@ -129,21 +152,99 @@
     CurrentValue = SelectedDate;
   }
 
-  private bool CheckPreviousMonth()
+  private void HandleDateRangeSelection(DateTime day)
   {
-    DateTime date;
-
-    if (DateTime.DaysInMonth(_monthStart.Year, _monthStart.Month) > MinDate.Day)
+    CalendarDateRange range = (CalendarDateRange?)(object?)CurrentValue ?? new();
+    CalendarDateRange newRange = new()
     {
-      date = new(_monthStart.Year, _monthStart.Month, MinDate.Day);
+      From = range.From,
+      To = range.To,
+    };
+
+    switch (Behavior)
+    {
+      case CalendarDateRangeBehavior.AlwaysSelectNewRange:
+        HandleNewRangeBehavior(day, newRange);
+        break;
+      case CalendarDateRangeBehavior.KeepFromMoveTo:
+        HandleSameRangeBehavior(day, newRange);
+        break;
+      default:
+        throw new ArgumentOutOfRangeException();
+    }
+  }
+
+  private void HandleNewRangeBehavior(DateTime day, CalendarDateRange range)
+  {
+    NullabilityInfo nullability = _nullabilityInfoContext.Create(GetType().GetProperty(nameof(SelectedDate))!);
+    if (day == range.From && _rangeTo is null && nullability.ReadState == NullabilityState.Nullable)
+    {
+      _rangeFrom = null;
+      _rangeTo = null;
+      SelectedDate = default;
+      CurrentValue = default;
+      return;
+    }
+
+    if (day == range.From) return;
+
+    if (_rangeFrom.HasValue && _rangeTo.HasValue)
+    {
+      _rangeFrom = day;
+      range.From = day;
+      _rangeTo = null;
+      range.To = null;
+    }
+    else if (!_rangeFrom.HasValue || day < _rangeFrom.Value)
+    {
+      _rangeFrom = day;
+      range.From = day;
     }
     else
     {
-      date = new(_monthStart.Year, _monthStart.Month, DateTime.DaysInMonth(_monthStart.Year, _monthStart.Month));
+      _rangeTo = day;
+      range.To = day;
     }
 
-    date = date.AddMonths(-1);
-    return date >= MinDate && _daysOfCurrentMonth.All(d => d != date);
+    SelectedDate = (TValue)(object)range;
+    CurrentValue = (TValue)(object)range;
+  }
+
+  private void HandleSameRangeBehavior(DateTime day, CalendarDateRange range)
+  {
+    NullabilityInfo nullability = _nullabilityInfoContext.Create(GetType().GetProperty(nameof(SelectedDate))!);
+    if (day == _rangeFrom && _rangeTo is null && nullability.ReadState == NullabilityState.Nullable)
+    {
+      _rangeFrom = null;
+      _rangeTo = null;
+      SelectedDate = default;
+      CurrentValue = default;
+      return;
+    }
+
+    if (!_rangeFrom.HasValue || (day == range.From || day == range.To))
+    {
+      _rangeFrom = day;
+      range.From = day;
+      _rangeTo = null;
+      range.To = null;
+    }
+    else
+    {
+      if (day < _rangeFrom)
+      {
+        _rangeFrom = day;
+        range.From = day;
+      }
+      else
+      {
+        _rangeTo = day;
+        range.To = day;
+      }
+    }
+
+    SelectedDate = (TValue)(object)range;
+    CurrentValue = (TValue)(object)range;
   }
 
   private void PreviousMonth()
@@ -155,23 +256,6 @@
     _daysOfCurrentMonth = GetEachDayOfInterval(
       GetExtendedDateAtFirstWeek(_monthStart, DayOfWeek.Sunday),
       GetExtendedDateAtLastWeek(_monthEnd, DayOfWeek.Saturday)).ToList();
-  }
-
-  private bool CheckNextMonth()
-  {
-    DateTime date;
-
-    if (DateTime.DaysInMonth(_monthEnd.Year, _monthEnd.Month) > MaxDate.Day)
-    {
-      date = new(_monthEnd.Year, _monthEnd.Month, MaxDate.Day);
-    }
-    else
-    {
-      date = new(_monthEnd.Year, _monthEnd.Month, DateTime.DaysInMonth(_monthEnd.Year, _monthEnd.Month));
-    }
-    
-    date = date.AddMonths(1);
-    return date <= MaxDate && _daysOfCurrentMonth.All(d => d != date);
   }
 
   private void NextMonth()

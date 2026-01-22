@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
@@ -11,7 +12,6 @@ namespace Pango.UI.Components;
 public partial class Calendar<TValue> : InputBase<TValue>
 {
     [DisallowNull] public ElementReference? Element { get; protected set; }
-    [Parameter] public InputDateType Type { get; set; } = InputDateType.Date;
     [Parameter] public string ParsingErrorMessage { get; set; } = string.Empty;
 
     [Inject] protected TwMerge TwMerge { get; set; } = null!;
@@ -21,14 +21,15 @@ public partial class Calendar<TValue> : InputBase<TValue>
     /// </summary>
     private string? Tw(params string?[] classNames) => TwMerge.Merge(classNames);
 
-    private string _typeAttributeValue = null!;
-    private string _format = null!;
-    private string _parsingErrorMessage = null!;
+    // private string _typeAttributeValue = null!;
+    // private string _format = null!;
+    // private string _parsingErrorMessage = null!;
+    private readonly bool _isRangeMode;
 
-    private const string DateFormat = "yyyy-MM-dd"; // Compatible with HTML 'date' inputs
-    private const string DateTimeLocalFormat = "yyyy-MM-ddTHH:mm:ss"; // Compatible with HTML 'datetime-local' inputs
-    private const string MonthFormat = "yyyy-MM"; // Compatible with HTML 'month' inputs
-    private const string TimeFormat = "HH:mm:ss"; // Compatible with HTML 'time' inputs
+    // private const string DateFormat = "yyyy-MM-dd"; // Compatible with HTML 'date' inputs
+    // private const string DateTimeLocalFormat = "yyyy-MM-ddTHH:mm:ss"; // Compatible with HTML 'datetime-local' inputs
+    // private const string MonthFormat = "yyyy-MM"; // Compatible with HTML 'month' inputs
+    // private const string TimeFormat = "HH:mm:ss"; // Compatible with HTML 'time' inputs
 
     private static readonly Dictionary<DayOfWeek, string> ColWeekShift = new()
     {
@@ -41,21 +42,27 @@ public partial class Calendar<TValue> : InputBase<TValue>
         { DayOfWeek.Saturday, "col-start-7" },
     };
 
+    static NullabilityInfoContext _nullabilityInfoContext = new NullabilityInfoContext();
+
     public Calendar()
     {
         Type type = Nullable.GetUnderlyingType(typeof(TValue)) ?? typeof(TValue);
 
         if (type != typeof(DateTime) &&
-            type != typeof(DateTimeOffset) &&
+            //type != typeof(DateTimeOffset) &&
             type != typeof(DateOnly) &&
-            type != typeof(TimeOnly) &&
+            //type != typeof(TimeOnly) &&
             type != typeof(CalendarDateRange))
         {
             throw new InvalidOperationException($"Unsupported {GetType()} type param '{type}'.");
         }
+
+        _isRangeMode = type == typeof(CalendarDateRange);
     }
 
-    protected override bool TryParseValueFromString(string? value, [MaybeNullWhen(false)] out TValue result,
+    protected override bool TryParseValueFromString(
+        string? value,
+        [MaybeNullWhen(false)] out TValue result,
         [NotNullWhen(false)] out string? validationErrorMessage)
     {
         if (BindConverter.TryConvertTo(value, CultureInfo.InvariantCulture, out result))
@@ -65,7 +72,7 @@ public partial class Calendar<TValue> : InputBase<TValue>
             return true;
         }
 
-        validationErrorMessage = string.Format(CultureInfo.InvariantCulture, _parsingErrorMessage,
+        validationErrorMessage = string.Format(CultureInfo.InvariantCulture, ParsingErrorMessage,
             DisplayName ?? FieldIdentifier.FieldName);
         return false;
     }
@@ -81,38 +88,50 @@ public partial class Calendar<TValue> : InputBase<TValue>
     private bool IsSameMonth(DateTime day)
         => day.Month == _monthStart.Month;
 
-    private static TValue? CastToTValue(DateTime day)
+    private static TValue? CastToTValue(DateTime from, DateTime? to = null)
     {
         Type type = Nullable.GetUnderlyingType(typeof(TValue)) ?? typeof(TValue);
 
         if (type == typeof(DateTime))
         {
-            return (TValue)(object)day;
+            return (TValue)(object)from;
         }
 
         if (type == typeof(DateOnly))
         {
-            return (TValue)(object)DateOnly.FromDateTime(day);
+            return (TValue)(object)DateOnly.FromDateTime(from);
+        }
+
+        if (type == typeof(CalendarDateRange))
+        {
+            CalendarDateRange newDateRange = new() { From = from, To = to };
+            return (TValue)(object)newDateRange;
         }
 
         throw new InvalidOperationException($"Unsupported type param '{type}'.");
     }
 
-    private static DateTime? CastToDateTime(TValue? value)
+    private static (DateTime?, DateTime?) CastToDateTime(TValue? value)
     {
         Type type = Nullable.GetUnderlyingType(typeof(TValue)) ?? typeof(TValue);
 
         if (type == typeof(DateTime))
         {
-            return (DateTime?)(object?)value;
+            return ((DateTime?)(object?)value, null);
         }
 
         if (type == typeof(DateOnly))
         {
-            return ((DateOnly?)(object?)value)?.ToDateTime(TimeOnly.MinValue);
+            return (((DateOnly?)(object?)value)?.ToDateTime(TimeOnly.MinValue), null);
         }
 
-        return null;
+        if (type == typeof(CalendarDateRange))
+        {
+            CalendarDateRange? range = (CalendarDateRange?)(object?)value;
+            return (range?.From, range?.To);
+        }
+
+        return (null, null);
     }
 
     private DateTime GetExtendedDateAtLastWeek(DateTime date, DayOfWeek lastWeekDay)
@@ -133,6 +152,73 @@ public partial class Calendar<TValue> : InputBase<TValue>
         int daysToAdd = (day.DayOfWeek - firstWeekDay + 7) % 7;
         return day.AddDays(-daysToAdd);
     }
+
+    private bool CheckPreviousMonth()
+    {
+        DateTime date;
+
+        if (DateTime.DaysInMonth(_monthStart.Year, _monthStart.Month) > MinDate.Day)
+        {
+            date = new(_monthStart.Year, _monthStart.Month, MinDate.Day);
+        }
+        else
+        {
+            date = new(_monthStart.Year, _monthStart.Month, DateTime.DaysInMonth(_monthStart.Year, _monthStart.Month));
+        }
+
+        date = date.AddMonths(-1);
+        return date >= MinDate && _daysOfCurrentMonth.All(d => d != date);
+    }
+
+    private bool CheckNextMonth()
+    {
+        DateTime date;
+
+        if (DateTime.DaysInMonth(_monthEnd.Year, _monthEnd.Month) > MaxDate.Day)
+        {
+            date = new(_monthEnd.Year, _monthEnd.Month, MaxDate.Day);
+        }
+        else
+        {
+            date = new(_monthEnd.Year, _monthEnd.Month, DateTime.DaysInMonth(_monthEnd.Year, _monthEnd.Month));
+        }
+
+        date = date.AddMonths(1);
+        return date <= MaxDate && _daysOfCurrentMonth.All(d => d != date);
+    }
+
+    private bool IsDaySelected(DateTime day)
+    {
+        (DateTime? from, DateTime? to) = CastToDateTime(SelectedDate);
+        return day == from || day == to;
+    }
+
+    private bool IsBetweenSelection(DateTime day)
+    {
+        (DateTime? from, DateTime? to) = CastToDateTime(SelectedDate);
+        return day > from && day < to;
+    }
+
+    private bool IsFromDate(DateTime day)
+    {
+        (DateTime? from, DateTime? to) = CastToDateTime(SelectedDate);
+        return IsDaySelected(day) && day == from && to is not null && _isRangeMode;
+    }
+
+    private bool IsToDate(DateTime day)
+    {
+        (_, DateTime? to) = CastToDateTime(SelectedDate);
+        return IsDaySelected(day) && day == to && _isRangeMode;
+    }
+}
+
+public enum CalendarDateRangeBehavior
+{
+    // Google Flights behavior, each click selects a new range
+    AlwaysSelectNewRange,
+
+    //Shadcn ui / react-day-picker behavior, clicking inside the range only changes the To value
+    KeepFromMoveTo,
 }
 
 public class CalendarDateRange
