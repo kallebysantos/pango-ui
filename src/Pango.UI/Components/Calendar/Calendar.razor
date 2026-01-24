@@ -102,8 +102,6 @@
   public bool Required { get; set; }
 
   [Parameter] public DayOfWeek WeekStart { get; set; } = DayOfWeek.Sunday;
-
-  // [Parameter] public bool CanSelectOneDateOnDateRange { get; set; } = true;
   [Parameter] public DateTime MinDate { get; set; } = DateTime.MinValue;
   [Parameter] public DateTime MaxDate { get; set; } = DateTime.MaxValue;
 

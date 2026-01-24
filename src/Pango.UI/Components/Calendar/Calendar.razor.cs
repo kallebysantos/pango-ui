@@ -20,15 +20,7 @@ public partial class Calendar<TValue> : InputBase<TValue>
     /// </summary>
     private string? Tw(params string?[] classNames) => TwMerge.Merge(classNames);
 
-    // private string _typeAttributeValue = null!;
-    // private string _format = null!;
-    // private string _parsingErrorMessage = null!;
     private readonly bool _isRangeMode;
-
-    // private const string DateFormat = "yyyy-MM-dd"; // Compatible with HTML 'date' inputs
-    // private const string DateTimeLocalFormat = "yyyy-MM-ddTHH:mm:ss"; // Compatible with HTML 'datetime-local' inputs
-    // private const string MonthFormat = "yyyy-MM"; // Compatible with HTML 'month' inputs
-    // private const string TimeFormat = "HH:mm:ss"; // Compatible with HTML 'time' inputs
 
     private static readonly Dictionary<DayOfWeek, string> ColWeekShift = new()
     {
@@ -47,9 +39,7 @@ public partial class Calendar<TValue> : InputBase<TValue>
         Type type = Nullable.GetUnderlyingType(typeof(TValue)) ?? typeof(TValue);
 
         if (type != typeof(DateTime) &&
-            //type != typeof(DateTimeOffset) &&
             type != typeof(DateOnly) &&
-            //type != typeof(TimeOnly) &&
             type != typeof(CalendarDateRange))
         {
             throw new InvalidOperationException($"Unsupported {GetType()} type param '{type}'.");
