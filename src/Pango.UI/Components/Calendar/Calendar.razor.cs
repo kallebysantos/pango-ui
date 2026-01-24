@@ -22,18 +22,6 @@ public partial class Calendar<TValue> : InputBase<TValue>
 
     private readonly bool _isRangeMode;
 
-    private static readonly Dictionary<DayOfWeek, string> ColWeekShift = new()
-    {
-        { DayOfWeek.Sunday, "" },
-        { DayOfWeek.Monday, "col-start-2" },
-        { DayOfWeek.Tuesday, "col-start-3" },
-        { DayOfWeek.Wednesday, "col-start-4" },
-        { DayOfWeek.Thursday, "col-start-5" },
-        { DayOfWeek.Friday, "col-start-6" },
-        { DayOfWeek.Saturday, "col-start-7" },
-    };
-
-
     public Calendar()
     {
         Type type = Nullable.GetUnderlyingType(typeof(TValue)) ?? typeof(TValue);
