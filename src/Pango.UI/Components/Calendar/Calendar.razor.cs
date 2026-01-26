@@ -227,6 +227,6 @@ public enum CalendarDateRangeBehavior
 
 public sealed class CalendarDateRange
 {
-    public DateTime From { get; set; }
+    public DateTime? From { get; set; }
     public DateTime? To { get; set; }
 }

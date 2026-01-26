@@ -17,6 +17,8 @@
 
   <div class="w-full flex items-center justify-between px-4 py-2 gap-2 border-b border-border">
     <button
+      @onclick:stopPropagation
+      @onclick:preventDefault
       @onclick="PreviousMonth"
       class="@Tw([
                "cursor-pointer transition-colors duration-200 size-7 rounded-md bg-transparent hover:bg-accent hover:text-foreground",
@@ -44,6 +46,8 @@
     }
 
     <button
+      @onclick:stopPropagation
+      @onclick:preventDefault
       @onclick="NextMonth"
       class="@Tw([
                "cursor-pointer transition-colors duration-200 size-7 rounded-md bg-transparent hover:bg-accent hover:text-foreground",
@@ -62,13 +66,14 @@
     {
       <button
         type="button"
+        role="button"
         @onclick:preventDefault
         @onclick="() => OnSelectedDateChange(day)"
         @disabled="@(day <= MinDate || day >= MaxDate)"
         @aria-disabled="@(day <= MinDate || day >= MaxDate)"
         @data-disabled="@(day <= MinDate || day >= MaxDate ? "" : null)"
         class="@Tw([
-                 "transition-colors cursor-pointer duration-200 size-7 text-sm text-foreground/20 rounded-sm hover:bg-accent hover:text-foreground",
+                 "transition-colors cursor-pointer duration-200 mx-1 size-7 text-sm text-foreground/20 rounded-sm hover:bg-accent hover:text-foreground",
                  day == _today ? "bg-accent/50" : null,
                  IsSameMonth(day) && day > MinDate && day < MaxDate ? "text-foreground/80" : null,
                  day <= MinDate || day >= MaxDate ? "hover:bg-transparent hover:text-muted cursor-not-allowed" : null,
@@ -92,6 +97,7 @@
   private static readonly DateTime _today = DateTime.Now.Date;
 
   [Parameter] public CalendarDateRangeBehavior Behavior { get; set; } = CalendarDateRangeBehavior.KeepFromMoveTo;
+  [Parameter] public bool SelectTodayByDefault { get; set; }
   [Parameter] public bool FixedHeight { get; set; } = true;
   [Parameter] public bool WithMonthAndYearSelection { get; set; }
 
@@ -108,8 +114,6 @@
   private DayOfWeek _weekEnd;
   private DateTime _monthStart;
   private DateTime _monthEnd;
-  private DateTime? _rangeFrom;
-  private DateTime? _rangeTo;
 
   private List<DateTime> _daysOfCurrentMonth = [];
 
@@ -120,7 +124,8 @@
     _weekEnd = (DayOfWeek)((int)(WeekStart + 6) % 7);
 
     (DateTime? date, _) = CastToDateTime(CurrentValue);
-    if (date.HasValue && date.Value <= DateTime.MinValue || CurrentValue is null)
+
+    if ((date.HasValue && date.Value <= DateTime.MinValue || CurrentValue is null) && SelectTodayByDefault)
     {
       CurrentValue = CastToTValue(_today);
     }
@@ -142,8 +147,6 @@
     if (!_isRangeMode) return;
 
     CalendarDateRange? range = (CalendarDateRange?)(object?)CurrentValue;
-    _rangeFrom = range?.From;
-    _rangeTo = range?.To;
   }
 
   private string[] GetAvailableMonths()
@@ -224,29 +227,23 @@
 
   private void HandleNewRangeBehavior(DateTime day, CalendarDateRange range)
   {
-    if (day == range.From && _rangeTo is null && !Required)
+    if (day == range.From && range.To is null && !Required)
     {
-      _rangeFrom = null;
-      _rangeTo = null;
       CurrentValue = default;
       return;
     }
 
-    if (_rangeFrom.HasValue && _rangeTo.HasValue)
+    if (range.To.HasValue)
     {
-      _rangeFrom = day;
       range.From = day;
-      _rangeTo = null;
       range.To = null;
     }
-    else if (!_rangeFrom.HasValue || day < _rangeFrom.Value)
+    else if (day < range.From || range.From is null)
     {
-      _rangeFrom = day;
       range.From = day;
     }
     else
     {
-      _rangeTo = day;
       range.To = day;
     }
 
@@ -255,31 +252,25 @@
 
   private void HandleSameRangeBehavior(DateTime day, CalendarDateRange range)
   {
-    if (day == _rangeFrom && _rangeTo is null && !Required)
+    if (day == range.From && range.To is null && !Required)
     {
-      _rangeFrom = null;
-      _rangeTo = null;
       CurrentValue = default;
       return;
     }
 
-    if (!_rangeFrom.HasValue || day == range.From || day == range.To)
+    if (range.From is null || day == range.From || day == range.To)
     {
-      _rangeFrom = day;
       range.From = day;
-      _rangeTo = null;
       range.To = null;
     }
     else
     {
-      if (day < _rangeFrom)
+      if (day < range.From)
       {
-        _rangeFrom = day;
         range.From = day;
       }
       else
       {
-        _rangeTo = day;
         range.To = day;
       }
     }
