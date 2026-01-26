@@ -1,0 +1,20 @@
+<Calendar TValue="CalendarDateRange" Required="true" @bind-Value="_range" />
+
+<span class="px-3 rounded-md border border-primary text-primary py-1.5">
+  <span>From: @(_range.From)</span>
+  <span>To: @(_range.To)</span>
+</span>
+
+<Calendar TValue="CalendarDateRange" Behavior="CalendarDateRangeBehavior.AlwaysSelectNewRange" @bind-Value="_range2" />
+
+<span class="px-3 rounded-md border border-primary text-primary py-1.5">
+  <span>From: @(_range2?.From)</span>
+  <span>To: @(_range2?.To)</span>
+</span>
+
+@code {
+
+  CalendarDateRange _range = new() {From = new (2004, 3, 17), To = new(2004, 3, 22)};
+  CalendarDateRange? _range2;
+
+}

@@ -1,0 +1,330 @@
+@namespace Pango.UI.Components
+
+@typeparam TValue
+@using System.Globalization
+@using System.Text.Json
+
+@inherits InputBase<TValue>
+
+<div
+  @attributes="AdditionalAttributes"
+  @itemtype="_typeAttributeValue"
+  class="@Tw([
+           "max-w-72 border border-border rounded-md",
+           AdditionalAttributes?.GetValueOrDefault("class")?.ToString()
+         ])"
+  @ref="Element">
+
+  <div class="w-full flex items-center justify-between px-4 py-2 gap-2 border-b border-border">
+    <button
+      @onclick="PreviousMonth"
+      class="@Tw([
+               "cursor-pointer transition-colors duration-200 size-7 rounded-md bg-transparent hover:bg-accent hover:text-foreground",
+               !CheckPreviousMonth() ? "opacity-50 cursor-not-allowed hover:bg-transparent" : null
+             ])">
+      <i class="ph ph-caret-left text-foreground/60"></i>
+    </button>
+
+    @if (WithMonthAndYearSelection)
+    {
+      <CalendarMonthSelector
+        Label="@(_monthStart.ToString("MMMM"))"
+        AvailableMonths="GetAvailableMonths()"
+        SelectedMonth="_monthStart.Month"
+        OnMonthChange="ChangeMonth"/>
+      <CalendarYearSelector
+        Label="@(_monthStart.ToString("yyyy"))"
+        AvailableYears="GetAvailableYears()"
+        SelectedYear="_monthStart.Year"
+        OnYearChange="ChangeYear"/>
+    }
+    else
+    {
+      <span>@(_monthStart.ToString("MMMM yyyy"))</span>
+    }
+
+    <button
+      @onclick="NextMonth"
+      class="@Tw([
+               "cursor-pointer transition-colors duration-200 size-7 rounded-md bg-transparent hover:bg-accent hover:text-foreground",
+               !CheckNextMonth() ? "opacity-50 cursor-not-allowed hover:bg-transparent" : null
+             ])">
+      <i class="ph ph-caret-right text-foreground/60"></i>
+    </button>
+  </div>
+  <div class="@Tw(["grid grid-cols-7 m-4 gap-y-1", FixedHeight ? "grid-rows-7" : null])">
+    @foreach (string day in GetWeekDaysNames())
+    {
+      <span class="text-xs text-foreground/70 text-center size-7">@day</span>
+    }
+
+    @foreach (var (day, index) in _daysOfCurrentMonth.Select((item, i) => (item, i)))
+    {
+      <button
+        type="button"
+        @onclick:preventDefault
+        @onclick="() => OnSelectedDateChange(day)"
+        @disabled="@(day <= MinDate || day >= MaxDate)"
+        @aria-disabled="@(day <= MinDate || day >= MaxDate)"
+        @data-disabled="@(day <= MinDate || day >= MaxDate ? "" : null)"
+        class="@Tw([
+                 "transition-colors cursor-pointer duration-200 size-7 text-sm text-foreground/20 rounded-sm hover:bg-accent hover:text-foreground",
+                 day == _today ? "bg-accent/50" : null,
+                 IsSameMonth(day) && day > MinDate && day < MaxDate ? "text-foreground/80" : null,
+                 day <= MinDate || day >= MaxDate ? "hover:bg-transparent hover:text-muted cursor-not-allowed" : null,
+                 IsDaySelected(day) ? "bg-primary text-primary-foreground hover:bg-primary/60 hover:text-primary-foreground" : null,
+                 IsFromDate(day) ? "rounded-none rounded-l-md mx-1" : null,
+                 IsToDate(day) ? "rounded-none rounded-r-md -mx-1" : null,
+                 IsBetweenSelection(day) ? "bg-accent rounded-none w-full -mx-1 after:bg-accent" : null,
+                 IsBetweenSelection(day) && day.DayOfWeek == WeekStart ? "rounded-l-md" : null,
+                 IsBetweenSelection(day) && day.DayOfWeek == _weekEnd ? "rounded-r-md" : null
+               ])"
+        style="grid-column-start: @(index == 0 ? GetColStart(day.DayOfWeek) : null)">
+        <time datetime="@day.Date.ToString("yyyy-MM-dd")">
+          @day.Day
+        </time>
+      </button>
+    }
+  </div>
+</div>
+
+@code {
+  private static readonly DateTime _today = DateTime.Now.Date;
+
+  [Parameter] public CalendarDateRangeBehavior Behavior { get; set; } = CalendarDateRangeBehavior.KeepFromMoveTo;
+  [Parameter] public bool FixedHeight { get; set; } = true;
+  [Parameter] public bool WithMonthAndYearSelection { get; set; }
+
+  /// <summary>
+  /// Only required for CalendarDateRange, requirement can be detected in primitive types nullability
+  /// </summary>
+  [Parameter]
+  public bool Required { get; set; }
+
+  [Parameter] public DayOfWeek WeekStart { get; set; } = DayOfWeek.Sunday;
+  [Parameter] public DateTime MinDate { get; set; } = DateTime.MinValue;
+  [Parameter] public DateTime MaxDate { get; set; } = DateTime.MaxValue;
+
+  private DayOfWeek _weekEnd;
+  private DateTime _monthStart;
+  private DateTime _monthEnd;
+  private DateTime? _rangeFrom;
+  private DateTime? _rangeTo;
+
+  private List<DateTime> _daysOfCurrentMonth = [];
+
+  protected override void OnInitialized()
+  {
+    base.OnInitialized();
+
+    _weekEnd = (DayOfWeek)((int)(WeekStart + 6) % 7);
+
+    (DateTime? date, _) = CastToDateTime(CurrentValue);
+    if (date.HasValue && date.Value <= DateTime.MinValue || CurrentValue is null)
+    {
+      CurrentValue = CastToTValue(_today);
+    }
+
+    DateTime baseDate = date.HasValue && date.Value > DateTime.MinValue ? date.Value : _today;
+
+    _monthStart = new(baseDate.Year, baseDate.Month, 1);
+
+    _monthEnd = new(
+      _monthStart.Year,
+      _monthStart.Month,
+      DateTime.DaysInMonth(_monthStart.Year, _monthStart.Month)
+    );
+    _daysOfCurrentMonth = GetEachDayOfInterval(
+      GetExtendedDateAtFirstWeek(_monthStart, WeekStart),
+      GetExtendedDateAtLastWeek(_monthEnd, _weekEnd)).ToList();
+
+
+    if (!_isRangeMode) return;
+
+    CalendarDateRange? range = (CalendarDateRange?)(object?)CurrentValue;
+    _rangeFrom = range?.From;
+    _rangeTo = range?.To;
+  }
+
+  private string[] GetAvailableMonths()
+  {
+    List<string> temp = [];
+
+    for (int i = 0; i < 12; i++)
+    {
+      if (i + 1 >= MinDate.Month && i + 1 <= MaxDate.Month)
+      {
+        temp.Add(DateTimeFormatInfo.CurrentInfo.MonthNames[i]);
+      }
+    }
+    return [.. temp];
+  }
+
+  private int[] GetAvailableYears()
+  {
+    List<int> temp = [];
+    int min = MinDate.Year == DateTime.MinValue.Year ? 1980 : MinDate.Year;
+    int max = MaxDate.Year == DateTime.MaxValue.Year ? _today.Year : MaxDate.Year;
+
+    for (int i = max; i >= min; i--)
+    {
+      temp.Add(i);
+    }
+
+    return [.. temp];
+  }
+
+  private void OnSelectedDateChange(DateTime day)
+  {
+    if (day <= MinDate || day >= MaxDate) return;
+
+    if (_isRangeMode)
+    {
+      HandleDateRangeSelection(day);
+    }
+    else
+    {
+      HandleSingleDateSelection(day);
+    }
+  }
+
+  private void HandleSingleDateSelection(DateTime day)
+  {
+    if (Equals(CurrentValue, CastToTValue(day)) && Nullable.GetUnderlyingType(typeof(TValue)) != null)
+    {
+      CurrentValue = default;
+    }
+    else
+    {
+      CurrentValue = CastToTValue(day);
+    }
+  }
+
+  private void HandleDateRangeSelection(DateTime day)
+  {
+    CalendarDateRange range = (CalendarDateRange?)(object?)CurrentValue ?? new();
+    CalendarDateRange newRange = new()
+    {
+      From = range.From,
+      To = range.To,
+    };
+
+    switch (Behavior)
+    {
+      case CalendarDateRangeBehavior.AlwaysSelectNewRange:
+        HandleNewRangeBehavior(day, newRange);
+        break;
+      case CalendarDateRangeBehavior.KeepFromMoveTo:
+        HandleSameRangeBehavior(day, newRange);
+        break;
+      default:
+        throw new ArgumentOutOfRangeException();
+    }
+  }
+
+  private void HandleNewRangeBehavior(DateTime day, CalendarDateRange range)
+  {
+    if (day == range.From && _rangeTo is null && !Required)
+    {
+      _rangeFrom = null;
+      _rangeTo = null;
+      CurrentValue = default;
+      return;
+    }
+
+    if (_rangeFrom.HasValue && _rangeTo.HasValue)
+    {
+      _rangeFrom = day;
+      range.From = day;
+      _rangeTo = null;
+      range.To = null;
+    }
+    else if (!_rangeFrom.HasValue || day < _rangeFrom.Value)
+    {
+      _rangeFrom = day;
+      range.From = day;
+    }
+    else
+    {
+      _rangeTo = day;
+      range.To = day;
+    }
+
+    CurrentValue = (TValue)(object)range;
+  }
+
+  private void HandleSameRangeBehavior(DateTime day, CalendarDateRange range)
+  {
+    if (day == _rangeFrom && _rangeTo is null && !Required)
+    {
+      _rangeFrom = null;
+      _rangeTo = null;
+      CurrentValue = default;
+      return;
+    }
+
+    if (!_rangeFrom.HasValue || day == range.From || day == range.To)
+    {
+      _rangeFrom = day;
+      range.From = day;
+      _rangeTo = null;
+      range.To = null;
+    }
+    else
+    {
+      if (day < _rangeFrom)
+      {
+        _rangeFrom = day;
+        range.From = day;
+      }
+      else
+      {
+        _rangeTo = day;
+        range.To = day;
+      }
+    }
+
+    CurrentValue = (TValue)(object)range;
+  }
+
+  private void ChangeMonth(int month)
+  {
+    _monthStart = new DateTime(_monthStart.Year, month, 1);
+    _monthEnd = new DateTime(_monthStart.Year, month, DateTime.DaysInMonth(_monthStart.Year, _monthStart.Month));
+    _daysOfCurrentMonth = GetEachDayOfInterval(
+      GetExtendedDateAtFirstWeek(_monthStart, WeekStart),
+      GetExtendedDateAtLastWeek(_monthEnd, _weekEnd)).ToList();
+  }
+
+  private void ChangeYear(int year)
+  {
+    _monthStart = new DateTime(year, _monthStart.Month, 1);
+    _monthEnd = new DateTime(year, _monthStart.Month, DateTime.DaysInMonth(_monthStart.Year, _monthStart.Month));
+    _daysOfCurrentMonth = GetEachDayOfInterval(
+      GetExtendedDateAtFirstWeek(_monthStart, WeekStart),
+      GetExtendedDateAtLastWeek(_monthEnd, _weekEnd)).ToList();
+  }
+
+  private void PreviousMonth()
+  {
+    if (!CheckPreviousMonth()) return;
+
+    _monthStart = _monthStart.AddMonths(-1);
+    _monthEnd = new(_monthStart.Year, _monthStart.Month, DateTime.DaysInMonth(_monthStart.Year, _monthStart.Month));
+    _daysOfCurrentMonth = GetEachDayOfInterval(
+      GetExtendedDateAtFirstWeek(_monthStart, WeekStart),
+      GetExtendedDateAtLastWeek(_monthEnd, _weekEnd)).ToList();
+  }
+
+  private void NextMonth()
+  {
+    if (!CheckNextMonth()) return;
+
+    _monthStart = _monthStart.AddMonths(1);
+    _monthEnd = new(_monthStart.Year, _monthStart.Month, DateTime.DaysInMonth(_monthStart.Year, _monthStart.Month));
+    _daysOfCurrentMonth = GetEachDayOfInterval(
+      GetExtendedDateAtFirstWeek(_monthStart, WeekStart),
+      GetExtendedDateAtLastWeek(_monthEnd, _weekEnd)).ToList();
+  }
+
+}
