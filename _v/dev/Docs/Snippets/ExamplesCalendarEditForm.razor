@@ -1,0 +1,52 @@
+@using System.ComponentModel.DataAnnotations
+
+<div class="flex flex-col gap-6 items-center">
+  <EditForm Model="@this" FormName="birthday-example-form" Enhance OnValidSubmit="@HandleSubmit" class="flex flex-col gap-6">
+    <DataAnnotationsValidator/>
+    <div class="flex flex-col gap-2">
+      <label class="font-semibold">Insert your next birthday</label>
+      <Calendar TValue="DateOnly" @bind-Value="SelectedDay" WithMonthAndYearSelection="true"/>
+    </div>
+    <ValidationMessage class="text-sm text-destructive" For="@(() => SelectedDay)"/>
+    <Button type="submit">
+      Submit
+    </Button>
+  </EditForm>
+  @if (_birthday != DateOnly.MinValue)
+  {
+    <Alert Variant="@(Alert.Variants.Sucess)" OnDismiss="@(() => _birthday = DateOnly.MinValue)">
+      <AlertSide>
+        <i class="ph ph-check text-lg"></i>
+      </AlertSide>
+      <AlertTitle>Success</AlertTitle>
+      <AlertDescription>
+        <div class="flex flex-col gap-2">
+          <span>Your next birthday is: <strong class="font-medium">@_birthday</strong></span>
+
+          @if (_today == _birthday)
+          {
+            <span>🎉🥳<strong>Happy Birthday!!!</strong>🥳🎉</span>
+          }
+        </div>
+      </AlertDescription>
+    </Alert>
+  }
+</div>
+
+@code {
+  DateOnly _today = DateOnly.FromDateTime(DateTime.Today);
+
+  [SupplyParameterFromForm]
+  [Display(Name = "Birth Day")]
+  [Required(ErrorMessage = "Please insert your birth day.")]
+  public DateOnly SelectedDay { get; set; }
+
+  DateOnly _birthday;
+
+
+  private void HandleSubmit()
+  {
+    _birthday = SelectedDay;
+  }
+
+}

@@ -1,0 +1,66 @@
+```json :pango-ui-document-metadata
+{
+  "Title": "Calendar",
+  "Description": "A calendar component that let the user select a date or a range of dates.",
+  "Featured": true,
+  "IsComponent": true,
+  "Tags": ["UI", "Interactive"],
+  "Sections": [
+    { "Title": "Properties" },
+    { "Title": "Installation" },
+    {
+      "Title": "Examples",
+      "Sections": [
+        { "Id": "range", "Title": "Date Range" },
+        { "Id": "usage", "Title": "Usage" }
+      ]
+    }
+  ]
+}
+```
+# Calendar
+
+A calendar component that let the user select a date or a range of dates.
+
+<ComponentPreview CodeSrc="Docs/Snippets/ExamplesCalendarDefault.razor" >
+    <ExamplesCalendarDefault />
+</ComponentPreview>
+
+## Properties
+
+- **Behavior:** Defines the **date range** behavior *(you must pass the custom type `CalendarDateRange` to use date range)* 
+the default behavior *(`CalendarDateRangeBehavior.KeepFromMoveTo`)* is based on the [shadcn/ui - react-day-picker](https://ui.shadcn.com/docs/components/radix/calendar#range-calendar)
+which keeps the range selected and changes the `From` or `To` values. There is also the `CalendarDateRangeBehavior.AlwaysSelectNewRange`
+which is based on the [Google Flights](https://www.google.com/travel/flights) behavior that selects a new range on every day selected.
+- **FixedHeight:** The default is `true`. Fixed height prevents the calendar height to change and shift your UI, or even
+in date picker components, a height shift may cause a misclick.
+- **WithMonthAndYearSelection:** Default is `false`, why you ask? Because yes. This property enables the month and year
+selection so the user doesn't have to click on the arrows 12 times to switch years.
+- **WeekStart:** Default is `DayOfWeek.Sunday`. This property let you choose which day of the week will the calendar start,
+you can even start you calendar at thursday for whatever reason.
+- **MinDate:** Default is `DateTime.MinValue` this property disables all days, months and years before it.
+- **MaxDate:** I think you already know, but the default is `DateTime.MaxValue`. Now, can you take a wild guess on what this 
+not self-explanatory property does? You are absolutely right! It disables the days, months and years after it.
+- **Required:** This is an important property if you are using range because the default behavior is to unselect the selected
+day if you click it again, for primitive and supported types `DateTime` and `DateOnly` the requirement of the component can be
+identified by the `TValue`, if you pass `TValue="DateTime?"` it means that it is not required because you are accepting a null
+value, but if you pass `TValue="DateTime"` this means the date is required because your type is not nullable. Now that we are
+on the same page, .NET is not able to recognize nullability on classes only in primitive types, that is why if you need 
+a range to be required set this property to true yeah? Keep it up baby!
+## Installation
+
+<Code Language="fish" class="py-2">dotnet pango add calendar</Code>
+
+## Examples
+
+### Date Range
+
+<ComponentPreview CodeSrc="Docs/Snippets/ExamplesCalendarRange.razor" >
+    <ExamplesCalendarRange />
+</ComponentPreview>
+
+### Usage
+
+<ComponentPreview CodeSrc="Docs/Snippets/ExamplesCalendarEditForm.razor" >
+    <ExamplesCalendarEditForm />
+</ComponentPreview>
