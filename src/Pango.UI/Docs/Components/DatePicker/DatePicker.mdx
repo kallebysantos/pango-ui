@@ -1,0 +1,59 @@
+```json :pango-ui-document-metadata
+{
+  "Title": "DatePicker",
+  "Description": "A date picker component that opens the calendar to select a date or a range of dates.",
+  "Featured": true,
+  "IsComponent": true,
+  "Tags": ["UI", "Interactive"],
+  "Sections": [
+    { "Title": "Properties" },
+    { "Title": "Installation" },
+    {
+      "Title": "Examples",
+      "Sections": [
+        { "Id": "range", "Title": "Date Range" },
+        { "Id": "usage", "Title": "Usage" }
+      ]
+    }
+  ]
+}
+```
+
+# DatePicker
+
+A date picker component that opens the calendar to select a date or a range of dates.
+
+<ComponentPreview CodeSrc="Docs/Snippets/ExamplesDatePickerDefault.razor" >
+    <ExamplesDatePickerDefault />
+</ComponentPreview>
+
+## Properties
+
+- **Same as Calendar:** The `DatePicker` component has all the same properties as the `Calendar` component and a bit more.
+- **CleanSelectedDateButton:** A button to clear the selected date, who would have guessed...
+- **DateFormat:** A string to format the date however you want.
+- **Disabled:** If you need to dynamically change the disabled state use the parameter, if you just want to statically disable
+you can just use the HTML disabled property.
+
+**_NOTE:_** To avoid horizontal shift on the calendar, try using a fixed width on the trigger, the calendar will always
+pop up at the start of the trigger.
+
+## Installation
+
+<Code Language="fish" class="py-2">dotnet pango add calendar</Code>
+then
+<Code Language="fish" class="py-2">dotnet pango add date-picker</Code>
+
+## Examples
+
+### Date Range
+
+<ComponentPreview CodeSrc="Docs/Snippets/ExamplesDatePickerRange.razor" >
+    <ExamplesDatePickerRange />
+</ComponentPreview>
+
+### Usage
+
+<ComponentPreview CodeSrc="Docs/Snippets/ExamplesDatePickerEditForm.razor" >
+    <ExamplesDatePickerEditForm />
+</ComponentPreview>
