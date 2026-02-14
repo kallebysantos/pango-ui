@@ -1,1 +1,1 @@
-{"name":"calendar","source":"Calendar","files":["Calendar.razor.cs.br","Calendar.razor.br","CalendarYearSelector.razor.br","CalendarMonthSelector.razor.br","Calendar.razor.js.br"]}
+{"name":"calendar","source":"Calendar","files":["Calendar.razor.js.br","Calendar.razor.br","Calendar.razor.cs.br","CalendarMonthSelector.razor.br","CalendarYearSelector.razor.br"]}
