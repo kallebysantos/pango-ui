@@ -1,0 +1,14 @@
+<DatePicker TValue="DateTime" @bind-Value="_date" />
+
+<span class="px-3 rounded-md border border-primary text-primary py-1.5">@(_date)</span>
+
+<DatePicker TValue="DateOnly?" WithMonthAndYearSelection="true" @bind-Value="_dateOnly" />
+
+<span class="px-3 rounded-md border border-primary text-primary py-1.5">@(_dateOnly)</span>
+
+@code {
+
+  DateTime _date = new(2004, 3, 17);
+  DateOnly? _dateOnly;
+
+}

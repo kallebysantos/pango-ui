@@ -1,4 +1,4 @@
-import { computePosition, flip, shift, autoUpdate } from 'https://cdn.jsdelivr.net/npm/@floating-ui/dom@1.7.4/+esm';
+import { computePosition, flip, shift, autoUpdate, offset } from 'https://cdn.jsdelivr.net/npm/@floating-ui/dom@1.7.4/+esm';
 
 export async function ComputeDialogPosition(
     anchorElement,
@@ -13,7 +13,7 @@ export async function ComputeDialogPosition(
     async function updatePosition() {
         const {x, y} = await computePosition(anchorElement, dialogElement, {
             placement,
-            middleware: [flip(), shift()],
+            middleware: [flip(), shift(), offset(5)],
         });
 
         Object.assign(dialogElement.style, {
@@ -54,6 +54,8 @@ export async function ComputeDialogPosition(
 }
 
 export function ScrollToElement(dialogElement, targetValue) {
+    const scrollX = window.scrollX;
+    const scrollY = window.scrollY;
     const options = dialogElement.querySelectorAll('[role="option"]');
     const targetOption = Array.from(options).find(opt => opt.textContent.trim() === targetValue);
 
@@ -61,8 +63,10 @@ export function ScrollToElement(dialogElement, targetValue) {
 
     requestAnimationFrame(() => {
         targetOption.scrollIntoView({
-            block: 'center',
-            behavior: 'auto'
+            block: 'nearest',
+            behavior: 'contain'
         });
+        window.scrollTo(scrollX, scrollY);
     });
+
 }
