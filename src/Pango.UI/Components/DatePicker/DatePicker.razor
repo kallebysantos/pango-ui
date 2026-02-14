@@ -1,0 +1,200 @@
+@namespace Pango.UI.Components
+
+@inject IJSRuntime JS
+
+@using System.Linq.Expressions
+@typeparam TValue
+
+<button
+  @attributes="AdditionalAttributes"
+  type="button"
+  role="button"
+  @onclick:stopPropagation
+  @onclick:preventDefault
+  @onclick="OpenCalendar"
+  disabled="@(Disabled)"
+  aria-disabled="@(Disabled)"
+  data-disabled="@(Disabled)"
+  data-size="@(Size.ToString().ToLower())"
+  class="@Tw([
+           "flex flex-row gap-2 justify-between items-center whitespace-nowrap overflow-hidden transition-colors duration-200 cursor-pointer px-3 py-2 border border-border rounded-md data-[size=default]:h-9 data-[size=sm]:h-8 hover:bg-accent has-[button:hover]:bg-transparent",
+           Disabled ? "opacity-50 cursor-not-allowed hover:bg-transparent" : null,
+           AdditionalAttributes?.GetValueOrDefault("class")?.ToString()
+         ])"
+  @ref="_datePickerTriggerRef">
+
+  @switch (Value)
+  {
+    case DateTime date when date > DateTime.MinValue:
+      <span class="truncate">@date.ToString(DateFormat)</span>
+      break;
+    case DateOnly dateOnly when dateOnly > DateOnly.MinValue:
+      <span class="truncate">@dateOnly.ToString(DateFormat)</span>
+      break;
+    case CalendarDateRange range when range.From > DateTime.MinValue:
+      <span class="truncate">
+          @range.From?.ToString(DateFormat)
+        @(range.To is not null ? " - " : null)
+        @range.To?.ToString(DateFormat)
+        </span>
+      break;
+    default:
+      <span class="opacity-50 truncate">@_placeholder</span>
+      break;
+  }
+
+  @if (CleanSelectedDateButton && !Equals(Value, default(TValue)))
+  {
+    <button
+      type="button"
+      role="button"
+      class="transition-colors duration-200 cursor-pointer rounded-md size-6 hover:bg-accent"
+      @onclick:stopPropagation
+      @onclick="CleanValue">
+      <i class="ph ph-x"></i>
+    </button>
+  }
+  else
+  {
+    <i class="shrink-0 ph ph-caret-down"></i>
+  }
+</button>
+
+<dialog
+  @ref="_datePickerContentRef"
+  disabled="@(Disabled)"
+  aria-disabled="@(Disabled)"
+  data-disabled="@(Disabled)"
+  data-state="@(_open ? "open" : "closed")"
+  class="@Tw([
+           "bg-popover w-fit h-fit [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-accent " +
+           "[&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-primary " +
+           "[&::-webkit-scrollbar-thumb:hover]:bg-primary/70 overflow-y-auto max-h-96 text-popover-foreground " +
+           "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 " +
+           "data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 " +
+           "data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 " +
+           "data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 " +
+           "relative z-50 max-h min-w-[8rem] rounded-md shadow-md",
+         ])">
+  <Calendar
+    TValue="TValue?"
+    Value="Value"
+    ValueChanged="OnValueChange"
+    ValueExpression="ValueExpression"
+    WithMonthAndYearSelection="WithMonthAndYearSelection"
+    Behavior="Behavior"
+    MinDate="MinDate"
+    MaxDate="MaxDate"
+    Required="Required"
+    FixedHeight="FixedHeight"
+    WeekStart="WeekStart"/>
+</dialog>
+
+@code {
+
+  [Parameter] public Sizes Size { get; set; } = Sizes.Default;
+  [Parameter] public bool CleanSelectedDateButton { get; set; } = true;
+  [Parameter] public string DateFormat { get; set; } = string.Empty;
+  [Parameter] public bool Disabled { get; set; }
+
+  [Parameter] public TValue? Value { get; set; }
+  [Parameter] public EventCallback<TValue>? ValueChanged { get; set; }
+  [Parameter] public Expression<Func<TValue?>>? ValueExpression { get; set; }
+
+  private object? _placeholder;
+  private IJSObjectReference? _jsDropdownRender;
+  private IJSObjectReference? _jsDropdownCleaner;
+  private DotNetObjectReference<DatePicker<TValue>>? _csSelectRef;
+  private ElementReference? _datePickerTriggerRef;
+  private ElementReference? _datePickerContentRef;
+
+  private bool _open;
+
+  protected override void OnInitialized()
+  {
+    base.OnInitialized();
+    _csSelectRef = DotNetObjectReference.Create(this);
+    _placeholder = AdditionalAttributes?.GetValueOrDefault("placeholder") ?? "Select a date";
+    if (string.IsNullOrWhiteSpace(DateFormat))
+    {
+      DateFormat = "dd, MMMM, yyyy";
+    }
+
+    Disabled = AdditionalAttributes?.GetValueOrDefault("disabled") is not null;
+
+    if (typeof(TValue) == typeof(CalendarDateRange) && !Required) return;
+
+    if (Nullable.GetUnderlyingType(typeof(TValue)) == null || Required)
+    {
+      CleanSelectedDateButton = false;
+    }
+  }
+
+  private async Task OnValueChange(TValue? value)
+  {
+    Value = value;
+
+    if (Value is not CalendarDateRange)
+    {
+      await CloseCalendar();
+    }
+
+    if (ValueChanged is not null)
+    {
+      await ValueChanged.Value.InvokeAsync(value);
+    }
+  }
+
+  private async Task CleanValue()
+  {
+    if (Disabled) return;
+
+    Value = default;
+
+    if (ValueChanged is not null)
+    {
+      await ValueChanged.Value.InvokeAsync(default);
+    }
+  }
+
+  protected override async Task OnAfterRenderAsync(bool firstRender)
+  {
+    if (firstRender)
+    {
+      _jsDropdownRender = await JS.InvokeAsync<IJSObjectReference>(
+        "import",
+        "./Components/DatePicker/DatePicker.razor.js"
+      );
+    }
+
+    await base.OnAfterRenderAsync(firstRender);
+  }
+
+  public async Task OpenCalendar()
+  {
+    if (Disabled) return;
+
+    _open = true;
+
+    if (_jsDropdownRender is not null)
+    {
+      _jsDropdownCleaner = await _jsDropdownRender.InvokeAsync<IJSObjectReference>("ComputeDialogPosition", _datePickerTriggerRef,
+        _datePickerContentRef,
+        _csSelectRef,
+        nameof(CloseCalendar)
+      );
+    }
+  }
+
+  [JSInvokable]
+  public async Task CloseCalendar()
+  {
+    _open = false;
+
+    if (_jsDropdownCleaner is not null)
+    {
+      await _jsDropdownCleaner.InvokeVoidAsync("CleanUpPosition");
+    }
+  }
+
+}

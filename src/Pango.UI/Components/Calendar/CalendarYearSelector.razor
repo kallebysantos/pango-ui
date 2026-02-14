@@ -15,7 +15,7 @@
   @onkeydown="(args) => HandleKeyDown(args.Key)"
   data-state="@(_open ? "open" : "closed")"
   class="@Tw([
-           "bg-popover [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-accent " +
+           "bg-popover overscroll-contain [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-accent " +
            "[&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-primary " +
            "[&::-webkit-scrollbar-thumb:hover]:bg-primary/70 overflow-y-auto max-h-96 text-popover-foreground p-1 " +
            "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 " +
@@ -30,7 +30,6 @@
     <div
       role="option"
       @onclick="() => OnYearSelect(year)"
-      tabindex="@(_focusedIndex == i ? 0 : -1)"
       class="cursor-pointer hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground &_svg:not([class*='text-'])]:text-muted-foreground relative flex justify-between w-full items-center gap-2 rounded-sm py-1.5 px-2 text-sm outline-hidden select-none data-[disabled]:hover:bg-transparent data-[disabled]:opacity-50 data-[disabled]:cursor-not-allowed [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 *:[span]:last:flex *:[span]:last:items-center *:[span]:last:gap-2">
       <span>@year</span>
       @if (SelectedYear == year)

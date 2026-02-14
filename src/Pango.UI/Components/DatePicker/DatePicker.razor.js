@@ -3,7 +3,6 @@ import { computePosition, flip, shift, autoUpdate, offset } from 'https://cdn.js
 export async function ComputeDialogPosition(
     anchorElement,
     dialogElement,
-    placement,
     callbackInstance,
     callbackName
 ) {
@@ -12,8 +11,8 @@ export async function ComputeDialogPosition(
 
     async function updatePosition() {
         const {x, y} = await computePosition(anchorElement, dialogElement, {
-            placement,
-            middleware: [flip(), shift(), offset(5)],
+            placement: "bottom-start",
+            middleware: [flip(), shift(), offset(10)],
         });
 
         Object.assign(dialogElement.style, {
@@ -33,8 +32,11 @@ export async function ComputeDialogPosition(
 
         window.scrollTo(scrollX, scrollY);
 
-        dialogElement.addEventListener('click', () => {
-            dialogElement.close();
+        dialogElement.addEventListener('click', (event) => {
+            if(event.target === dialogElement)
+            {
+                dialogElement.close();
+            }
         });
 
         dialogElement.addEventListener('close', () => {
@@ -51,22 +53,4 @@ export async function ComputeDialogPosition(
             positionCleaner()
         }
     };
-}
-
-export function ScrollToElement(dialogElement, targetValue) {
-    const scrollX = window.scrollX;
-    const scrollY = window.scrollY;
-    const options = dialogElement.querySelectorAll('[role="option"]');
-    const targetOption = Array.from(options).find(opt => opt.textContent.trim() === targetValue);
-
-    if (!targetOption) return;
-
-    requestAnimationFrame(() => {
-        targetOption.scrollIntoView({
-            block: 'nearest',
-            behavior: 'contain'
-        });
-        window.scrollTo(scrollX, scrollY);
-    });
-
 }
