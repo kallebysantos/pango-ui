@@ -21,15 +21,31 @@
   [Parameter] public RenderFragment? ChildContent { get; set; }
   [Parameter] public Placements Placement { get; set; } = Placements.BottomCenter;
   [Parameter] public TValue? Default { get; set; }
+  [Parameter] public bool Disabled { get; set; }
 
   public object? Placeholder { get; private set; }
-  public bool Disabled { get; private set; }
+
+  private TValue? _previousValue;
 
   protected override void OnInitialized()
   {
     _csSelectRef = DotNetObjectReference.Create(this);
     Placeholder = AdditionalAttributes?.GetValueOrDefault("placeholder");
-    Disabled = AdditionalAttributes?.GetValueOrDefault("disabled") is not null;
+  }
+
+  protected override void OnParametersSet()
+  {
+    base.OnParametersSet();
+
+    if (EqualityComparer<TValue>.Default.Equals(Value, _previousValue)) return;
+
+    _previousValue = Value;
+
+    if (Value is not null) return;
+
+    SelectedItem = null;
+    SelectValue = null;
+    SelectedItems = [];
   }
 
   protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -52,6 +68,13 @@
   {
     Open = true;
     FocusedIndex = 0;
+
+    if (TriggerWidth is null)
+    {
+      _jsGetElementWidth ??= await JS.InvokeAsync<IJSObjectReference>("import", "./Components/Select/Select.razor.js");
+      TriggerWidth = await _jsGetElementWidth.InvokeAsync<float?>("getElementWidth", SelectTriggerRef);
+      await InvokeAsync(StateHasChanged);
+    }
 
     if (_jsDropdownRender is not null)
     {
